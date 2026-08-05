@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { CartItems } from '@/components/blocks/cart-items';
 import { CartSummary } from '@/components/blocks/cart-summary';
 import { PageHeaderSkeleton } from '@/components/ui/skeletons';
@@ -17,9 +15,7 @@ export const metadata: Metadata = {
 
 export default function CartPage() {
   return (
-    <>
-      <Header />
-      <main className="flex-1">
+    <main className="flex-1">
         <div className="container py-6">
           <Suspense fallback={<PageHeaderSkeleton />}>
             <div className="mb-8">
@@ -143,8 +139,6 @@ export default function CartPage() {
             </Button>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+    </main>
   );
 }

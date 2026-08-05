@@ -4,6 +4,8 @@ import { ApolloWrapper } from '@/components/providers/apollo-wrapper';
 import { ReactQueryProvider } from '@/components/providers/react-query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
 import { SEO } from '@/lib/constants';
 import '@/styles/globals.css';
@@ -103,7 +105,9 @@ export default function RootLayout({
             <ReactQueryProvider>
               <ApolloWrapper>
                 <div className="relative flex min-h-screen flex-col">
+                  <Header />
                   {children}
+                  <Footer />
                 </div>
               </ApolloWrapper>
             </ReactQueryProvider>

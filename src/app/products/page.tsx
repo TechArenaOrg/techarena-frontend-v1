@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { ProductCard } from '@/components/blocks/product-card';
 import { ProductCardSkeleton, PageHeaderSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
@@ -136,9 +134,7 @@ function ProductFilters() {
 
 export default function ProductsPage({ searchParams }: { searchParams: any }) {
   return (
-    <>
-      <Header />
-      <main className="flex-1">
+    <main className="flex-1">
         <div className="container py-6">
           <Suspense fallback={<PageHeaderSkeleton />}>
             <div className="flex items-center justify-between mb-6">
@@ -217,8 +213,6 @@ export default function ProductsPage({ searchParams }: { searchParams: any }) {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+    </main>
   );
 }

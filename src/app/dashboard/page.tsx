@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { DashboardStatsSkeleton, PageHeaderSkeleton } from '@/components/ui/skeletons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -124,9 +122,7 @@ async function RecentOrders() {
 
 export default function DashboardPage() {
   return (
-    <>
-      <Header />
-      <main className="flex-1 space-y-6 p-6">
+    <main className="flex-1 space-y-6 p-6">
         <div className="container">
           <Suspense fallback={<PageHeaderSkeleton />}>
             <div className="space-y-2">
@@ -205,8 +201,6 @@ export default function DashboardPage() {
             </Card>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+    </main>
   );
 }

@@ -22,7 +22,10 @@ const registerSchema = z.object({
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
   phone: z.string().min(10, 'Please enter a valid phone number'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain an uppercase letter, a lowercase letter, and a number'),
   confirmPassword: z.string(),
   acceptTerms: z.boolean().refine(val => val === true, {
     message: 'You must accept the terms and conditions',
@@ -66,6 +69,7 @@ export function RegisterForm() {
           email: data.email,
           phone: data.phone,
           password: data.password,
+          confirmPassword: data.confirmPassword,
         }),
       });
 

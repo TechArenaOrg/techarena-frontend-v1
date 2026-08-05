@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { JWT } from 'next-auth/jwt';
 import { Session } from 'next-auth';
 import { z } from 'zod';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { authAPI } from '@/services/api/auth-api';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -22,15 +22,16 @@ export const config: NextAuthConfig = {
         try {
           const { email, password } = loginSchema.parse(credentials);
 
-          // Use mock API for authentication
-          const result = await mockAPI.auth.login(email, password);
-          
+          const { user, accessToken, refreshToken } = await authAPI.login(email, password);
+
           return {
-            id: result.user.id,
-            email: result.user.email,
-            name: `${result.user.profile?.firstName || ''} ${result.user.profile?.lastName || ''}`.trim() || result.user.email,
-            role: result.user.role,
-            image: result.user.profile?.avatarUrl,
+            id: user.id,
+            email: user.email,
+            name: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''}`.trim() || user.email,
+            role: user.role,
+            image: user.profile?.avatarUrl,
+            accessToken,
+            refreshToken,
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -48,6 +49,8 @@ export const config: NextAuthConfig = {
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
       }
       return token;
     },
@@ -56,7 +59,20 @@ export const config: NextAuthConfig = {
         (session.user as any).role = token.role as string;
         session.user.id = token.id as string;
       }
+      (session as any).accessToken = token.accessToken;
       return session;
+    },
+  },
+  events: {
+    async signOut(message) {
+      const token = 'token' in message ? (message.token as JWT | null) : null;
+      if (token?.accessToken) {
+        try {
+          await authAPI.logout(token.accessToken as string);
+        } catch (error) {
+          console.error('Backend logout failed:', error);
+        }
+      }
     },
   },
   session: {
