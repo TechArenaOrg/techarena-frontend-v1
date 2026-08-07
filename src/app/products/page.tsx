@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { ProductCard } from '@/components/blocks/product-card';
-import { ProductCardSkeleton, PageHeaderSkeleton } from '@/components/ui/skeletons';
+import { productsAPI } from '@/services/api/products-api';
+import { ProductCard } from '@/components/product/ProductCard';
+import { PageHeaderSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,34 +18,32 @@ export const metadata: Metadata = {
   description: 'Browse our wide selection of technology products in Uganda.',
 };
 
-async function ProductGrid({ searchParams }: { searchParams: any }) {
-  // Mock data - replace with actual API calls based on searchParams
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  const products = Array.from({ length: 12 }, (_, i) => ({
-    id: `product-${i + 1}`,
-    name: `Product ${i + 1}`,
-    slug: `product-${i + 1}`,
-    price: Math.floor(Math.random() * 1000000) + 100000,
-    comparePrice: Math.floor(Math.random() * 1200000) + 200000,
-    image: `/api/placeholder/300/300?text=Product${i + 1}`,
-    vendor: {
-      name: `Vendor ${Math.floor(Math.random() * 5) + 1}`,
-      slug: `vendor-${Math.floor(Math.random() * 5) + 1}`,
-    },
-    rating: Math.random() * 2 + 3,
-    reviewCount: Math.floor(Math.random() * 100) + 10,
-    category: {
-      name: ['Laptops', 'Phones', 'Accessories', 'Gaming'][Math.floor(Math.random() * 4)],
-    },
-    inStock: Math.random() > 0.2,
-    isOnSale: Math.random() > 0.7,
-  }));
+interface ProductsSearchParams {
+  search?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sortBy?: string;
+  page?: string;
+}
+
+function ProductGrid({ products }: { products: Awaited<ReturnType<typeof productsAPI.getProducts>>['products'] }) {
+  if (products.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          No products found
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Try adjusting your search or filters.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product as any} />
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
@@ -132,7 +131,21 @@ function ProductFilters() {
   );
 }
 
-export default function ProductsPage({ searchParams }: { searchParams: any }) {
+interface ProductsPageProps {
+  searchParams: Promise<ProductsSearchParams>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const { products, totalCount } = await productsAPI.getProducts({
+    search: resolvedSearchParams.search,
+    minPrice: resolvedSearchParams.minPrice ? Number(resolvedSearchParams.minPrice) : undefined,
+    maxPrice: resolvedSearchParams.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined,
+    sortBy: resolvedSearchParams.sortBy,
+    page: resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1,
+    limit: 12,
+  });
+
   return (
     <main className="flex-1">
         <div className="container py-6">
@@ -170,7 +183,7 @@ export default function ProductsPage({ searchParams }: { searchParams: any }) {
             <div className="lg:col-span-3">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">24 Products</Badge>
+                  <Badge variant="secondary">{totalCount} Products</Badge>
                   <span className="text-sm text-muted-foreground">showing results for all products</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -183,17 +196,7 @@ export default function ProductsPage({ searchParams }: { searchParams: any }) {
                 </div>
               </div>
 
-              <Suspense 
-                fallback={
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <ProductCardSkeleton key={i} />
-                    ))}
-                  </div>
-                }
-              >
-                <ProductGrid searchParams={searchParams} />
-              </Suspense>
+              <ProductGrid products={products} />
 
               <div className="mt-8 flex justify-center">
                 <div className="flex items-center space-x-2">

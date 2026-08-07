@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Star, Heart, ShoppingCart, Eye, Zap } from 'lucide-react';
 import { Product } from '@/types';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { productsAPI } from '@/services/api/products-api';
 import { ProductCardSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ export function FeaturedProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await mockAPI.products.getFeaturedProducts();
+        const data = await productsAPI.getFeaturedProducts();
         setProducts(data);
       } catch (error) {
         console.error('Error fetching featured products:', error);

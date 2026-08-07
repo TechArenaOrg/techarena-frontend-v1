@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { categoriesAPI } from '@/services/api/categories-api';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { ProductSort } from '@/components/product/ProductSort';
@@ -25,8 +25,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const resolvedParams = await params;
-    const category = await mockAPI.categories.getCategory(resolvedParams.slug);
-    
+    const category = await categoriesAPI.getCategory(resolvedParams.slug);
+
     return {
       title: `${category.name} - TechArena Uganda`,
       description: `Shop ${category.name.toLowerCase()} at TechArena. ${category.description}`,
@@ -44,7 +44,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   try {
     const resolvedParams = await params;
     const resolvedSearchParams = await searchParams;
-    const category = await mockAPI.categories.getCategory(resolvedParams.slug);
+    const category = await categoriesAPI.getCategory(resolvedParams.slug);
     
     const breadcrumbItems = [
       { label: 'Home', href: '/' },
@@ -118,11 +118,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   ))}
                 </div>
               }>
-                <ProductGrid 
+                <ProductGrid
                   searchParams={{
-                    ...searchParams,
+                    ...resolvedSearchParams,
                     categoryId: category.id
-                  }} 
+                  }}
                 />
               </Suspense>
               

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Product } from '@/types';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { productsAPI } from '@/services/api/products-api';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Pagination } from '@/components/ui/pagination';
 import { ProductCardSkeleton } from '@/components/ui/skeletons';
@@ -44,7 +44,7 @@ export function ProductGrid({ searchParams }: ProductGridProps) {
           limit: 12,
         };
 
-        const result = await mockAPI.products.getProducts(params);
+        const result = await productsAPI.getProducts(params);
         
         setProducts(result.products);
         setPagination({

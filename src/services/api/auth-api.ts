@@ -37,8 +37,7 @@ interface AuthResult {
 }
 
 interface ProfileResponse {
-  status: string;
-  data: { user: BackendUser };
+  user: BackendUser;
 }
 
 function normalizeUser(user: BackendUser): User {
@@ -95,7 +94,7 @@ export const authAPI = {
 
   async getCurrentUser(token?: string) {
     const result = await apiClient.get<ProfileResponse>('/auth/profile', token ? { token } : undefined);
-    return normalizeUser(result.data.user);
+    return normalizeUser(result.user);
   },
 };
 

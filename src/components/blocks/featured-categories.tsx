@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Category } from '@/types';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { categoriesAPI } from '@/services/api/categories-api';
 import { CategoryCardSkeleton } from '@/components/ui/skeletons';
 
 export function FeaturedCategories() {
@@ -15,7 +15,7 @@ export function FeaturedCategories() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await mockAPI.categories.getFeaturedCategories();
+        const data = await categoriesAPI.getFeaturedCategories();
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);

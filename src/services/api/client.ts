@@ -15,22 +15,21 @@ interface ApiEnvelope<T> {
   message?: string;
   requestId?: string;
   timestamp?: string;
-  // NestJS validation failures skip the {success,data} envelope entirely and
-  // return {statusCode, message, errors} instead - see ApiError below.
-  errors?: ValidationIssue[];
+  // Present on validation failures: {success:false, message:"Validation failed", details:[...]}
+  details?: ValidationIssue[];
 }
 
 export class ApiError extends Error {
   status: number;
   requestId?: string;
-  errors?: ValidationIssue[];
+  details?: ValidationIssue[];
 
-  constructor(message: string, status: number, requestId?: string, errors?: ValidationIssue[]) {
+  constructor(message: string, status: number, requestId?: string, details?: ValidationIssue[]) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.requestId = requestId;
-    this.errors = errors;
+    this.details = details;
   }
 }
 
@@ -98,9 +97,10 @@ async function request<T>(
   const response = await fetchWithColdStartRetry(buildUrl(path, options.params), {
     method,
     headers,
-    // The backend also sets an httpOnly `jwt` cookie on login; sending credentials
-    // lets that cookie work as a fallback auth path alongside the bearer token.
-    credentials: 'include',
+    // Not 'include': the backend's CORS config returns Access-Control-Allow-Origin: *,
+    // which browsers refuse to pair with credentialed requests - sending cookies here
+    // would break every client-side (browser) fetch with a CORS error. We don't rely on
+    // the httpOnly cookie anyway; auth uses the bearer token above.
     body: body !== undefined ? JSON.stringify(body) : undefined,
     signal: options.signal,
   });
@@ -109,10 +109,10 @@ async function request<T>(
   const json: ApiEnvelope<T> | undefined = text ? JSON.parse(text) : undefined;
 
   if (!response.ok) {
-    const message = json?.errors?.length
-      ? json.errors.map((e) => e.message).join(' ')
+    const message = json?.details?.length
+      ? json.details.map((e) => e.message).join(' ')
       : json?.message || response.statusText || 'Request failed';
-    throw new ApiError(message, response.status, json?.requestId, json?.errors);
+    throw new ApiError(message, response.status, json?.requestId, json?.details);
   }
   if (!json) {
     return undefined as T;

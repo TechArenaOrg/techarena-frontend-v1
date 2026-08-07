@@ -111,7 +111,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         {(session.user as any)?.role === 'admin' && (
           <DropdownMenuItem asChild>
-            <Link href="/admin" className="cursor-pointer">
+            <Link href="/admin/dashboard" className="cursor-pointer">
               <Icons.settings className="mr-2 h-4 w-4" />
               Admin Panel
             </Link>
@@ -119,7 +119,7 @@ export function UserMenu() {
         )}
         {((session.user as any)?.role === 'vendor' || (session.user as any)?.role === 'admin') && (
           <DropdownMenuItem asChild>
-            <Link href="/vendor" className="cursor-pointer">
+            <Link href="/vendor/dashboard" className="cursor-pointer">
               <Icons.store className="mr-2 h-4 w-4" />
               Vendor Dashboard
             </Link>

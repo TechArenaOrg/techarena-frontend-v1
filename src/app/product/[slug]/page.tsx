@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { mockAPI } from '@/services/api/mock-endpoints';
+import { productsAPI } from '@/services/api/products-api';
 import { ProductDetail } from '@/components/product/ProductDetail';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { ProductReviews } from '@/components/product/ProductReviews';
@@ -17,8 +17,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const resolvedParams = await params;
-    const product = await mockAPI.products.getProduct(resolvedParams.slug);
-    
+    const product = await productsAPI.getProduct(resolvedParams.slug);
+
     return {
       title: `${product.name} - TechArena Uganda`,
       description: product.description,
@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductPage({ params }: PageProps) {
   try {
     const resolvedParams = await params;
-    const product = await mockAPI.products.getProduct(resolvedParams.slug);
-    
+    const product = await productsAPI.getProduct(resolvedParams.slug);
+
     const breadcrumbItems = [
       { label: 'Home', href: '/' },
       { label: 'Products', href: '/products' },

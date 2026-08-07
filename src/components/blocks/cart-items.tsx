@@ -22,7 +22,7 @@ export function CartItems() {
     
     setIsUpdating(itemId);
     try {
-      updateItem(itemId, newQuantity);
+      await updateItem(itemId, newQuantity);
       toast({
         title: 'Cart updated',
         description: 'Item quantity has been updated.',
@@ -123,7 +123,7 @@ export function CartItems() {
 
               <div className="flex-1 min-w-0">
                 <Link 
-                  href={`/products/${item.product.slug}`}
+                  href={`/product/${item.product.slug}`}
                   className="text-sm font-medium hover:text-primary line-clamp-2"
                 >
                   {item.product.name}
