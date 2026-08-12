@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Icons } from '@/components/ui/icons';
 import { useToast } from '@/hooks/use-toast';
 import { productsAPI, ProductInput } from '@/services/api/products-api';
@@ -26,9 +27,10 @@ interface FormImage {
 interface ProductFormProps {
   categories: Category[];
   product?: Product;
+  returnPath?: string;
 }
 
-export function ProductForm({ categories, product }: ProductFormProps) {
+export function ProductForm({ categories, product, returnPath = '/vendor/products' }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isEditing = !!product;
@@ -47,6 +49,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
     product ? String(product.lowStockThreshold) : '5'
   );
   const [status, setStatus] = useState<ProductStatus>(product?.status ?? 'draft');
+  const [isFeatured, setIsFeatured] = useState(product?.isFeatured ?? false);
   const [images, setImages] = useState<FormImage[]>(
     (product?.images ?? []).map((img) => ({ url: img.url, altText: img.altText, isPrimary: img.isPrimary }))
   );
@@ -121,6 +124,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       stockQuantity: parseInt(stockQuantity, 10),
       lowStockThreshold: lowStockThreshold ? parseInt(lowStockThreshold, 10) : undefined,
       status,
+      isFeatured,
       images: images.map((img, index) => ({ ...img, sortOrder: index })),
     };
 
@@ -133,7 +137,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
         await productsAPI.createProduct(input);
         toast({ title: 'Product created' });
       }
-      router.push('/vendor/products');
+      router.push(returnPath);
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -148,6 +152,11 @@ export function ProductForm({ categories, product }: ProductFormProps) {
         <CardTitle>{isEditing ? 'Edit Product' : 'Add Product'}</CardTitle>
       </CardHeader>
       <CardContent>
+        {product?.vendor && (
+          <p className="text-sm text-muted-foreground mb-4">
+            Sold by <span className="font-medium text-foreground">{product.vendor.businessName}</span>
+          </p>
+        )}
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -356,19 +365,33 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as ProductStatus)} disabled={isSubmitting}>
-              <SelectTrigger id="status" className="w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="out_of_stock">Out of Stock</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as ProductStatus)} disabled={isSubmitting}>
+                <SelectTrigger id="status" className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-2 pt-6">
+              <Checkbox
+                id="isFeatured"
+                checked={isFeatured}
+                onCheckedChange={(checked) => setIsFeatured(checked === true)}
+                disabled={isSubmitting}
+              />
+              <Label htmlFor="isFeatured" className="cursor-pointer">
+                Featured (shown on the homepage)
+              </Label>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -378,7 +401,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push('/vendor/products')}
+              onClick={() => router.push(returnPath)}
               disabled={isSubmitting}
             >
               Cancel

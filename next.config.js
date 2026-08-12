@@ -12,6 +12,7 @@ const nextConfig = {
       'images.unsplash.com',
       'res.cloudinary.com',
       'cdn.techarenaug.com',
+      'd3ajshsni9x0hl.cloudfront.net',
       'localhost',
     ],
     formats: ['image/avif', 'image/webp'],

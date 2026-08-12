@@ -54,6 +54,7 @@ export interface ProductInput {
   lowStockThreshold?: number;
   status?: 'draft' | 'active' | 'inactive' | 'out_of_stock';
   images?: { url: string; altText?: string; isPrimary: boolean; sortOrder: number }[];
+  isFeatured?: boolean;
 }
 
 export const productsAPI = {
