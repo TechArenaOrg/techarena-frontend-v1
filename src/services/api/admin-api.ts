@@ -32,7 +32,7 @@ export const adminAPI = {
   },
 
   async getSalesReport(
-    params: { period: 'day' | 'week' | 'month' | 'year'; date?: string },
+    params: { period: 'day' | 'week' | 'month' | 'year'; date?: string; breakdown?: 'day' },
     token?: string
   ) {
     return apiClient.get<{
@@ -54,6 +54,7 @@ export const adminAPI = {
         cost: number;
         commissionAmount: number;
         profit: number;
+        dailySales?: { date: string; unitsSold: number; revenue: number }[];
       }[];
     }>('/analytics/admin/sales-report', { params, token });
   },

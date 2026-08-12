@@ -26,7 +26,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
   const period = (resolvedSearchParams.period as Period) || 'month';
   const date = resolvedSearchParams.date;
 
-  const report = await adminAPI.getSalesReport({ period, date }, token);
+  const report = await adminAPI.getSalesReport({ period, date, breakdown: 'day' }, token);
 
   const stats = [
     { title: 'Total Orders', value: String(report.totalOrders), icon: Icons.shoppingCart },
@@ -90,6 +90,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     <tr className="border-b text-left text-muted-foreground">
                       <th className="px-6 py-3 font-medium">Product</th>
                       <th className="px-6 py-3 font-medium">Vendor</th>
+                      <th className="px-6 py-3 font-medium">Sold On</th>
                       <th className="px-6 py-3 font-medium text-right">Units</th>
                       <th className="px-6 py-3 font-medium text-right">Revenue</th>
                       <th className="px-6 py-3 font-medium text-right">Commission</th>
@@ -101,6 +102,20 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       <tr key={product.productId}>
                         <td className="px-6 py-3">{product.productName}</td>
                         <td className="px-6 py-3 text-muted-foreground">{product.vendorName}</td>
+                        <td className="px-6 py-3 text-muted-foreground">
+                          {product.dailySales && product.dailySales.length > 0 ? (
+                            <div className="flex flex-col gap-0.5">
+                              {product.dailySales.map((day) => (
+                                <span key={day.date} className="text-xs whitespace-nowrap">
+                                  {new Date(day.date).toLocaleDateString()} · {day.unitsSold} unit
+                                  {day.unitsSold !== 1 ? 's' : ''}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
                         <td className="px-6 py-3 text-right">{product.unitsSold}</td>
                         <td className="px-6 py-3 text-right">{formatCurrency(product.revenue)}</td>
                         <td className="px-6 py-3 text-right">{formatCurrency(product.commissionAmount)}</td>
