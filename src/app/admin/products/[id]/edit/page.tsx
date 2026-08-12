@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { productsAPI } from '@/services/api/products-api';
 import { categoriesAPI } from '@/services/api/categories-api';
@@ -16,15 +16,6 @@ interface PageProps {
 
 export default async function AdminEditProductPage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'admin' && role !== 'super_admin') {
-    redirect(role === 'vendor' ? '/vendor/dashboard' : '/dashboard');
-  }
-
   const { id } = await params;
   const token = (session as any).accessToken;
 

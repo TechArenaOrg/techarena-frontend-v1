@@ -1,7 +1,12 @@
 // Real vendor dashboard data via the backend's GET /dashboard/vendor aggregate
 // (vendor profile + analytics + recent orders + products + low-stock + pending reviews).
 import { apiClient } from './client';
-import { normalizeProduct } from './normalize';
+import { normalizeProduct, normalizeVendor } from './normalize';
+
+interface RawPage<T> {
+  items: T[];
+  pagination: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean };
+}
 
 function toNumber(value: unknown): number {
   const n = typeof value === 'string' ? parseFloat(value) : (value as number);
@@ -39,6 +44,13 @@ export const vendorAPI = {
       lowStockProducts: (raw.lowStockProducts || []).map(normalizeProduct),
       pendingReviews: raw.pendingReviews || [],
     };
+  },
+
+  // Admin-only use case: picking which vendor a newly-created product belongs to
+  // (admins aren't vendors themselves, so the backend can't infer this for them).
+  async getVendors(token?: string) {
+    const raw = await apiClient.get<RawPage<any>>('/vendors', { params: { limit: 100 }, token });
+    return raw.items.map(normalizeVendor);
   },
 };
 

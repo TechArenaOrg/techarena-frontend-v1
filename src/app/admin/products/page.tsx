@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { productsAPI } from '@/services/api/products-api';
@@ -17,26 +16,25 @@ export const metadata: Metadata = {
 
 export default async function AdminProductsPage() {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'admin' && role !== 'super_admin') {
-    redirect(role === 'vendor' ? '/vendor/dashboard' : '/dashboard');
-  }
-
   const token = (session as any).accessToken;
   const { products, totalCount } = await productsAPI.getProducts({ limit: 100 }, token);
 
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">All Products</h1>
-          <p className="text-muted-foreground">
-            {totalCount} product{totalCount !== 1 ? 's' : ''} across the platform
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">All Products</h1>
+            <p className="text-muted-foreground">
+              {totalCount} product{totalCount !== 1 ? 's' : ''} across the platform
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Icons.plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Link>
+          </Button>
         </div>
 
         <Card className="mt-6">

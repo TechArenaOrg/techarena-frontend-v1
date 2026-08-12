@@ -16,7 +16,7 @@ import { productsAPI, ProductInput } from '@/services/api/products-api';
 import { uploadAPI } from '@/services/api/upload-api';
 import { ApiError } from '@/services/api/client';
 import { generateSlug } from '@/lib/utils';
-import type { Category, Product, ProductStatus } from '@/types';
+import type { Category, Product, ProductStatus, Vendor } from '@/types';
 
 interface FormImage {
   url: string;
@@ -28,13 +28,17 @@ interface ProductFormProps {
   categories: Category[];
   product?: Product;
   returnPath?: string;
+  // Only passed by the admin create flow - admins aren't vendors themselves, so unlike
+  // a vendor creating their own product, the backend needs an explicit vendorId from them.
+  vendors?: Vendor[];
 }
 
-export function ProductForm({ categories, product, returnPath = '/vendor/products' }: ProductFormProps) {
+export function ProductForm({ categories, product, returnPath = '/vendor/products', vendors }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isEditing = !!product;
 
+  const [vendorId, setVendorId] = useState('');
   const [name, setName] = useState(product?.name ?? '');
   const [slug, setSlug] = useState(product?.slug ?? '');
   const [slugTouched, setSlugTouched] = useState(false);
@@ -111,6 +115,10 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
       setError('Please select a category.');
       return;
     }
+    if (vendors && !isEditing && !vendorId) {
+      setError('Please select which vendor this product belongs to.');
+      return;
+    }
 
     const input: ProductInput = {
       name,
@@ -126,6 +134,7 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
       status,
       isFeatured,
       images: images.map((img, index) => ({ ...img, sortOrder: index })),
+      vendorId: vendors && !isEditing ? vendorId : undefined,
     };
 
     setIsSubmitting(true);
@@ -163,6 +172,24 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
           </Alert>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {vendors && !isEditing && (
+            <div className="space-y-2">
+              <Label htmlFor="vendor">Vendor</Label>
+              <Select value={vendorId} onValueChange={setVendorId} disabled={isSubmitting}>
+                <SelectTrigger id="vendor">
+                  <SelectValue placeholder="Select which vendor this product belongs to" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map((vendor) => (
+                    <SelectItem key={vendor.id} value={vendor.id}>
+                      {vendor.businessName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>

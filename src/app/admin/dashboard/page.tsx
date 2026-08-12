@@ -1,12 +1,10 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { adminAPI } from '@/services/api/admin-api';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 
 export const metadata: Metadata = {
@@ -175,32 +173,15 @@ function TopProductsCard({ topProducts }: { topProducts: AdminDashboard['topProd
 
 export default async function AdminDashboardPage() {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'admin' && role !== 'super_admin') {
-    redirect(role === 'vendor' ? '/vendor/dashboard' : '/dashboard');
-  }
-
   const { platformStats, recentOrders, pendingVendors, topProducts, systemHealth } =
     await adminAPI.getDashboard((session as any).accessToken);
 
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Platform-wide overview and moderation.</p>
-          </div>
-          <Button asChild>
-            <Link href="/admin/products">
-              <Icons.package className="mr-2 h-4 w-4" />
-              Manage Products
-            </Link>
-          </Button>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Platform-wide overview and moderation.</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3 mt-6">

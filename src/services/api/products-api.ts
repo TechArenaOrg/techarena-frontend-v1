@@ -55,6 +55,7 @@ export interface ProductInput {
   status?: 'draft' | 'active' | 'inactive' | 'out_of_stock';
   images?: { url: string; altText?: string; isPrimary: boolean; sortOrder: number }[];
   isFeatured?: boolean;
+  vendorId?: string;
 }
 
 export const productsAPI = {

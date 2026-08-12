@@ -30,6 +30,33 @@ export const adminAPI = {
       systemHealth: raw.systemHealth,
     };
   },
+
+  async getSalesReport(
+    params: { period: 'day' | 'week' | 'month' | 'year'; date?: string },
+    token?: string
+  ) {
+    return apiClient.get<{
+      period: string;
+      startDate: string;
+      endDate: string;
+      totalOrders: number;
+      totalUnitsSold: number;
+      totalRevenue: number;
+      totalCost: number;
+      totalCommission: number;
+      totalProfit: number;
+      products: {
+        productId: string;
+        productName: string;
+        vendorName: string;
+        unitsSold: number;
+        revenue: number;
+        cost: number;
+        commissionAmount: number;
+        profit: number;
+      }[];
+    }>('/analytics/admin/sales-report', { params, token });
+  },
 };
 
 export default adminAPI;
