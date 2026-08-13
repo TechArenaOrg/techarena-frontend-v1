@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
+import { Pagination } from '@/components/ui/pagination';
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -137,12 +138,13 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = await searchParams;
-  const { products, totalCount } = await productsAPI.getProducts({
+  const currentPage = resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1;
+  const { products, totalCount, totalPages, hasNextPage, hasPreviousPage } = await productsAPI.getProducts({
     search: resolvedSearchParams.search,
     minPrice: resolvedSearchParams.minPrice ? Number(resolvedSearchParams.minPrice) : undefined,
     maxPrice: resolvedSearchParams.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined,
     sortBy: resolvedSearchParams.sortBy,
-    page: resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1,
+    page: currentPage,
     limit: 12,
   });
 
@@ -199,19 +201,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <ProductGrid products={products} />
 
               <div className="mt-8 flex justify-center">
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" disabled>
-                    <Icons.chevronLeft className="h-4 w-4 mr-1" />
-                    Previous
-                  </Button>
-                  <Button variant="outline">1</Button>
-                  <Button variant="outline">2</Button>
-                  <Button variant="outline">3</Button>
-                  <Button variant="outline">
-                    Next
-                    <Icons.chevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  hasNextPage={hasNextPage}
+                  hasPreviousPage={hasPreviousPage}
+                />
               </div>
             </div>
           </div>

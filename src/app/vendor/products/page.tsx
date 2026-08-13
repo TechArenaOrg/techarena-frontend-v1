@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
+import { Pagination } from '@/components/ui/pagination';
 import { DeleteProductButton } from '@/components/vendor/DeleteProductButton';
 
 export const metadata: Metadata = {
@@ -16,7 +17,11 @@ export const metadata: Metadata = {
   description: 'Manage your product listings.',
 };
 
-export default async function VendorProductsPage() {
+interface PageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function VendorProductsPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user) {
     redirect('/auth/login');
@@ -27,9 +32,15 @@ export default async function VendorProductsPage() {
     redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
   }
 
+  const { page: pageParam } = await searchParams;
+  const currentPage = pageParam ? Number(pageParam) : 1;
+
   const token = (session as any).accessToken;
   const { vendor } = await vendorAPI.getMyDashboard(token);
-  const { products, totalCount } = await productsAPI.getProducts({ vendorId: vendor.id, limit: 100 }, token);
+  const { products, totalCount, totalPages, hasNextPage, hasPreviousPage } = await productsAPI.getProducts(
+    { vendorId: vendor.id, page: currentPage, limit: 20 },
+    token
+  );
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -83,6 +94,17 @@ export default async function VendorProductsPage() {
             )}
           </CardContent>
         </Card>
+
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hasNextPage={hasNextPage}
+              hasPreviousPage={hasPreviousPage}
+            />
+          </div>
+        )}
       </div>
     </main>
   );
