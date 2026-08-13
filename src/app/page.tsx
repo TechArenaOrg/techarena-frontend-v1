@@ -13,7 +13,15 @@ export const metadata: Metadata = {
   keywords: 'technology, electronics, laptops, smartphones, Uganda, online shopping, computers, TechArena',
 };
 
-export default function HomePage() {
+interface HomePageProps {
+  searchParams: Promise<{ productsPage?: string; categoriesPage?: string }>;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = await searchParams;
+  const productsPage = resolvedSearchParams.productsPage ? Number(resolvedSearchParams.productsPage) : 1;
+  const categoriesPage = resolvedSearchParams.categoriesPage ? Number(resolvedSearchParams.categoriesPage) : 1;
+
   return (
     <>
       <main className="flex-1">
@@ -33,7 +41,7 @@ export default function HomePage() {
             </div>
             
             <Suspense fallback={<CategoriesSkeleton />}>
-              <FeaturedCategories />
+              <FeaturedCategories page={categoriesPage} />
             </Suspense>
           </div>
         </section>
@@ -51,7 +59,7 @@ export default function HomePage() {
             </div>
             
             <Suspense fallback={<ProductGridSkeleton />}>
-              <FeaturedProducts />
+              <FeaturedProducts page={productsPage} />
             </Suspense>
           </div>
         </section>

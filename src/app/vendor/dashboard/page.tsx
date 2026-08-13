@@ -3,11 +3,13 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
+import { productsAPI } from '@/services/api/products-api';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
+import { Pagination } from '@/components/ui/pagination';
 
 export const metadata: Metadata = {
   title: 'Vendor Dashboard',
@@ -83,7 +85,19 @@ function RecentOrdersCard({ orders }: { orders: VendorDashboard['recentOrders'] 
   );
 }
 
-function LowStockCard({ products }: { products: VendorDashboard['lowStockProducts'] }) {
+function LowStockCard({
+  products,
+  currentPage,
+  totalPages,
+  hasNextPage,
+  hasPreviousPage,
+}: {
+  products: Awaited<ReturnType<typeof productsAPI.getProducts>>['products'];
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -94,19 +108,32 @@ function LowStockCard({ products }: { products: VendorDashboard['lowStockProduct
         {products.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nothing low on stock right now.</p>
         ) : (
-          <div className="space-y-4">
-            {products.map((product) => (
-              <div key={product.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
-                <div>
-                  <Link href={`/vendor/products/${product.id}/edit`} className="text-sm font-medium hover:text-primary">
-                    {product.name}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
+          <>
+            <div className="space-y-4">
+              {products.map((product) => (
+                <div key={product.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
+                  <div>
+                    <Link href={`/vendor/products/${product.id}/edit`} className="text-sm font-medium hover:text-primary">
+                      {product.name}
+                    </Link>
+                    <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
+                  </div>
+                  <Badge variant="destructive">{product.stockQuantity} left</Badge>
                 </div>
-                <Badge variant="destructive">{product.stockQuantity} left</Badge>
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  hasNextPage={hasNextPage}
+                  hasPreviousPage={hasPreviousPage}
+                  paramName="lowStockPage"
+                />
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
@@ -140,7 +167,11 @@ function TopProductsCard({ topProducts }: { topProducts: VendorDashboard['analyt
   );
 }
 
-export default async function VendorDashboardPage() {
+interface PageProps {
+  searchParams: Promise<{ lowStockPage?: string }>;
+}
+
+export default async function VendorDashboardPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user) {
     redirect('/auth/login');
@@ -151,8 +182,14 @@ export default async function VendorDashboardPage() {
     redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
   }
 
-  const { vendor, analytics, recentOrders, lowStockProducts } = await vendorAPI.getMyDashboard(
-    (session as any).accessToken
+  const token = (session as any).accessToken;
+  const { lowStockPage } = await searchParams;
+  const currentLowStockPage = lowStockPage ? Number(lowStockPage) : 1;
+
+  const { vendor, analytics, recentOrders } = await vendorAPI.getMyDashboard(token);
+  const lowStock = await productsAPI.getProducts(
+    { vendorId: vendor.id, lowStock: true, page: currentLowStockPage, limit: 5 },
+    token
   );
 
   return (
@@ -182,7 +219,13 @@ export default async function VendorDashboardPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
           <RecentOrdersCard orders={recentOrders} />
-          <LowStockCard products={lowStockProducts} />
+          <LowStockCard
+            products={lowStock.products}
+            currentPage={lowStock.currentPage}
+            totalPages={lowStock.totalPages}
+            hasNextPage={lowStock.hasNextPage}
+            hasPreviousPage={lowStock.hasPreviousPage}
+          />
           <TopProductsCard topProducts={analytics.topProducts} />
         </div>
       </div>

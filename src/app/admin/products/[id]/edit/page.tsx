@@ -19,7 +19,7 @@ export default async function AdminEditProductPage({ params }: PageProps) {
   const { id } = await params;
   const token = (session as any).accessToken;
 
-  const [product, categories] = await Promise.all([
+  const [product, { categories }] = await Promise.all([
     productsAPI.getProductById(id, token).catch(() => null),
     categoriesAPI.getCategories(),
   ]);

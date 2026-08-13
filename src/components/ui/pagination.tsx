@@ -12,6 +12,9 @@ interface PaginationProps {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   className?: string;
+  // Lets two independent paginated sections coexist on one page (e.g. the homepage's
+  // featured products and featured categories) without both fighting over `?page=`.
+  paramName?: string;
 }
 
 export function Pagination({
@@ -20,13 +23,14 @@ export function Pagination({
   hasNextPage,
   hasPreviousPage,
   className,
+  paramName = 'page',
 }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const createPageURL = (page: number) => {
     const params = new URLSearchParams(searchParams);
-    params.set('page', page.toString());
+    params.set(paramName, page.toString());
     return `${pathname}?${params.toString()}`;
   };
 

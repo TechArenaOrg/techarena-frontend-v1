@@ -20,7 +20,7 @@ export default async function NewProductPage() {
     redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
   }
 
-  const categories = await categoriesAPI.getCategories();
+  const { categories } = await categoriesAPI.getCategories();
 
   return (
     <main className="flex-1 space-y-6 p-6">

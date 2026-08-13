@@ -13,7 +13,7 @@ export default async function AdminNewProductPage() {
   const session = await auth();
   const token = (session as any).accessToken;
 
-  const [categories, vendors] = await Promise.all([
+  const [{ categories }, vendors] = await Promise.all([
     categoriesAPI.getCategories(),
     vendorAPI.getVendors(token),
   ]);

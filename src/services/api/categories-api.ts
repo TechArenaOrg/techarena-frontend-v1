@@ -9,15 +9,27 @@ interface RawPage<T> {
 }
 
 export const categoriesAPI = {
-  async getCategories() {
+  async getCategories(params?: { isFeatured?: boolean; page?: number; limit?: number }) {
+    const page = params?.page || 1;
+    const limit = params?.limit || 100;
+
     const [raw, { products: allProducts }] = await Promise.all([
-      apiClient.get<RawPage<any>>('/categories', { params: { page: 1, limit: 100 } }),
+      apiClient.get<RawPage<any>>('/categories', { params: { page, limit, isFeatured: params?.isFeatured } }),
       productsAPI.getProducts({ limit: 100 }),
     ]);
-    return raw.items.map(normalizeCategory).map((category) => ({
+    const categories = raw.items.map(normalizeCategory).map((category) => ({
       ...category,
       products: allProducts.filter((p) => p.categoryId === category.id),
     }));
+
+    return {
+      categories,
+      totalCount: raw.pagination.total,
+      currentPage: raw.pagination.page,
+      totalPages: raw.pagination.totalPages,
+      hasNextPage: raw.pagination.hasNextPage,
+      hasPreviousPage: raw.pagination.hasPrevPage,
+    };
   },
 
   async getCategory(slug: string) {

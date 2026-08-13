@@ -29,7 +29,7 @@ export default async function EditProductPage({ params }: PageProps) {
   const { id } = await params;
   const token = (session as any).accessToken;
 
-  const [{ vendor }, product, categories] = await Promise.all([
+  const [{ vendor }, product, { categories }] = await Promise.all([
     vendorAPI.getMyDashboard(token),
     productsAPI.getProductById(id, token).catch(() => null),
     categoriesAPI.getCategories(),

@@ -64,6 +64,8 @@ export const productsAPI = {
       categoryId?: string;
       vendorId?: string;
       search?: string;
+      isFeatured?: boolean;
+      lowStock?: boolean;
       minPrice?: number;
       maxPrice?: number;
       sortBy?: string;
@@ -76,7 +78,15 @@ export const productsAPI = {
     const limit = params?.limit || 12;
 
     const raw = await apiClient.get<RawPage<any>>('/products', {
-      params: { page, limit, categoryId: params?.categoryId, vendorId: params?.vendorId, search: params?.search },
+      params: {
+        page,
+        limit,
+        categoryId: params?.categoryId,
+        vendorId: params?.vendorId,
+        search: params?.search,
+        isFeatured: params?.isFeatured,
+        lowStock: params?.lowStock,
+      },
       token,
     });
 

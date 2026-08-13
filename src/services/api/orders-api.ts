@@ -1,8 +1,12 @@
 // Real order calls for the logged-in customer's own order history, via GET /orders
-// (auto-scoped to the current user for the customer role). Note: /orders returns the
-// old flat {orders, total, page, limit, totalPages} shape, not the unified
-// {items, pagination} shape used by /products, /categories, /vendors - adapted here.
+// (auto-scoped to the current user for the customer role). Uses the same unified
+// {items, pagination} shape as /products, /categories, /vendors.
 import { apiClient } from './client';
+
+interface RawPage<T> {
+  items: T[];
+  pagination: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean };
+}
 
 function toNumber(value: unknown): number {
   const n = typeof value === 'string' ? parseFloat(value) : (value as number);
@@ -39,16 +43,16 @@ function normalizeOrder(raw: any) {
 
 export const ordersAPI = {
   async getMyOrders(params: { status?: string; page?: number; limit?: number }, token?: string) {
-    const raw = await apiClient.get<any>('/orders', { params, token });
-    const orders = (raw.orders || []).map(normalizeOrder);
+    const raw = await apiClient.get<RawPage<any>>('/orders', { params, token });
+    const orders = raw.items.map(normalizeOrder);
 
     return {
       orders,
-      totalCount: raw.total,
-      currentPage: raw.page,
-      totalPages: raw.totalPages,
-      hasNextPage: raw.page < raw.totalPages,
-      hasPreviousPage: raw.page > 1,
+      totalCount: raw.pagination.total,
+      currentPage: raw.pagination.page,
+      totalPages: raw.pagination.totalPages,
+      hasNextPage: raw.pagination.hasNextPage,
+      hasPreviousPage: raw.pagination.hasPrevPage,
     };
   },
 };
