@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
+import { ordersAPI } from '@/services/api/orders-api';
 import { OrdersList } from '@/components/account/OrdersList';
 import { AccountSidebar } from '@/components/account/AccountSidebar';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -23,10 +23,16 @@ interface PageProps {
 export default async function OrdersPage({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const session = await auth();
-  
+
   if (!session?.user) {
     redirect('/auth/login');
   }
+
+  const currentPage = resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1;
+  const { orders, totalPages, hasNextPage, hasPreviousPage } = await ordersAPI.getMyOrders(
+    { status: resolvedSearchParams.status, page: currentPage, limit: 10 },
+    (session as any).accessToken
+  );
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -56,9 +62,13 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
           {/* Main Content */}
           <main className="lg:col-span-3">
-            <Suspense fallback={<div>Loading orders...</div>}>
-              <OrdersList searchParams={resolvedSearchParams} />
-            </Suspense>
+            <OrdersList
+              orders={orders}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hasNextPage={hasNextPage}
+              hasPreviousPage={hasPreviousPage}
+            />
           </main>
         </div>
       </div>
