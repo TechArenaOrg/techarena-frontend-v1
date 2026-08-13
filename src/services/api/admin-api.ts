@@ -32,10 +32,16 @@ export const adminAPI = {
   },
 
   async getSalesReport(
-    params: { period: 'day' | 'week' | 'month' | 'year'; date?: string; breakdown?: 'day' },
+    params: {
+      period: 'day' | 'week' | 'month' | 'year';
+      date?: string;
+      breakdown?: 'day';
+      page?: number;
+      limit?: number;
+    },
     token?: string
   ) {
-    return apiClient.get<{
+    const raw = await apiClient.get<{
       period: string;
       startDate: string;
       endDate: string;
@@ -46,17 +52,33 @@ export const adminAPI = {
       totalCommission: number;
       totalProfit: number;
       products: {
-        productId: string;
-        productName: string;
-        vendorName: string;
-        unitsSold: number;
-        revenue: number;
-        cost: number;
-        commissionAmount: number;
-        profit: number;
-        dailySales?: { date: string; unitsSold: number; revenue: number }[];
-      }[];
+        items: {
+          productId: string;
+          productName: string;
+          vendorName: string;
+          unitsSold: number;
+          revenue: number;
+          cost: number;
+          commissionAmount: number;
+          profit: number;
+          dailySales?: { date: string; unitsSold: number; revenue: number }[];
+        }[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+          hasNextPage: boolean;
+          hasPrevPage: boolean;
+        };
+      };
     }>('/analytics/admin/sales-report', { params, token });
+
+    return {
+      ...raw,
+      products: raw.products.items,
+      productsPagination: raw.products.pagination,
+    };
   },
 };
 

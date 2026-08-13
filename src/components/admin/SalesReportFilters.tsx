@@ -23,6 +23,8 @@ export function SalesReportFilters({ period, date }: { period: string; date?: st
     } else {
       params.delete(key);
     }
+    // Changing the period/date invalidates whatever page we were on.
+    params.delete('page');
     router.push(`/admin/sales-report?${params.toString()}`);
   };
 

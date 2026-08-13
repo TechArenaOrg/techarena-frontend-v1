@@ -5,6 +5,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Icons } from '@/components/ui/icons';
+import { Pagination } from '@/components/ui/pagination';
 import { SalesReportFilters } from '@/components/admin/SalesReportFilters';
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 type Period = 'day' | 'week' | 'month' | 'year';
 
 interface PageProps {
-  searchParams: Promise<{ period?: string; date?: string }>;
+  searchParams: Promise<{ period?: string; date?: string; page?: string }>;
 }
 
 export default async function SalesReportPage({ searchParams }: PageProps) {
@@ -25,8 +26,9 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
 
   const period = (resolvedSearchParams.period as Period) || 'month';
   const date = resolvedSearchParams.date;
+  const currentPage = resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1;
 
-  const report = await adminAPI.getSalesReport({ period, date, breakdown: 'day' }, token);
+  const report = await adminAPI.getSalesReport({ period, date, breakdown: 'day', page: currentPage, limit: 20 }, token);
 
   const stats = [
     { title: 'Total Orders', value: String(report.totalOrders), icon: Icons.shoppingCart },
@@ -128,6 +130,17 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
             )}
           </CardContent>
         </Card>
+
+        {report.productsPagination.totalPages > 1 && (
+          <div className="mt-6 flex justify-center">
+            <Pagination
+              currentPage={report.productsPagination.page}
+              totalPages={report.productsPagination.totalPages}
+              hasNextPage={report.productsPagination.hasNextPage}
+              hasPreviousPage={report.productsPagination.hasPrevPage}
+            />
+          </div>
+        )}
       </div>
     </main>
   );
