@@ -70,19 +70,17 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
             ) : (
               <div className="divide-y">
                 {products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          SKU: {product.sku} • {formatCurrency(product.price)} • {product.stockQuantity} in stock
-                        </p>
-                      </div>
-                      <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize shrink-0">
-                        {product.status}
-                      </Badge>
+                  <div key={product.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        SKU: {product.sku} • {formatCurrency(product.price)} • {product.stockQuantity} in stock
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize justify-self-center">
+                      {product.status}
+                    </Badge>
+                    <div className="flex items-center gap-1 justify-self-end">
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/vendor/products/${product.id}/edit`}>Edit</Link>
                       </Button>
