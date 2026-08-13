@@ -48,6 +48,7 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
   const [description, setDescription] = useState(product?.description ?? '');
   const [price, setPrice] = useState(product ? String(product.price) : '');
   const [comparePrice, setComparePrice] = useState(product?.comparePrice ? String(product.comparePrice) : '');
+  const [costPrice, setCostPrice] = useState(product?.costPrice ? String(product.costPrice) : '');
   const [stockQuantity, setStockQuantity] = useState(product ? String(product.stockQuantity) : '0');
   const [lowStockThreshold, setLowStockThreshold] = useState(
     product ? String(product.lowStockThreshold) : '5'
@@ -129,6 +130,7 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
       description: description || undefined,
       price: parseFloat(price),
       comparePrice: comparePrice ? parseFloat(comparePrice) : undefined,
+      costPrice: costPrice ? parseFloat(costPrice) : undefined,
       stockQuantity: parseInt(stockQuantity, 10),
       lowStockThreshold: lowStockThreshold ? parseInt(lowStockThreshold, 10) : undefined,
       status,
@@ -268,7 +270,7 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
             />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">Price</Label>
               <Input
@@ -293,6 +295,19 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
                 onChange={(e) => setComparePrice(e.target.value)}
                 disabled={isSubmitting}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="costPrice">Cost Price</Label>
+              <Input
+                id="costPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                value={costPrice}
+                onChange={(e) => setCostPrice(e.target.value)}
+                disabled={isSubmitting}
+              />
+              <p className="text-xs text-muted-foreground">What you paid - used for profit reports.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="stockQuantity">Stock Quantity</Label>

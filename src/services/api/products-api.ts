@@ -50,6 +50,7 @@ export interface ProductInput {
   description?: string;
   price: number;
   comparePrice?: number;
+  costPrice?: number;
   stockQuantity: number;
   lowStockThreshold?: number;
   status?: 'draft' | 'active' | 'inactive' | 'out_of_stock';

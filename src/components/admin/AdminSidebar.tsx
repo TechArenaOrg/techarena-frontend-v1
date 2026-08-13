@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: Icons.layoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Icons.package },
   { href: '/admin/sales-report', label: 'Sales Report', icon: Icons.trendingUp },
+  { href: '/admin/reports', label: 'Reports', icon: Icons.fileText },
 ];
 
 export function AdminSidebar() {

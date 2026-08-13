@@ -55,6 +55,7 @@ export const adminAPI = {
         items: {
           productId: string;
           productName: string;
+          categoryName: string | null;
           vendorName: string;
           unitsSold: number;
           revenue: number;

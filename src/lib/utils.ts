@@ -67,6 +67,18 @@ export function generateSlug(text: string): string {
     .trim();
 }
 
+// Group a list into named buckets, preserving first-seen order - used for
+// department/category-grouped reports with subtotals.
+export function groupByKey<T>(items: T[], keyFn: (item: T) => string | null | undefined) {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const key = keyFn(item) || 'Uncategorized';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(item);
+  }
+  return Array.from(groups.entries()).map(([key, groupItems]) => ({ key, items: groupItems }));
+}
+
 // Truncate text
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;

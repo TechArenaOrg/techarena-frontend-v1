@@ -210,6 +210,12 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                 Manage Products
               </Link>
             </Button>
+            <Button variant="outline" asChild>
+              <Link href="/vendor/expenses">
+                <Icons.creditCard className="mr-2 h-4 w-4" />
+                Expenses
+              </Link>
+            </Button>
           </div>
         </div>
 

@@ -12,7 +12,15 @@ const PERIODS = [
   { value: 'year', label: 'Year' },
 ];
 
-export function SalesReportFilters({ period, date }: { period: string; date?: string }) {
+export function SalesReportFilters({
+  period,
+  date,
+  basePath = '/admin/sales-report',
+}: {
+  period: string;
+  date?: string;
+  basePath?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -25,7 +33,7 @@ export function SalesReportFilters({ period, date }: { period: string; date?: st
     }
     // Changing the period/date invalidates whatever page we were on.
     params.delete('page');
-    router.push(`/admin/sales-report?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   };
 
   return (
