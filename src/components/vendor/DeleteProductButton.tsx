@@ -14,14 +14,18 @@ export function DeleteProductButton({ productId, productName }: { productId: str
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!window.confirm(`Delete "${productName}"? This can't be undone.`)) {
+    if (
+      !window.confirm(
+        `Remove "${productName}"? This deactivates it - it's hidden from customers and your default product list, but stays in your records and can be reactivated later.`
+      )
+    ) {
       return;
     }
 
     setIsDeleting(true);
     try {
       await productsAPI.deleteProduct(productId);
-      toast({ title: 'Product deleted' });
+      toast({ title: 'Product deactivated' });
       router.refresh();
     } catch (err) {
       toast({

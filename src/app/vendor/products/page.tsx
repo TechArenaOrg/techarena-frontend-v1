@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { productsAPI } from '@/services/api/products-api';
+import { categoriesAPI } from '@/services/api/categories-api';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { DeleteProductButton } from '@/components/vendor/DeleteProductButton';
+import { ProductListFilters } from '@/components/product/ProductListFilters';
 
 export const metadata: Metadata = {
   title: 'My Products',
@@ -18,7 +20,14 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    categoryId?: string;
+    lowStock?: string;
+    isFeatured?: string;
+    status?: string;
+  }>;
 }
 
 export default async function VendorProductsPage({ searchParams }: PageProps) {
@@ -32,15 +41,30 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
     redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
   }
 
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, search, categoryId, lowStock, isFeatured, status } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
+  const effectiveStatus = status === 'all' ? undefined : ((status ?? 'active') as 'draft' | 'active' | 'inactive' | 'out_of_stock');
 
   const token = (session as any).accessToken;
   const { vendor } = await vendorAPI.getMyDashboard(token);
-  const { products, totalCount, totalPages, hasNextPage, hasPreviousPage } = await productsAPI.getProducts(
-    { vendorId: vendor.id, page: currentPage, limit: 20 },
-    token
-  );
+  const [{ products, totalCount, totalPages, hasNextPage, hasPreviousPage }, { categories }, { totalCount: inactiveCount }] =
+    await Promise.all([
+      productsAPI.getProducts(
+        {
+          vendorId: vendor.id,
+          search,
+          categoryId,
+          lowStock: lowStock === 'true' ? true : undefined,
+          isFeatured: isFeatured === 'true' ? true : undefined,
+          status: effectiveStatus,
+          page: currentPage,
+          limit: 20,
+        },
+        token
+      ),
+      categoriesAPI.getCategories({ limit: 20 }),
+      productsAPI.getProducts({ vendorId: vendor.id, status: 'inactive', limit: 1 }, token),
+    ]);
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -48,7 +72,17 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">My Products</h1>
-            <p className="text-muted-foreground">{totalCount} product{totalCount !== 1 ? 's' : ''} in your store</p>
+            <p className="text-muted-foreground">
+              {totalCount} product{totalCount !== 1 ? 's' : ''} in your store
+              {inactiveCount > 0 && (
+                <>
+                  {' • '}
+                  <Link href="/vendor/products?status=inactive" className="underline hover:text-foreground">
+                    {inactiveCount} inactive
+                  </Link>
+                </>
+              )}
+            </p>
           </div>
           <Button asChild>
             <Link href="/vendor/products/new">
@@ -57,6 +91,20 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
             </Link>
           </Button>
         </div>
+
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <ProductListFilters
+              basePath="/vendor/products"
+              categories={categories}
+              currentSearch={search}
+              currentCategoryId={categoryId}
+              currentLowStock={lowStock === 'true'}
+              currentFeatured={isFeatured === 'true'}
+              currentStatus={status}
+            />
+          </CardContent>
+        </Card>
 
         <Card className="mt-6">
           <CardContent className="p-0">

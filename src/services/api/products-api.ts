@@ -1,44 +1,12 @@
-// Real product calls against the live TechArena backend. The backend handles
-// pagination, categoryId, and search server-side; minPrice/maxPrice/sortBy aren't
-// implemented there yet, so those are applied client-side on the returned page.
+// Real product calls against the live TechArena backend. minPrice/maxPrice/sortBy/minRating
+// are applied server-side (on the full result set, before pagination) - vendorId is accepted
+// by the backend but currently a no-op there (flagged, not yet fixed).
 import { apiClient } from './client';
 import { normalizeProduct } from './normalize';
-import type { Product } from '@/types';
 
 interface RawPage<T> {
   items: T[];
   pagination: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean };
-}
-
-function applyClientSideFilters(
-  products: Product[],
-  params?: { minPrice?: number; maxPrice?: number; sortBy?: string }
-): Product[] {
-  let result = products;
-
-  if (params?.minPrice !== undefined) {
-    result = result.filter((p) => p.price >= params.minPrice!);
-  }
-  if (params?.maxPrice !== undefined) {
-    result = result.filter((p) => p.price <= params.maxPrice!);
-  }
-
-  switch (params?.sortBy) {
-    case 'price-asc':
-      result = [...result].sort((a, b) => a.price - b.price);
-      break;
-    case 'price-desc':
-      result = [...result].sort((a, b) => b.price - a.price);
-      break;
-    case 'rating':
-      result = [...result].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
-      break;
-    case 'newest':
-      result = [...result].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      break;
-  }
-
-  return result;
 }
 
 export interface ProductInput {
@@ -69,7 +37,12 @@ export const productsAPI = {
       lowStock?: boolean;
       minPrice?: number;
       maxPrice?: number;
+      minRating?: number;
+      // 'newest' | 'oldest' | 'price-asc' | 'price-desc' | 'rating' | 'popular' - loosely
+      // typed since this is forwarded straight from URL search params; the backend 400s
+      // on anything else.
       sortBy?: string;
+      status?: 'draft' | 'active' | 'inactive' | 'out_of_stock';
       page?: number;
       limit?: number;
     },
@@ -87,11 +60,16 @@ export const productsAPI = {
         search: params?.search,
         isFeatured: params?.isFeatured,
         lowStock: params?.lowStock,
+        minPrice: params?.minPrice,
+        maxPrice: params?.maxPrice,
+        minRating: params?.minRating,
+        sortBy: params?.sortBy,
+        status: params?.status,
       },
       token,
     });
 
-    const products = applyClientSideFilters(raw.items.map(normalizeProduct), params);
+    const products = raw.items.map(normalizeProduct);
 
     return {
       products,

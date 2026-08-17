@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Search, ShoppingCart, Heart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Heart, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { UserMenu } from '@/components/auth/user-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { SearchAutocomplete } from '@/components/layout/SearchAutocomplete';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 
@@ -21,7 +20,6 @@ const navigationItems = [
 ];
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { items: cartItems } = useCart();
   const { items: wishlistItems } = useWishlist();
 
@@ -50,23 +48,15 @@ export function Header() {
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           {/* Search */}
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
-                onFocus={() => setIsSearchOpen(true)}
-                onBlur={() => setIsSearchOpen(false)}
-              />
-            </div>
-          </div>
+          <SearchAutocomplete
+            className="w-full flex-1 md:w-auto md:flex-none"
+            inputClassName="w-full rounded-lg bg-background md:w-[200px] lg:w-[300px]"
+          />
 
           <div className="flex items-center space-x-2">
             {/* Wishlist */}
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/wishlist">
+              <Link href="/account/wishlist">
                 <div className="relative">
                   <Heart className="h-5 w-5" />
                   {wishlistItems.length > 0 && (

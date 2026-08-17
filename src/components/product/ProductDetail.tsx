@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RefreshCw, CheckCircle, Minus, Plus, Zap } from 'lucide-react';
 import { Product } from '@/types';
@@ -9,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { ApiError } from '@/services/api/client';
 
 interface ProductDetailProps {
   product: Product & {
@@ -20,15 +24,23 @@ interface ProductDetailProps {
 export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { addItem: addToCart, isAuthenticated } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await addToCart({ productId: product.id, quantity });
       toast({
         title: "Added to cart! 🛒",
         description: `${quantity} × ${product.name} added to your cart.`,
@@ -36,7 +48,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to add product to cart. Please try again.",
+        description: error instanceof ApiError ? error.message : "Failed to add product to cart. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -44,22 +56,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
     }
   };
 
-  const handleWishlist = async () => {
-    try {
-      setIsWishlisted(!isWishlisted);
-      toast({
-        title: isWishlisted ? "Removed from wishlist" : "Added to wishlist ❤️",
-        description: isWishlisted ? 
-          `${product.name} removed from your wishlist.` : 
-          `${product.name} added to your wishlist.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update wishlist. Please try again.",
-        variant: "destructive"
-      });
+  const handleWishlist = () => {
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
     }
+    toast({
+      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist ❤️",
+      description: isWishlisted ?
+        `${product.name} removed from your wishlist.` :
+        `${product.name} added to your wishlist.`,
+    });
   };
 
   const handleShare = async () => {

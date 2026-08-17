@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, ArrowRight, Star, Shield, Truck, HeadphonesIcon } from 'lucide-react';
@@ -7,6 +9,17 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 export function HeroSection() {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed) {
+      router.push(`/products?search=${encodeURIComponent(trimmed)}`);
+    }
+  };
+
   return (
     <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-800 dark:via-blue-900 dark:to-indigo-950 text-white overflow-hidden">
       {/* Background Pattern */}
@@ -60,7 +73,8 @@ export function HeroSection() {
             </div>
             
             {/* Search Bar */}
-            <motion.div 
+            <motion.form
+              onSubmit={handleSearch}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
@@ -70,16 +84,19 @@ export function HeroSection() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for products..."
                   className="pl-12 pr-4 py-4 bg-white/95 backdrop-blur-sm border-0 rounded-xl text-gray-900 placeholder-gray-500"
                 />
               </div>
-              <Button 
+              <Button
+                type="submit"
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 rounded-lg px-6"
               >
                 Search
               </Button>
-            </motion.div>
+            </motion.form>
             
             {/* CTA Buttons */}
             <motion.div 

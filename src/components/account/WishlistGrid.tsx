@@ -1,54 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, ShoppingCart, X } from 'lucide-react';
-import { WishlistItem } from '@/types';
-import { mockAPI } from '@/services/api/mock-endpoints';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { useCart } from '@/hooks/use-cart';
+import { ApiError } from '@/services/api/client';
 
 export function WishlistGrid() {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { items: wishlistItems, removeItem } = useWishlist();
+  const { addItem: addToCart } = useCart();
 
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        const data = await mockAPI.wishlist.getWishlist();
-        setWishlistItems(data);
-      } catch (error) {
-        console.error('Error fetching wishlist:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWishlist();
-  }, []);
-
-  const handleRemoveFromWishlist = async (productId: string) => {
-    try {
-      await mockAPI.wishlist.removeFromWishlist(productId);
-      setWishlistItems(items => items.filter(item => item.productId !== productId));
-      toast({
-        title: "Removed from wishlist",
-        description: "Product has been removed from your wishlist.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove product from wishlist.",
-        variant: "destructive"
-      });
-    }
+  const handleRemoveFromWishlist = (productId: string) => {
+    removeItem(productId);
+    toast({
+      title: "Removed from wishlist",
+      description: "Product has been removed from your wishlist.",
+    });
   };
 
   const handleAddToCart = async (productId: string, productName: string) => {
     try {
-      await mockAPI.cart.addToCart(productId);
+      await addToCart({ productId, quantity: 1 });
       toast({
         title: "Added to cart! 🛒",
         description: `${productName} has been added to your cart.`,
@@ -56,29 +32,11 @@ export function WishlistGrid() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to add product to cart.",
+        description: error instanceof ApiError ? error.message : "Failed to add product to cart.",
         variant: "destructive"
       });
     }
   };
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <div className="aspect-square bg-gray-200 rounded-t-lg"></div>
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
 
   if (wishlistItems.length === 0) {
     return (
@@ -101,55 +59,55 @@ export function WishlistGrid() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {wishlistItems.map((item) => (
-        <Card key={item.id} className="group overflow-hidden">
+      {wishlistItems.map((product) => (
+        <Card key={product.id} className="group overflow-hidden">
           <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
-            <Link href={`/product/${item.product.slug}`}>
+            <Link href={`/product/${product.slug}`}>
               <img
-                src={item.product.images?.[0]?.url || '/placeholder.jpg'}
-                alt={item.product.name}
+                src={product.images?.[0]?.url || '/placeholder.jpg'}
+                alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </Link>
-            
+
             <Button
               size="sm"
               variant="secondary"
-              className="absolute top-2 right-2 w-8 h-8 rounded-full p-0 bg-white/90 hover:bg-white shadow-md"
-              onClick={() => handleRemoveFromWishlist(item.productId)}
+              className="absolute top-2 right-2 w-8 h-8 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 hover:text-gray-900"
+              onClick={() => handleRemoveFromWishlist(product.id)}
             >
               <X className="w-4 h-4" />
             </Button>
           </div>
-          
+
           <CardContent className="p-4">
-            <Link href={`/product/${item.product.slug}`}>
+            <Link href={`/product/${product.slug}`}>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                {item.product.name}
+                {product.name}
               </h3>
             </Link>
-            
+
             <div className="flex items-center justify-between mb-3">
               <div>
                 <span className="text-lg font-bold text-gray-900 dark:text-white">
-                  UGX {item.product.price.toLocaleString()}
+                  UGX {product.price.toLocaleString()}
                 </span>
-                {item.product.comparePrice && item.product.comparePrice > item.product.price && (
+                {product.comparePrice && product.comparePrice > product.price && (
                   <span className="text-sm text-gray-500 line-through ml-2">
-                    UGX {item.product.comparePrice.toLocaleString()}
+                    UGX {product.comparePrice.toLocaleString()}
                   </span>
                 )}
               </div>
             </div>
-            
-            {item.product.averageRating && (
+
+            {product.averageRating && (
               <div className="flex items-center gap-1 mb-3">
                 <div className="flex">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <svg
                       key={i}
                       className={`w-4 h-4 ${
-                        i < Math.floor(item.product.averageRating!)
+                        i < Math.floor(product.averageRating!)
                           ? 'text-yellow-400 fill-current'
                           : 'text-gray-300 dark:text-gray-600'
                       }`}
@@ -161,25 +119,21 @@ export function WishlistGrid() {
                   ))}
                 </div>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  ({item.product.reviewCount || 0})
+                  ({product.reviewCount || 0})
                 </span>
               </div>
             )}
-            
+
             <div className="flex gap-2">
               <Button
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={item.product.stockQuantity === 0}
-                onClick={() => handleAddToCart(item.productId, item.product.name)}
+                disabled={product.stockQuantity === 0}
+                onClick={() => handleAddToCart(product.id, product.name)}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
-                {item.product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
               </Button>
             </div>
-            
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Added {new Date(item.createdAt).toLocaleDateString('en-UG')}
-            </p>
           </CardContent>
         </Card>
       ))}
