@@ -216,6 +216,18 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                 Expenses
               </Link>
             </Button>
+            <Button variant="outline" asChild>
+              <Link href="/vendor/purchase-orders">
+                <Icons.truck className="mr-2 h-4 w-4" />
+                Purchase Orders
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/vendor/ledger">
+                <Icons.fileText className="mr-2 h-4 w-4" />
+                My Accounts
+              </Link>
+            </Button>
           </div>
         </div>
 

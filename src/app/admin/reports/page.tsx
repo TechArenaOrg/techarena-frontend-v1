@@ -27,6 +27,18 @@ const REPORTS = [
     description: 'Log and review platform and vendor expenses.',
     icon: Icons.creditCard,
   },
+  {
+    href: '/admin/reports/purchase-orders',
+    title: 'Purchase Orders',
+    description: 'Track supplier restocking orders and receive stock.',
+    icon: Icons.truck,
+  },
+  {
+    href: '/admin/reports/ledger',
+    title: 'Chart of Accounts',
+    description: 'Cash, payable, and receivable balances across the platform.',
+    icon: Icons.fileText,
+  },
 ];
 
 export default function AdminReportsPage() {
