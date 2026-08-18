@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
@@ -22,12 +22,39 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className, layout = 'grid' }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+  const cycleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const { addItem: addToCart, isAuthenticated } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
+  const images = product.images ?? [];
+
+  useEffect(() => {
+    return () => {
+      if (cycleIntervalRef.current) clearInterval(cycleIntervalRef.current);
+    };
+  }, []);
+
+  const handleImageHoverStart = () => {
+    if (images.length < 2 || cycleIntervalRef.current) return;
+    // Switch to the next image right away instead of waiting out setInterval's first
+    // tick - otherwise hovering feels unresponsive for the first ~second.
+    setImageIndex((prev) => (prev + 1) % images.length);
+    cycleIntervalRef.current = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % images.length);
+    }, 800);
+  };
+
+  const handleImageHoverEnd = () => {
+    if (cycleIntervalRef.current) {
+      clearInterval(cycleIntervalRef.current);
+      cycleIntervalRef.current = null;
+    }
+    setImageIndex(0);
+  };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,9 +106,13 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     return (
       <div className={`group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300 ${className ?? ''}`}>
         <Link href={`/product/${product.slug}`} className="flex flex-col sm:flex-row">
-          <div className="relative w-full sm:w-48 aspect-square sm:aspect-auto shrink-0 overflow-hidden bg-gray-50 dark:bg-gray-700">
+          <div
+            className="relative w-full sm:w-48 aspect-square sm:aspect-auto shrink-0 overflow-hidden bg-gray-50 dark:bg-gray-700"
+            onMouseEnter={handleImageHoverStart}
+            onMouseLeave={handleImageHoverEnd}
+          >
             <Image
-              src={product.images?.[0]?.url || '/placeholder.jpg'}
+              src={images[imageIndex]?.url || '/placeholder.jpg'}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -99,6 +130,16 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
                 </Badge>
               )}
             </div>
+            {images.length > 1 && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                {images.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full transition-colors ${i === imageIndex ? 'bg-white' : 'bg-white/50'}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-1 flex-col justify-between p-4">
@@ -187,14 +228,28 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
       <Link href={`/product/${product.slug}`}>
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300">
           {/* Product Image */}
-          <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700">
+          <div
+            className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700"
+            onMouseEnter={handleImageHoverStart}
+            onMouseLeave={handleImageHoverEnd}
+          >
             <Image
-              src={product.images?.[0]?.url || '/placeholder.jpg'}
+              src={images[imageIndex]?.url || '/placeholder.jpg'}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            
+            {images.length > 1 && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-1">
+                {images.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full transition-colors ${i === imageIndex ? 'bg-white' : 'bg-white/50'}`}
+                  />
+                ))}
+              </div>
+            )}
+
             {/* Badges */}
             <div className="absolute top-3 left-3 flex flex-col gap-2">
               {product.isFeatured && (
