@@ -1,6 +1,7 @@
 'use client';
 
 import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 export function UserMenu() {
   const { data: session, status } = useSession();
   const { toast } = useToast();
+  const router = useRouter();
 
   if (status === 'loading') {
     return (
@@ -42,11 +44,16 @@ export function UserMenu() {
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: '/' });
+      // redirect: false, then navigate ourselves - signOut's default redirect is a hard
+      // page load that would wipe the toast queue before this message ever renders.
+      await signOut({ redirect: false });
       toast({
         title: 'Signed out successfully',
         description: 'You have been signed out of your account.',
+        variant: 'success',
       });
+      router.push('/');
+      router.refresh();
     } catch {
       toast({
         title: 'Sign out failed',
@@ -91,19 +98,19 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
+          <Link href="/account/profile" className="cursor-pointer">
             <Icons.user className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/orders" className="cursor-pointer">
+          <Link href="/account/orders" className="cursor-pointer">
             <Icons.package className="mr-2 h-4 w-4" />
             Orders
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/wishlist" className="cursor-pointer">
+          <Link href="/account/wishlist" className="cursor-pointer">
             <Icons.heart className="mr-2 h-4 w-4" />
             Wishlist
           </Link>

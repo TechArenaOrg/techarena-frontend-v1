@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { SEO } from '@/lib/constants';
 import '@/styles/globals.css';
@@ -109,6 +110,7 @@ export default function RootLayout({
                   {children}
                   <Footer />
                 </div>
+                <Toaster />
               </ApolloWrapper>
             </ReactQueryProvider>
           </AuthProvider>

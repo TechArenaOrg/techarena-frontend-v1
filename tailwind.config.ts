@@ -107,6 +107,7 @@ const config: Config = {
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
+        'fade-out': 'fadeOut 0.2s ease-in forwards',
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
         'bounce-in': 'bounceIn 0.6s ease-out',
@@ -116,6 +117,10 @@ const config: Config = {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
         },
         slideUp: {
           '0%': { transform: 'translateY(10px)', opacity: '0' },
