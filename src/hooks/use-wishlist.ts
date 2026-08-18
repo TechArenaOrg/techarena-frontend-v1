@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/types';
 import { CACHE_KEYS } from '@/lib/constants';
@@ -24,11 +25,20 @@ interface UseWishlistReturn {
 export function useWishlist(): UseWishlistReturn {
   const queryClient = useQueryClient();
 
-  const { data: items = [] } = useQuery({
+  // The server can never know what's in localStorage, so it always renders as if the
+  // wishlist is empty. If the client's first render (the one React hydrates against)
+  // already reflects real localStorage data, React sees a mismatch. Forcing `items` to
+  // stay empty until after mount guarantees that first render matches the server, then
+  // the real data appears a tick later - safe, since that update happens post-hydration.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const { data } = useQuery({
     queryKey: WISHLIST_KEY,
     queryFn: () => storage.get<Product[]>(CACHE_KEYS.WISHLIST) || [],
     staleTime: Infinity,
   });
+  const items = mounted ? data ?? [] : [];
 
   const persist = (next: Product[]) => {
     storage.set(CACHE_KEYS.WISHLIST, next);
