@@ -5,6 +5,7 @@ import { purchaseOrderAPI } from '@/services/api/purchase-order-api';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { BackLink } from '@/components/ui/back-link';
 import { ReceivedToggleButton } from '@/components/purchase-orders/ReceivedToggleButton';
 import { DeletePurchaseOrderButton } from '@/components/purchase-orders/DeletePurchaseOrderButton';
 
@@ -28,6 +29,7 @@ export default async function AdminPurchaseOrderDetailPage({ params }: PageProps
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-3xl">
+        <BackLink href="/admin/reports/purchase-orders" label="Back to Purchase Orders" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{po.supplierName}</h1>

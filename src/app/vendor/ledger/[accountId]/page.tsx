@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
+import { BackLink } from '@/components/ui/back-link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
 import { ApiError } from '@/services/api/client';
 
@@ -33,17 +34,21 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
   const { page: pageParam } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
 
-  const account = await ledgerAPI.getAccount(accountId, token).catch((err) => {
-    if (err instanceof ApiError && (err.status === 404 || err.status === 403)) return null;
-    throw err;
-  });
+  const [account, entriesResult] = await Promise.all([
+    ledgerAPI.getAccount(accountId, token).catch((err) => {
+      if (err instanceof ApiError && (err.status === 404 || err.status === 403)) return null;
+      throw err;
+    }),
+    ledgerAPI.getEntries({ accountId, page: currentPage, limit: 20 }, token),
+  ]);
   if (!account) notFound();
 
-  const { entries, totalPages, hasNextPage, hasPreviousPage } = await ledgerAPI.getEntries({ accountId, page: currentPage, limit: 20 }, token);
+  const { entries, totalPages, hasNextPage, hasPreviousPage } = entriesResult;
 
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-3xl">
+        <BackLink href="/vendor/ledger" label="Back to My Accounts" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{account.name}</h1>

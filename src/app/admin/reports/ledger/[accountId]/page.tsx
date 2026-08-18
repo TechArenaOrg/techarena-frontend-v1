@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
+import { BackLink } from '@/components/ui/back-link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
 
 export const metadata: Metadata = {
@@ -29,18 +30,18 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
   const { page: pageParam } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
 
-  const account = await ledgerAPI.getAccount(accountId, token).catch(() => null);
-  if (!account) notFound();
-
-  const [{ entries, totalPages, hasNextPage, hasPreviousPage }, vendors] = await Promise.all([
+  const [account, { entries, totalPages, hasNextPage, hasPreviousPage }, vendors] = await Promise.all([
+    ledgerAPI.getAccount(accountId, token).catch(() => null),
     ledgerAPI.getEntries({ accountId, page: currentPage, limit: 20 }, token),
     vendorAPI.getVendors(token),
   ]);
+  if (!account) notFound();
   const vendorName = account.vendorId ? vendors.find((v) => v.id === account.vendorId)?.businessName ?? 'Vendor' : 'Platform-level';
 
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-3xl">
+        <BackLink href="/admin/reports/ledger" label="Back to Chart of Accounts" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{account.name}</h1>

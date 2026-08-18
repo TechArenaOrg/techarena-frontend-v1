@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { LedgerAccountForm } from '@/components/ledger/LedgerAccountForm';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'New Ledger Account',
@@ -16,6 +17,7 @@ export default async function NewLedgerAccountPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-xl">
+        <BackLink href="/admin/reports/ledger" label="Back to Chart of Accounts" />
         <h1 className="text-3xl font-bold tracking-tight mb-6">New Ledger Account</h1>
         <LedgerAccountForm returnPath="/admin/reports/ledger" vendors={vendors} />
       </div>

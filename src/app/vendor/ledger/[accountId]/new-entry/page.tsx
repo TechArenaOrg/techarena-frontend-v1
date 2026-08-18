@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { ledgerAPI } from '@/services/api/ledger-api';
 import { LedgerEntryForm } from '@/components/ledger/LedgerEntryForm';
+import { BackLink } from '@/components/ui/back-link';
 import { ApiError } from '@/services/api/client';
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default async function NewVendorLedgerEntryPage({ params }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-xl">
+        <BackLink href={`/vendor/ledger/${account.id}`} label="Back to Account" />
         <h1 className="text-3xl font-bold tracking-tight mb-6">Record Entry</h1>
         <LedgerEntryForm account={account} returnPath={`/vendor/ledger/${account.id}`} />
       </div>

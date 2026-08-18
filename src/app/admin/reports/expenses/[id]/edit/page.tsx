@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { expenseAPI } from '@/services/api/expense-api';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Edit Expense',
@@ -31,6 +32,7 @@ export default async function EditAdminExpensePage({ params }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-2xl">
+        <BackLink href="/admin/reports/expenses" label="Back to Expenses" />
         <h1 className="text-3xl font-bold tracking-tight mb-6">Edit Expense</h1>
         <ExpenseForm expense={expense} vendors={vendors} returnPath="/admin/reports/expenses" />
       </div>
