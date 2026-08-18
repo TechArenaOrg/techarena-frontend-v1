@@ -44,8 +44,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   try {
     const resolvedParams = await params;
     const resolvedSearchParams = await searchParams;
-    const category = await categoriesAPI.getCategory(resolvedParams.slug);
-    
+    const [category, { categories }] = await Promise.all([
+      categoriesAPI.getCategory(resolvedParams.slug),
+      categoriesAPI.getCategories({ limit: 20 }),
+    ]);
+
     const breadcrumbItems = [
       { label: 'Home', href: '/' },
       { label: 'Categories', href: '/categories' },
@@ -90,7 +93,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
             <aside className="lg:col-span-1">
               <div className="sticky top-24">
                 <Suspense fallback={<div>Loading filters...</div>}>
-                  <ProductFilters categoryId={category.id} />
+                  <ProductFilters categories={categories} currentCategoryId={category.id} />
                 </Suspense>
               </div>
             </aside>
@@ -107,7 +110,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                     )}
                   </p>
                 </div>
-                <ProductSort />
+                <ProductSort currentSortBy={resolvedSearchParams.sortBy} basePath={`/category/${category.slug}`} />
               </div>
               
               {/* Products Grid */}

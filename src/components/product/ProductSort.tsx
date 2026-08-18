@@ -12,7 +12,7 @@ const SORT_OPTIONS = [
   { value: 'popular', label: 'Most Popular' },
 ];
 
-export function ProductSort({ currentSortBy }: { currentSortBy?: string }) {
+export function ProductSort({ currentSortBy, basePath = '/products' }: { currentSortBy?: string; basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,7 +24,7 @@ export function ProductSort({ currentSortBy }: { currentSortBy?: string }) {
       params.set('sortBy', value);
     }
     params.delete('page');
-    router.push(`/products?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   };
 
   return (
