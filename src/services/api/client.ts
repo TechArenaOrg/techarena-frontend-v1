@@ -6,7 +6,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/a
 
 interface ValidationIssue {
   path?: string[];
-  message: string;
+  message?: string;
+  // Present on some non-validation error shapes instead of `message`, e.g. the
+  // out-of-stock 409 from /orders/add: {productId, productName, requestedQuantity, availableStock}.
+  [key: string]: unknown;
 }
 
 interface ApiEnvelope<T> {
@@ -132,9 +135,14 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    const message = json?.details?.length
-      ? json.details.map((e) => e.message).join(' ')
-      : json?.message || response.statusText || 'Request failed';
+    // Only build the message from `details` when every entry actually has one
+    // (field-validation errors) - other error shapes (e.g. the out-of-stock 409 from
+    // /orders/add, which names products via productId/requestedQuantity/availableStock
+    // instead) fall back to the top-level `message`, which is already human-readable.
+    const detailMessages = json?.details?.every((e) => typeof e.message === 'string')
+      ? json!.details!.map((e) => e.message).join(' ')
+      : undefined;
+    const message = detailMessages || json?.message || response.statusText || 'Request failed';
     throw new ApiError(message, response.status, json?.requestId, json?.details);
   }
   if (!json) {

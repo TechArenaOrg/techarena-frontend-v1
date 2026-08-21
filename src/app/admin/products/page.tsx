@@ -28,13 +28,14 @@ interface PageProps {
     lowStock?: string;
     isFeatured?: string;
     status?: string;
+    vendorId?: string;
   }>;
 }
 
 export default async function AdminProductsPage({ searchParams }: PageProps) {
   const session = await auth();
   const token = (session as any).accessToken;
-  const { page: pageParam, search, categoryId, lowStock, isFeatured, status } = await searchParams;
+  const { page: pageParam, search, categoryId, lowStock, isFeatured, status, vendorId } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
   const effectiveStatus = status === 'all' ? undefined : ((status ?? 'active') as 'draft' | 'active' | 'inactive' | 'out_of_stock');
 
@@ -48,6 +49,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
         {
           search,
           categoryId,
+          vendorId,
           lowStock: lowStock === 'true' ? true : undefined,
           isFeatured: isFeatured === 'true' ? true : undefined,
           status: effectiveStatus,
@@ -107,6 +109,8 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
               currentLowStock={lowStock === 'true'}
               currentFeatured={isFeatured === 'true'}
               currentStatus={status}
+              vendors={vendors}
+              currentVendorId={vendorId}
             />
           </CardContent>
         </Card>

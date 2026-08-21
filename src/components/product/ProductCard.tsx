@@ -74,6 +74,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
         title: "Added to cart! 🛒",
         description: `${product.name} added to your cart.`,
       });
+      router.push('/cart');
     } catch (error) {
       toast({
         title: "Error",
@@ -211,6 +212,16 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   {isLoading ? 'Adding...' : product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
                 </Button>
+                {product.stockQuantity > 0 && (
+                  <Button
+                    size="sm"
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    disabled={isLoading}
+                    onClick={handleAddToCart}
+                  >
+                    Buy Now
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -299,18 +310,15 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               </Button>
             </div>
 
-            {/* Quick Add to Cart */}
-            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-              <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            {/* Quick Add to Cart / Buy Now */}
+            <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+              <Button
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={product.stockQuantity === 0 || isLoading}
                 onClick={handleAddToCart}
               >
                 {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Adding...
-                  </div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     <ShoppingCart className="w-4 h-4 mr-2" />
@@ -318,6 +326,15 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
                   </>
                 )}
               </Button>
+              {product.stockQuantity > 0 && (
+                <Button
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+                  disabled={isLoading}
+                  onClick={handleAddToCart}
+                >
+                  Buy Now
+                </Button>
+              )}
             </div>
           </div>
 

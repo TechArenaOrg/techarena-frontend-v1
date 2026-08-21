@@ -21,9 +21,8 @@ export function CartSummary() {
 
   const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const shipping = subtotal > 500000 ? 0 : 25000; // Free shipping over 500k UGX
-  const tax = subtotal * 0.18; // 18% VAT
   const discount = subtotal * (appliedDiscount / 100);
-  const total = subtotal + shipping + tax - discount;
+  const total = subtotal + shipping - discount;
 
   const handleApplyPromoCode = async () => {
     setIsApplyingPromo(true);
@@ -81,10 +80,6 @@ export function CartSummary() {
                   formatCurrency(shipping)
                 )}
               </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Tax (VAT 18%)</span>
-              <span>{formatCurrency(tax)}</span>
             </div>
             {appliedDiscount > 0 && (
               <div className="flex justify-between text-sm text-green-600">

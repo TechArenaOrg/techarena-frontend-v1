@@ -1,6 +1,5 @@
 // Real product calls against the live TechArena backend. minPrice/maxPrice/sortBy/minRating
-// are applied server-side (on the full result set, before pagination) - vendorId is accepted
-// by the backend but currently a no-op there (flagged, not yet fixed).
+// and vendorId are all applied server-side (on the full result set, before pagination).
 import { apiClient } from './client';
 import { normalizeProduct } from './normalize';
 

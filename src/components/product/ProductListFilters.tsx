@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Icons } from '@/components/ui/icons';
-import type { Category } from '@/types';
+import type { Category, Vendor } from '@/types';
 
 interface ProductListFiltersProps {
   basePath: string;
@@ -18,9 +18,14 @@ interface ProductListFiltersProps {
   currentLowStock?: boolean;
   currentFeatured?: boolean;
   currentStatus?: string;
+  // Only passed by the admin product list - vendors filter by their own
+  // products automatically, so they don't need this control.
+  vendors?: Vendor[];
+  currentVendorId?: string;
 }
 
 const ALL_CATEGORIES = 'all';
+const ALL_VENDORS = 'all';
 const ALL_STATUSES = 'all';
 const DEFAULT_STATUS = 'active';
 
@@ -40,6 +45,8 @@ export function ProductListFilters({
   currentLowStock,
   currentFeatured,
   currentStatus,
+  vendors,
+  currentVendorId,
 }: ProductListFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -78,6 +85,7 @@ export function ProductListFilters({
     params.delete('lowStock');
     params.delete('isFeatured');
     params.delete('status');
+    params.delete('vendorId');
     params.delete('page');
     router.push(`${basePath}?${params.toString()}`);
   };
@@ -87,6 +95,7 @@ export function ProductListFilters({
     !!currentCategoryId ||
     !!currentLowStock ||
     !!currentFeatured ||
+    !!currentVendorId ||
     (!!currentStatus && currentStatus !== DEFAULT_STATUS);
 
   return (
@@ -139,6 +148,28 @@ export function ProductListFilters({
           </SelectContent>
         </Select>
       </div>
+
+      {vendors && (
+        <div className="space-y-1.5">
+          <Label htmlFor="vendorFilter">Vendor</Label>
+          <Select
+            value={currentVendorId ?? ALL_VENDORS}
+            onValueChange={(value) => updateParams({ vendorId: value === ALL_VENDORS ? undefined : value })}
+          >
+            <SelectTrigger id="vendorFilter" className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_VENDORS}>All Vendors</SelectItem>
+              {vendors.map((vendor) => (
+                <SelectItem key={vendor.id} value={vendor.id}>
+                  {vendor.businessName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="flex items-center space-x-2 pb-2.5">
         <Checkbox
