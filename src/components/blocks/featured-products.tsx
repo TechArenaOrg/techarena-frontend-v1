@@ -1,36 +1,18 @@
 import { productsAPI } from '@/services/api/products-api';
-import { Pagination } from '@/components/ui/pagination';
-import { FeaturedProductsGrid } from '@/components/blocks/featured-products-grid';
+import { FeaturedProductsInfinite } from '@/components/blocks/featured-products-infinite';
 
-export async function FeaturedProducts({ page }: { page: number }) {
+export async function FeaturedProducts() {
   const result = await productsAPI
-    .getProducts({ isFeatured: true, page, limit: 12 })
+    .getProducts({ isFeatured: true, page: 1, limit: 12 })
     .catch(() => null);
 
   if (!result) {
     return <p className="text-center text-muted-foreground">Couldn't load featured products right now.</p>;
   }
 
-  const { products, totalPages, hasNextPage, hasPreviousPage } = result;
-
-  if (products.length === 0) {
+  if (result.products.length === 0) {
     return <p className="text-center text-muted-foreground">No featured products yet.</p>;
   }
 
-  return (
-    <div className="space-y-8">
-      <FeaturedProductsGrid products={products} />
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
-            paramName="productsPage"
-          />
-        </div>
-      )}
-    </div>
-  );
+  return <FeaturedProductsInfinite initialProducts={result.products} initialHasNextPage={result.hasNextPage} />;
 }

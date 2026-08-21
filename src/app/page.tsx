@@ -16,12 +16,11 @@ export const metadata: Metadata = {
 };
 
 interface HomePageProps {
-  searchParams: Promise<{ productsPage?: string; categoriesPage?: string }>;
+  searchParams: Promise<{ categoriesPage?: string }>;
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams;
-  const productsPage = resolvedSearchParams.productsPage ? Number(resolvedSearchParams.productsPage) : 1;
   const categoriesPage = resolvedSearchParams.categoriesPage ? Number(resolvedSearchParams.categoriesPage) : 1;
   const slides = await heroSlidesAPI.getActiveSlides().catch(() => []);
 
@@ -32,46 +31,38 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <HeroSection slides={slides} />
 
         {/* Featured Categories */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-3 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4">
-            <ScrollReveal>
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
-                  Shop by Category
-                </h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
-                  Explore our wide range of technology categories to find exactly what you need
-                </p>
-              </div>
-            </ScrollReveal>
+            <div className="text-center mb-2">
+              <h2 className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
+                Shop by Category
+              </h2>
+              <p className="text-xs text-muted-foreground max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+                Explore our wide range of technology categories to find exactly what you need
+              </p>
+            </div>
 
-            <ScrollReveal delay={0.1}>
-              <Suspense fallback={<CategoriesSkeleton />}>
-                <FeaturedCategories page={categoriesPage} />
-              </Suspense>
-            </ScrollReveal>
+            <Suspense fallback={<CategoriesSkeleton />}>
+              <FeaturedCategories page={categoriesPage} />
+            </Suspense>
           </div>
         </section>
 
         {/* Featured Products */}
-        <section className="py-16">
+        <section className="py-3">
           <div className="container mx-auto px-4">
-            <ScrollReveal>
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
-                  Featured Products
-                </h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
-                  Discover our handpicked selection of the latest and most popular tech products
-                </p>
-              </div>
-            </ScrollReveal>
+            <div className="text-center mb-2">
+              <h2 className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
+                Featured Products
+              </h2>
+              <p className="text-xs text-muted-foreground max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+                Discover our handpicked selection of the latest and most popular tech products
+              </p>
+            </div>
 
-            <ScrollReveal delay={0.1}>
-              <Suspense fallback={<ProductGridSkeleton />}>
-                <FeaturedProducts page={productsPage} />
-              </Suspense>
-            </ScrollReveal>
+            <Suspense fallback={<ProductGridSkeleton />}>
+              <FeaturedProducts />
+            </Suspense>
           </div>
         </section>
 
@@ -111,9 +102,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 // Skeleton components for loading states
 function CategoriesSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="flex flex-wrap justify-center gap-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <CategoryCardSkeleton key={i} />
+        <CategoryCardSkeleton key={i} className="h-9 w-28 rounded-full" />
       ))}
     </div>
   );

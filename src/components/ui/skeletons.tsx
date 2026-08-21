@@ -42,13 +42,7 @@ export function ProductCardSkeleton({ className }: { className?: string }) {
 }
 
 export function CategoryCardSkeleton({ className }: { className?: string }) {
-  return (
-    <Card className={cn('p-6 text-center', className)}>
-      <Skeleton className="w-12 h-12 rounded-full mx-auto mb-3" />
-      <Skeleton className="h-4 w-20 mx-auto mb-2" />
-      <Skeleton className="h-3 w-16 mx-auto" />
-    </Card>
-  );
+  return <Skeleton className={cn('h-9 w-28 rounded-full', className)} />;
 }
 
 export function OrderItemSkeleton({ className }: { className?: string }) {
