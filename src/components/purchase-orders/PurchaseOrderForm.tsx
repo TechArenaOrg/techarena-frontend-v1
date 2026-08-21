@@ -26,6 +26,10 @@ interface PurchaseOrderFormProps {
   // Only passed for the admin flow - lets a PO be assigned to a specific vendor,
   // or left unassigned for a platform-level purchase order.
   vendors?: Vendor[];
+  // Set by callers rendering this form inside a Dialog instead of a full page.
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
 function todayIso() {
@@ -36,7 +40,7 @@ function emptyRow(): PurchaseOrderItemInput {
   return { productId: '', quantity: 1, unitCost: 0 };
 }
 
-export function PurchaseOrderForm({ returnPath, products, vendors }: PurchaseOrderFormProps) {
+export function PurchaseOrderForm({ returnPath, products, vendors, onSuccess, onCancel, bare }: PurchaseOrderFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -83,7 +87,11 @@ export function PurchaseOrderForm({ returnPath, products, vendors }: PurchaseOrd
         })),
       });
       toast({ title: 'Purchase order created' });
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -92,12 +100,8 @@ export function PurchaseOrderForm({ returnPath, products, vendors }: PurchaseOrd
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>New Purchase Order</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+    <>
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -201,7 +205,7 @@ export function PurchaseOrderForm({ returnPath, products, vendors }: PurchaseOrd
                     size="sm"
                     onClick={() => removeRow(index)}
                     disabled={isSubmitting || rows.length === 1}
-                    className="text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Icons.trash2 className="h-4 w-4" />
                   </Button>
@@ -218,12 +222,22 @@ export function PurchaseOrderForm({ returnPath, products, vendors }: PurchaseOrd
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Create Purchase Order'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push(returnPath)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.push(returnPath))} disabled={isSubmitting}>
               Cancel
             </Button>
           </div>
         </form>
-      </CardContent>
+    </>
+  );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>New Purchase Order</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

@@ -92,6 +92,13 @@ export const authAPI = {
     await apiClient.post<void>('/auth/logout', undefined, token ? { token } : undefined);
   },
 
+  // Access tokens expire after 24h; refresh tokens after 7 days. Called from the
+  // NextAuth jwt callback so a still-valid refresh token silently renews the session
+  // instead of every backend call failing with 401 once the access token expires.
+  async refreshToken(refreshToken: string) {
+    return apiClient.post<{ accessToken: string; refreshToken: string }>('/auth/refresh-token', { refreshToken });
+  },
+
   async getCurrentUser(token?: string) {
     const result = await apiClient.get<ProfileResponse>('/auth/profile', token ? { token } : undefined);
     return normalizeUser(result.user);

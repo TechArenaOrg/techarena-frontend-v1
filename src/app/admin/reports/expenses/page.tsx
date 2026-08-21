@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { auth } from '@/auth';
 import { expenseAPI } from '@/services/api/expense-api';
 import { vendorAPI } from '@/services/api/vendor-api';
@@ -11,6 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFilter';
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 import { DeleteExpenseButton } from '@/components/expenses/DeleteExpenseButton';
+import { ExpenseFormDialog } from '@/components/expenses/ExpenseFormDialog';
 
 export const metadata: Metadata = {
   title: 'Expenses',
@@ -29,7 +29,9 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
 
   const [{ expenses, totalCount, totalPages, hasNextPage, hasPreviousPage }, vendors] = await Promise.all([
     expenseAPI.getExpenses({ startDate, endDate, vendorId, page: currentPage, limit: 20 }, token),
-    vendorAPI.getVendors(token),
+    // Only used for the filter bar / Log Expense dialog - a hiccup fetching it
+    // shouldn't take down the whole expense list.
+    vendorAPI.getVendors(token).catch(() => []),
   ]);
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -45,12 +47,15 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
           <div className="flex items-end gap-4">
             <ExpenseDateRangeFilter startDate={startDate} endDate={endDate} basePath="/admin/reports/expenses" />
             <ExpenseVendorFilter vendors={vendors} currentVendorId={vendorId} basePath="/admin/reports/expenses" />
-            <Button asChild>
-              <Link href="/admin/reports/expenses/new">
-                <Icons.plus className="mr-2 h-4 w-4" />
-                Log Expense
-              </Link>
-            </Button>
+            <ExpenseFormDialog
+              vendors={vendors}
+              trigger={
+                <Button>
+                  <Icons.plus className="mr-2 h-4 w-4" />
+                  Log Expense
+                </Button>
+              }
+            />
           </div>
         </div>
 
@@ -87,9 +92,15 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
                         <td className="px-6 py-3 text-right">{formatCurrency(expense.amount)}</td>
                         <td className="px-6 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <Button variant="ghost" size="sm" asChild>
-                              <Link href={`/admin/reports/expenses/${expense.id}/edit`}>Edit</Link>
-                            </Button>
+                            <ExpenseFormDialog
+                              vendors={vendors}
+                              expenseId={expense.id}
+                              trigger={
+                                <Button variant="ghost" size="sm">
+                                  Edit
+                                </Button>
+                              }
+                            />
                             <DeleteExpenseButton expenseId={expense.id} expenseType={expense.type} />
                           </div>
                         </td>

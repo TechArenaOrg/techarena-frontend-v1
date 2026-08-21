@@ -10,6 +10,32 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
+// Reads a JWT's `exp` claim without needing a full JWT library - just enough to know
+// when the backend will start rejecting this access token.
+function decodeJwtExpiryMs(jwt: string): number {
+  const payload = JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString());
+  return payload.exp * 1000;
+}
+
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+  try {
+    const refreshed = await authAPI.refreshToken(token.refreshToken as string);
+    return {
+      ...token,
+      accessToken: refreshed.accessToken,
+      refreshToken: refreshed.refreshToken,
+      accessTokenExpires: decodeJwtExpiryMs(refreshed.accessToken),
+      error: undefined,
+    };
+  } catch (error) {
+    console.error('Failed to refresh access token:', error);
+    // Refresh token itself is expired/invalid (>7 days since login) - nothing left to
+    // silently recover. Flag it so the client can force a sign-out instead of every
+    // subsequent backend call crashing with an unhandled 401.
+    return { ...token, error: 'RefreshTokenExpired' };
+  }
+}
+
 export const config: NextAuthConfig = {
   providers: [
     CredentialsProvider({
@@ -51,8 +77,16 @@ export const config: NextAuthConfig = {
         token.id = user.id;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+        token.accessTokenExpires = decodeJwtExpiryMs(user.accessToken);
+        return token;
       }
-      return token;
+
+      // Small buffer so a request doesn't race a token that's about to expire.
+      if (Date.now() < (token.accessTokenExpires as number) - 60_000) {
+        return token;
+      }
+
+      return refreshAccessToken(token);
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
@@ -60,6 +94,7 @@ export const config: NextAuthConfig = {
         session.user.id = token.id as string;
       }
       (session as any).accessToken = token.accessToken;
+      (session as any).error = token.error;
       return session;
     },
   },

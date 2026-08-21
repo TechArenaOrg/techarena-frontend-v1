@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { ledgerAPI } from '@/services/api/ledger-api';
@@ -12,6 +11,7 @@ import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { BackLink } from '@/components/ui/back-link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
+import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
 
 export const metadata: Metadata = {
   title: 'Ledger Account',
@@ -49,12 +49,15 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
               {vendorName} • Current balance: {formatCurrency(account.balance)}
             </p>
           </div>
-          <Button asChild>
-            <Link href={`/admin/reports/ledger/${account.id}/new-entry`}>
-              <Icons.plus className="mr-2 h-4 w-4" />
-              Record Entry
-            </Link>
-          </Button>
+          <LedgerEntryFormDialog
+            account={account}
+            trigger={
+              <Button>
+                <Icons.plus className="mr-2 h-4 w-4" />
+                Record Entry
+              </Button>
+            }
+          />
         </div>
 
         <Card className="mt-6">

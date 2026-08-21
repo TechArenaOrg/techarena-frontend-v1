@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingCart, Heart, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,8 @@ export function Header() {
       <div className="container flex h-14 items-center">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <div className="font-bold text-xl">TechArena</div>
+          <Image src="/logo.jpg" alt="TechArena" width={36} height={36} className="rounded-md" priority />
+          <span className="font-bold text-xl">TechArena</span>
         </Link>
 
         {/* Desktop Navigation */}

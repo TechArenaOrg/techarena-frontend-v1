@@ -100,7 +100,7 @@ export function CartItems() {
             variant="ghost" 
             size="sm"
             onClick={handleClearCart}
-            className="text-destructive hover:text-destructive"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             Clear All
           </Button>
@@ -114,7 +114,7 @@ export function CartItems() {
             >
               <div className="relative h-16 w-16 rounded-md overflow-hidden">
                 <Image
-                  src={item.product?.images?.[0]?.url || '/placeholder.jpg'}
+                  src={item.product?.images?.[0]?.url || '/placeholder.svg'}
                   alt={item.product.name}
                   fill
                   className="object-cover"
@@ -191,7 +191,7 @@ export function CartItems() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveItem(item.id, item.product.name)}
-                  className="text-destructive hover:text-destructive mt-1"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 mt-1"
                 >
                   <Icons.trash2 className="h-4 w-4" />
                 </Button>

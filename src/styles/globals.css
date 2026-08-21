@@ -45,7 +45,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -53,7 +53,14 @@
   * {
     @apply border-border;
   }
-  
+
+  /* Bumps every rem-based Tailwind text size up proportionally (text-sm, text-base,
+     etc.) instead of hunting down individual text-xs/text-sm usages page by page -
+     the app leaned heavily on those smaller sizes for body text throughout. */
+  html {
+    font-size: 18px;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
   }

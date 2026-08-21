@@ -16,13 +16,16 @@ import { ApiError } from '@/services/api/client';
 interface LedgerEntryFormProps {
   account: LedgerAccount;
   returnPath: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function LedgerEntryForm({ account, returnPath }: LedgerEntryFormProps) {
+export function LedgerEntryForm({ account, returnPath, onSuccess, onCancel, bare }: LedgerEntryFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isCash = account.kind === 'cash';
@@ -50,7 +53,11 @@ export function LedgerEntryForm({ account, returnPath }: LedgerEntryFormProps) {
         date,
       });
       toast({ title: 'Entry recorded' });
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -59,12 +66,8 @@ export function LedgerEntryForm({ account, returnPath }: LedgerEntryFormProps) {
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Record Entry — {account.name}</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+    <>
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -122,12 +125,22 @@ export function LedgerEntryForm({ account, returnPath }: LedgerEntryFormProps) {
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Record Entry'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push(returnPath)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.push(returnPath))} disabled={isSubmitting}>
               Cancel
             </Button>
           </div>
         </form>
-      </CardContent>
+    </>
+  );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>Record Entry — {account.name}</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

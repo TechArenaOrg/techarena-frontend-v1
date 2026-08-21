@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { categoriesAPI } from '@/services/api/categories-api';
 import { ProductForm } from '@/components/vendor/ProductForm';
@@ -12,14 +11,6 @@ export const metadata: Metadata = {
 
 export default async function NewProductPage() {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   const { categories } = await categoriesAPI.getCategories();
 

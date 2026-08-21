@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
@@ -64,7 +63,7 @@ function RecentOrdersCard({ orders }: { orders: VendorDashboard['recentOrders'] 
           <p className="text-sm text-muted-foreground">No orders yet.</p>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => (
+            {orders.map((order: VendorDashboard['recentOrders'][number]) => (
               <div key={order.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{order.orderNumber}</p>
@@ -173,14 +172,6 @@ interface PageProps {
 
 export default async function VendorDashboardPage({ searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   const token = (session as any).accessToken;
   const { lowStockPage } = await searchParams;

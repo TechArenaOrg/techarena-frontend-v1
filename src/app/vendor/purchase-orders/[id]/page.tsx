@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { purchaseOrderAPI } from '@/services/api/purchase-order-api';
 import { formatCurrency } from '@/lib/utils';
@@ -21,10 +21,7 @@ interface PageProps {
 
 export default async function VendorPurchaseOrderDetailPage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user) redirect('/auth/login');
-  const role = (session.user as any).role;
-  if (role !== 'vendor') redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-
+  
   const token = (session as any).accessToken;
   const { id } = await params;
 

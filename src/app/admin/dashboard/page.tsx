@@ -92,7 +92,7 @@ function RecentOrdersCard({ orders }: { orders: AdminDashboard['recentOrders'] }
           <p className="text-sm text-muted-foreground">No orders yet.</p>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => (
+            {orders.map((order: AdminDashboard['recentOrders'][number]) => (
               <div key={order.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{order.orderNumber}</p>
@@ -123,7 +123,7 @@ function PendingVendorsCard({ vendors }: { vendors: AdminDashboard['pendingVendo
           <p className="text-sm text-muted-foreground">No pending applications.</p>
         ) : (
           <div className="space-y-4">
-            {vendors.map((vendor) => (
+            {vendors.map((vendor: AdminDashboard['pendingVendors'][number]) => (
               <div key={vendor.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
                 <div>
                   <p className="text-sm font-medium">{vendor.businessName}</p>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -31,9 +32,21 @@ interface ProductFormProps {
   // Only passed by the admin create flow - admins aren't vendors themselves, so unlike
   // a vendor creating their own product, the backend needs an explicit vendorId from them.
   vendors?: Vendor[];
+  // Set by callers rendering this form inside a Dialog instead of a full page.
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
-export function ProductForm({ categories, product, returnPath = '/vendor/products', vendors }: ProductFormProps) {
+export function ProductForm({
+  categories,
+  product,
+  returnPath = '/vendor/products',
+  vendors,
+  onSuccess,
+  onCancel,
+  bare,
+}: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isEditing = !!product;
@@ -148,7 +161,11 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
         await productsAPI.createProduct(input);
         toast({ title: 'Product created' });
       }
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -157,12 +174,8 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEditing ? 'Edit Product' : 'Add Product'}</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+      <>
         {product?.vendor && (
           <p className="text-sm text-muted-foreground mb-4">
             Sold by <span className="font-medium text-foreground">{product.vendor.businessName}</span>
@@ -260,13 +273,12 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <textarea
+            <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
               rows={4}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -443,14 +455,24 @@ export function ProductForm({ categories, product, returnPath = '/vendor/product
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push(returnPath)}
+              onClick={() => (onCancel ? onCancel() : router.push(returnPath))}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
           </div>
         </form>
-      </CardContent>
+      </>
+    );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>{isEditing ? 'Edit Product' : 'Add Product'}</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

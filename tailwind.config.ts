@@ -112,8 +112,28 @@ const config: Config = {
         'slide-down': 'slideDown 0.3s ease-out',
         'bounce-in': 'bounceIn 0.6s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        'overlay-show': 'overlayShow 0.2s ease-out',
+        'overlay-hide': 'overlayHide 0.15s ease-in forwards',
+        'dialog-pop-in': 'dialogPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'dialog-pop-out': 'dialogPopOut 0.15s ease-in forwards',
       },
       keyframes: {
+        overlayShow: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        overlayHide: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        dialogPopIn: {
+          '0%': { transform: 'translate(-50%, -48%) scale(0.95)', opacity: '0' },
+          '100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: '1' },
+        },
+        dialogPopOut: {
+          '0%': { transform: 'translate(-50%, -50%) scale(1)', opacity: '1' },
+          '100%': { transform: 'translate(-50%, -48%) scale(0.95)', opacity: '0' },
+        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },

@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -38,6 +39,7 @@ import {
 export type Icon = LucideIcon;
 
 export const Icons = {
+  alertTriangle: AlertTriangle,
   arrowLeft: ArrowLeft,
   arrowRight: ArrowRight,
   check: Check,

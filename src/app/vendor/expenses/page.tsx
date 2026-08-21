@@ -1,6 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { auth } from '@/auth';
 import { expenseAPI } from '@/services/api/expense-api';
 import { formatCurrency } from '@/lib/utils';
@@ -10,6 +8,7 @@ import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFilter';
 import { DeleteExpenseButton } from '@/components/expenses/DeleteExpenseButton';
+import { ExpenseFormDialog } from '@/components/expenses/ExpenseFormDialog';
 
 export const metadata: Metadata = {
   title: 'My Expenses',
@@ -22,14 +21,6 @@ interface PageProps {
 
 export default async function VendorExpensesPage({ searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   const token = (session as any).accessToken;
   const { startDate, endDate, page: pageParam } = await searchParams;
@@ -52,12 +43,14 @@ export default async function VendorExpensesPage({ searchParams }: PageProps) {
           </div>
           <div className="flex items-end gap-4">
             <ExpenseDateRangeFilter startDate={startDate} endDate={endDate} basePath="/vendor/expenses" />
-            <Button asChild>
-              <Link href="/vendor/expenses/new">
-                <Icons.plus className="mr-2 h-4 w-4" />
-                Log Expense
-              </Link>
-            </Button>
+            <ExpenseFormDialog
+              trigger={
+                <Button>
+                  <Icons.plus className="mr-2 h-4 w-4" />
+                  Log Expense
+                </Button>
+              }
+            />
           </div>
         </div>
 
@@ -66,9 +59,7 @@ export default async function VendorExpensesPage({ searchParams }: PageProps) {
             {expenses.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-muted-foreground mb-4">No expenses logged yet.</p>
-                <Button asChild>
-                  <Link href="/vendor/expenses/new">Log your first expense</Link>
-                </Button>
+                <ExpenseFormDialog trigger={<Button>Log your first expense</Button>} />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -93,9 +84,14 @@ export default async function VendorExpensesPage({ searchParams }: PageProps) {
                         <td className="px-6 py-3 text-right">{formatCurrency(expense.amount)}</td>
                         <td className="px-6 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <Button variant="ghost" size="sm" asChild>
-                              <Link href={`/vendor/expenses/${expense.id}/edit`}>Edit</Link>
-                            </Button>
+                            <ExpenseFormDialog
+                              expenseId={expense.id}
+                              trigger={
+                                <Button variant="ghost" size="sm">
+                                  Edit
+                                </Button>
+                              }
+                            />
                             <DeleteExpenseButton expenseId={expense.id} expenseType={expense.type} />
                           </div>
                         </td>

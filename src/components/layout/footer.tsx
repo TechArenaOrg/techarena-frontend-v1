@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 export function Footer() {
@@ -8,7 +9,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-lg font-bold mb-4">TechArena Uganda</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <Image src="/logo.jpg" alt="TechArena" width={40} height={40} className="rounded-md" />
+              <h3 className="text-lg font-bold">TechArena Uganda</h3>
+            </div>
             <p className="text-gray-400 mb-4">
               Uganda's premier technology marketplace. Find the latest gadgets, electronics, and tech accessories at unbeatable prices.
             </p>

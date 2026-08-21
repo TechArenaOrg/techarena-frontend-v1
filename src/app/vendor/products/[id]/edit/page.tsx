@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { productsAPI } from '@/services/api/products-api';
@@ -18,14 +18,6 @@ interface PageProps {
 
 export default async function EditProductPage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   const { id } = await params;
   const token = (session as any).accessToken;

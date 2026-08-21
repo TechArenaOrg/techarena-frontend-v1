@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { BootstrapVendorAccountsButton } from '@/components/ledger/BootstrapVendorAccountsButton';
+import { TransferFormDialog } from '@/components/ledger/TransferFormDialog';
+import { LedgerAccountFormDialog } from '@/components/ledger/LedgerAccountFormDialog';
 
 export const metadata: Metadata = {
   title: 'Chart of Accounts',
@@ -21,9 +23,10 @@ export default async function AdminLedgerPage() {
   const session = await auth();
   const token = (session as any).accessToken;
 
-  const [accounts, vendors] = await Promise.all([ledgerAPI.getAccounts(token), vendorAPI.getVendors(token)]);
+  const [accounts, vendors] = await Promise.all([ledgerAPI.getAccounts(token), vendorAPI.getVendors(token).catch(() => [])]);
 
   const platformAccounts = accounts.filter((a) => !a.vendorId);
+  const cashAccounts = accounts.filter((a) => a.kind === 'cash');
   const vendorGroups = groupByKey(
     accounts.filter((a) => a.vendorId),
     (a) => a.vendorId as string
@@ -74,18 +77,24 @@ export default async function AdminLedgerPage() {
             <p className="text-muted-foreground">Live balances across all cash, payable, and receivable accounts.</p>
           </div>
           <div className="flex items-end gap-3">
-            <Button variant="outline" asChild>
-              <Link href="/admin/reports/ledger/transfer">
-                <Icons.rotateCounterClockwise className="mr-2 h-4 w-4" />
-                Transfer
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/admin/reports/ledger/new-account">
-                <Icons.plus className="mr-2 h-4 w-4" />
-                New Account
-              </Link>
-            </Button>
+            <TransferFormDialog
+              cashAccounts={cashAccounts}
+              trigger={
+                <Button variant="outline">
+                  <Icons.rotateCounterClockwise className="mr-2 h-4 w-4" />
+                  Transfer
+                </Button>
+              }
+            />
+            <LedgerAccountFormDialog
+              vendors={vendors}
+              trigger={
+                <Button>
+                  <Icons.plus className="mr-2 h-4 w-4" />
+                  New Account
+                </Button>
+              }
+            />
           </div>
         </div>
 

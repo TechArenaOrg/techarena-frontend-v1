@@ -112,7 +112,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               className="relative w-full h-full"
             >
               <Image
-                src={product.images?.[selectedImage]?.url || '/placeholder.jpg'}
+                src={product.images?.[selectedImage]?.url || '/placeholder.svg'}
                 alt={product.name}
                 fill
                 className="object-cover"

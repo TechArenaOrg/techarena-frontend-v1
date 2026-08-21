@@ -292,7 +292,7 @@ export function AccountDashboard({ user }: AccountDashboardProps) {
                 >
                   <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 overflow-hidden">
                     <img
-                      src={item.product.images?.[0]?.url || '/placeholder.jpg'}
+                      src={item.product.images?.[0]?.url || '/placeholder.svg'}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
                     />

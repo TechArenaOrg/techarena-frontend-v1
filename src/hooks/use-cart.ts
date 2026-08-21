@@ -6,16 +6,21 @@ import { cartAPI } from '@/services/api/cart-api';
 import { CACHE_KEYS } from '@/lib/constants';
 
 export function useCart() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
+  // Only customers have a cart - vendors/admins get a 403 from the backend, so the
+  // query is disabled entirely for them (avoids a repeated failing fetch on every
+  // admin/vendor page load, since Header renders on every route).
+  const role = (session?.user as any)?.role;
+  const isCustomer = isAuthenticated && (!role || role === 'customer');
   const queryClient = useQueryClient();
 
   // The backend has no guest/session cart - GET /cart 401s without a logged-in user -
-  // so the query is disabled entirely until there's an active session.
+  // so the query is disabled entirely until there's an active customer session.
   const { data: cartData, isLoading: isCartLoading } = useQuery({
     queryKey: [CACHE_KEYS.CART],
     queryFn: cartAPI.getCart,
-    enabled: isAuthenticated,
+    enabled: isCustomer,
     staleTime: 0,
   });
 
@@ -51,7 +56,7 @@ export function useCart() {
     items: cartData?.items || [],
     itemCount: cartData?.totalItems || 0,
     subtotal: cartData?.totalAmount || 0,
-    isLoading: isAuthenticated && isCartLoading,
+    isLoading: isCustomer && isCartLoading,
     isAuthenticated,
 
     // Actions - mutateAsync so callers' `await addItem(...)` actually rejects on failure

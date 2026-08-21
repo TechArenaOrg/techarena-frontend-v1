@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { ledgerAPI } from '@/services/api/ledger-api';
 import { formatCurrency } from '@/lib/utils';
@@ -11,6 +10,7 @@ import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { BackLink } from '@/components/ui/back-link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
+import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
 import { ApiError } from '@/services/api/client';
 
 export const metadata: Metadata = {
@@ -25,10 +25,7 @@ interface PageProps {
 
 export default async function VendorLedgerAccountPage({ params, searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user) redirect('/auth/login');
-  const role = (session.user as any).role;
-  if (role !== 'vendor') redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-
+  
   const token = (session as any).accessToken;
   const { accountId } = await params;
   const { page: pageParam } = await searchParams;
@@ -54,12 +51,15 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
             <h1 className="text-3xl font-bold tracking-tight">{account.name}</h1>
             <p className="text-muted-foreground">Current balance: {formatCurrency(account.balance)}</p>
           </div>
-          <Button asChild>
-            <Link href={`/vendor/ledger/${account.id}/new-entry`}>
-              <Icons.plus className="mr-2 h-4 w-4" />
-              Record Entry
-            </Link>
-          </Button>
+          <LedgerEntryFormDialog
+            account={account}
+            trigger={
+              <Button>
+                <Icons.plus className="mr-2 h-4 w-4" />
+                Record Entry
+              </Button>
+            }
+          />
         </div>
 
         <Card className="mt-6">

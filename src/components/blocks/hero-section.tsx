@@ -63,7 +63,7 @@ export function HeroSection({ slides = [] }: { slides?: HeroSlide[] }) {
         </div>
       )}
 
-      <div className="relative container mx-auto px-4 py-20 lg:py-28">
+      <div className="relative container mx-auto px-4 py-10 lg:py-14">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <motion.div

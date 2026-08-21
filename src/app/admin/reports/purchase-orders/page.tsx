@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { purchaseOrderAPI } from '@/services/api/purchase-order-api';
 import { vendorAPI } from '@/services/api/vendor-api';
+import { productsAPI } from '@/services/api/products-api';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFilter';
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 import { ReceivedFilter } from '@/components/purchase-orders/ReceivedFilter';
+import { PurchaseOrderFormDialog } from '@/components/purchase-orders/PurchaseOrderFormDialog';
 
 export const metadata: Metadata = {
   title: 'Purchase Orders',
@@ -28,13 +30,17 @@ export default async function AdminPurchaseOrdersPage({ searchParams }: PageProp
   const { startDate, endDate, vendorId, received, page: pageParam } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
 
-  const [{ purchaseOrders, totalCount, totalPages, hasNextPage, hasPreviousPage }, vendors] = await Promise.all([
+  const [{ purchaseOrders, totalCount, totalPages, hasNextPage, hasPreviousPage }, vendors, { products }] = await Promise.all([
     purchaseOrderAPI.getPurchaseOrders(
       { startDate, endDate, vendorId, received: received === undefined ? undefined : received === 'true', page: currentPage, limit: 20 },
       token
     ),
-    vendorAPI.getVendors(token),
+    // Both only used for the filter bar / New Purchase Order dialog - a hiccup
+    // fetching either shouldn't take down the whole order list.
+    vendorAPI.getVendors(token).catch(() => []),
+    productsAPI.getProducts({ limit: 200 }, token).catch(() => ({ products: [] })),
   ]);
+  const productOptions = products.map((p) => ({ id: p.id, name: p.name, sku: p.sku }));
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -50,12 +56,16 @@ export default async function AdminPurchaseOrdersPage({ searchParams }: PageProp
             <ExpenseDateRangeFilter startDate={startDate} endDate={endDate} basePath="/admin/reports/purchase-orders" />
             <ExpenseVendorFilter vendors={vendors} currentVendorId={vendorId} basePath="/admin/reports/purchase-orders" />
             <ReceivedFilter currentValue={received} basePath="/admin/reports/purchase-orders" />
-            <Button asChild>
-              <Link href="/admin/reports/purchase-orders/new">
-                <Icons.plus className="mr-2 h-4 w-4" />
-                New Purchase Order
-              </Link>
-            </Button>
+            <PurchaseOrderFormDialog
+              products={productOptions}
+              vendors={vendors}
+              trigger={
+                <Button>
+                  <Icons.plus className="mr-2 h-4 w-4" />
+                  New Purchase Order
+                </Button>
+              }
+            />
           </div>
         </div>
 

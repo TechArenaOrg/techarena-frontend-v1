@@ -60,11 +60,11 @@ export function WishlistGrid() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {wishlistItems.map((product) => (
-        <Card key={product.id} className="group overflow-hidden">
+        <Card key={product.id} className="group overflow-hidden flex h-full flex-col">
           <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
             <Link href={`/product/${product.slug}`}>
               <img
-                src={product.images?.[0]?.url || '/placeholder.jpg'}
+                src={product.images?.[0]?.url || '/placeholder.svg'}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -80,7 +80,7 @@ export function WishlistGrid() {
             </Button>
           </div>
 
-          <CardContent className="p-4">
+          <CardContent className="p-4 flex flex-1 flex-col">
             <Link href={`/product/${product.slug}`}>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 {product.name}
@@ -124,7 +124,7 @@ export function WishlistGrid() {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-auto">
               <Button
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={product.stockQuantity === 0}

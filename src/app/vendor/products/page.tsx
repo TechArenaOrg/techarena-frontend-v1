@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
@@ -13,6 +12,8 @@ import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { DeleteProductButton } from '@/components/vendor/DeleteProductButton';
 import { ProductListFilters } from '@/components/product/ProductListFilters';
+import { ProductFormDialog } from '@/components/vendor/ProductFormDialog';
+import { AddProductDialog } from '@/components/vendor/AddProductDialog';
 
 export const metadata: Metadata = {
   title: 'My Products',
@@ -32,23 +33,20 @@ interface PageProps {
 
 export default async function VendorProductsPage({ searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   const { page: pageParam, search, categoryId, lowStock, isFeatured, status } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
   const effectiveStatus = status === 'all' ? undefined : ((status ?? 'active') as 'draft' | 'active' | 'inactive' | 'out_of_stock');
 
   const token = (session as any).accessToken;
-  const { vendor } = await vendorAPI.getMyDashboard(token);
-  const [{ products, totalCount, totalPages, hasNextPage, hasPreviousPage }, { categories }, { totalCount: inactiveCount }] =
-    await Promise.all([
+
+  // The backend is a Render free-tier deploy that intermittently drops connections
+  // while cold-starting - if any of this fails, show a retry message instead of
+  // leaving the page stuck on loading.tsx's spinner forever.
+  let data;
+  try {
+    const { vendor } = await vendorAPI.getMyDashboard(token);
+    const [productsResult, categoriesResult, inactiveResult] = await Promise.all([
       productsAPI.getProducts(
         {
           vendorId: vendor.id,
@@ -65,31 +63,39 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
       categoriesAPI.getCategories({ limit: 20 }),
       productsAPI.getProducts({ vendorId: vendor.id, status: 'inactive', limit: 1 }, token),
     ]);
+    data = { ...productsResult, categories: categoriesResult.categories, inactiveCount: inactiveResult.totalCount };
+  } catch {
+    return (
+      <main className="flex-1 space-y-6 p-6">
+        <div className="container">
+          <div className="text-center py-32">
+            <p className="text-muted-foreground mb-4">Couldn't load your products right now. The server may still be starting up.</p>
+            <Button asChild>
+              <Link href="/vendor/products">Try again</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+  const { products, totalCount, totalPages, hasNextPage, hasPreviousPage, categories, inactiveCount } = data;
 
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">My Products</h1>
-            <p className="text-muted-foreground">
-              {totalCount} product{totalCount !== 1 ? 's' : ''} in your store
-              {inactiveCount > 0 && (
-                <>
-                  {' • '}
-                  <Link href="/vendor/products?status=inactive" className="underline hover:text-foreground">
-                    {inactiveCount} inactive
-                  </Link>
-                </>
-              )}
-            </p>
-          </div>
-          <Button asChild>
-            <Link href="/vendor/products/new">
-              <Icons.plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Link>
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">My Products</h1>
+          <p className="text-muted-foreground">
+            {totalCount} product{totalCount !== 1 ? 's' : ''} in your store
+            {inactiveCount > 0 && (
+              <>
+                {' • '}
+                <Link href="/vendor/products?status=inactive" className="underline hover:text-foreground">
+                  {inactiveCount} inactive
+                </Link>
+              </>
+            )}
+          </p>
         </div>
 
         <Card className="mt-6">
@@ -106,32 +112,64 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
           </CardContent>
         </Card>
 
+        <div className="mt-6 flex justify-end">
+          <AddProductDialog
+            categories={categories}
+            trigger={
+              <Button size="lg">
+                <Icons.plus className="mr-2 h-5 w-5" />
+                Add Product
+              </Button>
+            }
+          />
+        </div>
+
         <Card className="mt-6">
           <CardContent className="p-0">
             {products.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-muted-foreground mb-4">You haven't listed any products yet.</p>
-                <Button asChild>
-                  <Link href="/vendor/products/new">Add your first product</Link>
-                </Button>
+                <AddProductDialog categories={categories} trigger={<Button>Add your first product</Button>} />
               </div>
             ) : (
               <div className="divide-y">
                 {products.map((product) => (
                   <div key={product.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-4">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        SKU: {product.sku} • {formatCurrency(product.price)} • {product.stockQuantity} in stock
+                      <p className="text-base font-medium truncate">{product.name}</p>
+                      <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1">
+                        <span>SKU: {product.sku} •</span>
+                        <span className="font-medium text-foreground">{formatCurrency(product.price)}</span>
+                        {product.comparePrice && product.comparePrice > product.price && (
+                          <span className="line-through">{formatCurrency(product.comparePrice)}</span>
+                        )}
+                        <span>•</span>
+                        <span
+                          className={
+                            product.stockQuantity === 0
+                              ? 'text-red-600 dark:text-red-400 font-medium'
+                              : product.stockQuantity <= product.lowStockThreshold
+                              ? 'text-orange-600 dark:text-orange-400 font-medium'
+                              : ''
+                          }
+                        >
+                          {product.stockQuantity === 0 ? 'Out of stock' : `${product.stockQuantity} in stock`}
+                        </span>
                       </p>
                     </div>
                     <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize justify-self-center">
                       {product.status}
                     </Badge>
                     <div className="flex items-center gap-1 justify-self-end">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/vendor/products/${product.id}/edit`}>Edit</Link>
-                      </Button>
+                      <ProductFormDialog
+                        categories={categories}
+                        productId={product.id}
+                        trigger={
+                          <Button variant="ghost" size="sm">
+                            Edit
+                          </Button>
+                        }
+                      />
                       <DeleteProductButton productId={product.id} productName={product.name} />
                     </div>
                   </div>

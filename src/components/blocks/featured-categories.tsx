@@ -3,11 +3,15 @@ import { Pagination } from '@/components/ui/pagination';
 import { FeaturedCategoriesGrid } from '@/components/blocks/featured-categories-grid';
 
 export async function FeaturedCategories({ page }: { page: number }) {
-  const { categories, totalPages, hasNextPage, hasPreviousPage } = await categoriesAPI.getCategories({
-    isFeatured: true,
-    page,
-    limit: 6,
-  });
+  const result = await categoriesAPI
+    .getCategories({ isFeatured: true, page, limit: 6 })
+    .catch(() => null);
+
+  if (!result) {
+    return <p className="text-center text-muted-foreground">Couldn't load featured categories right now.</p>;
+  }
+
+  const { categories, totalPages, hasNextPage, hasPreviousPage } = result;
 
   if (categories.length === 0) {
     return <p className="text-center text-muted-foreground">No featured categories yet.</p>;

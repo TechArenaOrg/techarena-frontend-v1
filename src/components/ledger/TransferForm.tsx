@@ -15,13 +15,16 @@ import { ApiError } from '@/services/api/client';
 interface TransferFormProps {
   cashAccounts: LedgerAccount[];
   returnPath: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function TransferForm({ cashAccounts, returnPath }: TransferFormProps) {
+export function TransferForm({ cashAccounts, returnPath, onSuccess, onCancel, bare }: TransferFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -50,7 +53,11 @@ export function TransferForm({ cashAccounts, returnPath }: TransferFormProps) {
     try {
       await ledgerAPI.transfer({ fromAccountId, toAccountId, amount: parseFloat(amount), date, note: note || undefined });
       toast({ title: 'Transfer recorded' });
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -59,12 +66,8 @@ export function TransferForm({ cashAccounts, returnPath }: TransferFormProps) {
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Transfer Between Accounts</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+    <>
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -136,13 +139,23 @@ export function TransferForm({ cashAccounts, returnPath }: TransferFormProps) {
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Saving...' : 'Record Transfer'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push(returnPath)} disabled={isSubmitting}>
+              <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.push(returnPath))} disabled={isSubmitting}>
                 Cancel
               </Button>
             </div>
           </form>
         )}
-      </CardContent>
+    </>
+  );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>Transfer Between Accounts</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

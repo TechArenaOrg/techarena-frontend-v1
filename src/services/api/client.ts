@@ -72,15 +72,29 @@ function buildUrl(path: string, params?: RequestOptions['params']): string {
   return url.toString();
 }
 
-// The backend is a Render free-tier deploy that cold-starts after idling. The first
-// request while it's spinning back up can fail to even connect within fetch's default
-// ~10s connect timeout, so retry once after a short delay before giving up.
-async function fetchWithColdStartRetry(url: string, init: RequestInit): Promise<Response> {
+function looksLikeJson(text: string): boolean {
+  const trimmed = text.trimStart();
+  return trimmed === '' || trimmed.startsWith('{') || trimmed.startsWith('[');
+}
+
+// The backend is a Render free-tier deploy that cold-starts after idling. While it's
+// spinning back up, requests can either fail to connect within fetch's default ~10s
+// connect timeout, or succeed but come back through Render's proxy as an HTML holding
+// page instead of JSON - both are retried once after a short delay before giving up.
+async function fetchWithColdStartRetry(url: string, init: RequestInit): Promise<{ response: Response; text: string }> {
   try {
-    return await fetch(url, init);
+    const response = await fetch(url, init);
+    const text = await response.text();
+    if (!looksLikeJson(text)) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const retryResponse = await fetch(url, init);
+      return { response: retryResponse, text: await retryResponse.text() };
+    }
+    return { response, text };
   } catch {
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    return fetch(url, init);
+    const response = await fetch(url, init);
+    return { response, text: await response.text() };
   }
 }
 
@@ -94,7 +108,7 @@ async function request<T>(
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const response = await fetchWithColdStartRetry(buildUrl(path, options.params), {
+  const { response, text } = await fetchWithColdStartRetry(buildUrl(path, options.params), {
     method,
     headers,
     // Not 'include': the backend's CORS config returns Access-Control-Allow-Origin: *,
@@ -105,8 +119,17 @@ async function request<T>(
     signal: options.signal,
   });
 
-  const text = await response.text();
-  const json: ApiEnvelope<T> | undefined = text ? JSON.parse(text) : undefined;
+  let json: ApiEnvelope<T> | undefined;
+  if (text) {
+    try {
+      json = JSON.parse(text);
+    } catch {
+      // Even after the cold-start retry, the response still isn't JSON (a Render
+      // proxy error page, an nginx timeout page, etc.) - surface a clear message
+      // instead of letting the raw SyntaxError bubble up as an unhandled crash.
+      throw new ApiError('The server is taking longer than usual to respond. Please try again.', response.status || 503);
+    }
+  }
 
   if (!response.ok) {
     const message = json?.details?.length

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { ledgerAPI } from '@/services/api/ledger-api';
 import { LedgerEntryForm } from '@/components/ledger/LedgerEntryForm';
@@ -17,10 +17,7 @@ interface PageProps {
 
 export default async function NewVendorLedgerEntryPage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user) redirect('/auth/login');
-  const role = (session.user as any).role;
-  if (role !== 'vendor') redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-
+  
   const token = (session as any).accessToken;
   const { accountId } = await params;
 

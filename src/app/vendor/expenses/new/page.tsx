@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { BackLink } from '@/components/ui/back-link';
@@ -11,14 +10,6 @@ export const metadata: Metadata = {
 
 export default async function NewVendorExpensePage() {
   const session = await auth();
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  const role = (session.user as any).role;
-  if (role !== 'vendor') {
-    redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-  }
 
   return (
     <main className="flex-1 space-y-6 p-6">

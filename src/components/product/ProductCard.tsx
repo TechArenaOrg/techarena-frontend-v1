@@ -112,7 +112,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             onMouseLeave={handleImageHoverEnd}
           >
             <Image
-              src={images[imageIndex]?.url || '/placeholder.jpg'}
+              src={images[imageIndex]?.url || '/placeholder.svg'}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -223,10 +223,10 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="group"
+      className="group h-full"
     >
-      <Link href={`/product/${product.slug}`}>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300">
+      <Link href={`/product/${product.slug}`} className="block h-full">
+        <div className="flex h-full flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300">
           {/* Product Image */}
           <div
             className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700"
@@ -234,7 +234,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             onMouseLeave={handleImageHoverEnd}
           >
             <Image
-              src={images[imageIndex]?.url || '/placeholder.jpg'}
+              src={images[imageIndex]?.url || '/placeholder.svg'}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -322,7 +322,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
           </div>
 
           {/* Product Info */}
-          <div className="p-4">
+          <div className="p-4 flex flex-1 flex-col">
             {/* Brand */}
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
               {product.vendor?.businessName || 'TechArena'}
@@ -355,7 +355,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             )}
 
             {/* Price */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-auto pt-2">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-gray-900 dark:text-white">
                   UGX {product.price.toLocaleString()}
@@ -366,7 +366,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
                   </span>
                 )}
               </div>
-              
+
               {/* Stock Status */}
               <div className="text-right">
                 {product.stockQuantity > product.lowStockThreshold ? (

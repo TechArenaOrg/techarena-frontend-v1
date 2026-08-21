@@ -16,9 +16,12 @@ import type { Vendor } from '@/types';
 interface LedgerAccountFormProps {
   returnPath: string;
   vendors: Vendor[];
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
-export function LedgerAccountForm({ returnPath, vendors }: LedgerAccountFormProps) {
+export function LedgerAccountForm({ returnPath, vendors, onSuccess, onCancel, bare }: LedgerAccountFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -41,7 +44,11 @@ export function LedgerAccountForm({ returnPath, vendors }: LedgerAccountFormProp
     try {
       await ledgerAPI.createAccount({ name: name.trim(), kind, vendorId: vendorId || null });
       toast({ title: 'Ledger account created' });
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -50,12 +57,8 @@ export function LedgerAccountForm({ returnPath, vendors }: LedgerAccountFormProp
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>New Ledger Account</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+    <>
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -101,12 +104,22 @@ export function LedgerAccountForm({ returnPath, vendors }: LedgerAccountFormProp
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Create Account'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push(returnPath)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.push(returnPath))} disabled={isSubmitting}>
               Cancel
             </Button>
           </div>
         </form>
-      </CardContent>
+    </>
+  );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>New Ledger Account</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

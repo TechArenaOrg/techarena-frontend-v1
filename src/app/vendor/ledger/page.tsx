@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { ledgerAPI } from '@/services/api/ledger-api';
 import { formatCurrency } from '@/lib/utils';
@@ -8,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
+import { TransferFormDialog } from '@/components/ledger/TransferFormDialog';
 
 export const metadata: Metadata = {
   title: 'My Accounts',
@@ -18,10 +18,7 @@ const KIND_LABELS: Record<string, string> = { cash: 'Cash', payable: 'Payable', 
 
 export default async function VendorLedgerPage() {
   const session = await auth();
-  if (!session?.user) redirect('/auth/login');
-  const role = (session.user as any).role;
-  if (role !== 'vendor') redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-
+  
   const token = (session as any).accessToken;
   const accounts = await ledgerAPI.getAccounts(token);
   const cashAccounts = accounts.filter((a) => a.kind === 'cash');
@@ -36,12 +33,15 @@ export default async function VendorLedgerPage() {
             <p className="text-muted-foreground">Cash, payable, and receivable balances for your store.</p>
           </div>
           {cashAccounts.length >= 2 && (
-            <Button variant="outline" asChild>
-              <Link href="/vendor/ledger/transfer">
-                <Icons.rotateCounterClockwise className="mr-2 h-4 w-4" />
-                Transfer
-              </Link>
-            </Button>
+            <TransferFormDialog
+              cashAccounts={cashAccounts}
+              trigger={
+                <Button variant="outline">
+                  <Icons.rotateCounterClockwise className="mr-2 h-4 w-4" />
+                  Transfer
+                </Button>
+              }
+            />
           )}
         </div>
 

@@ -105,7 +105,7 @@ export function SearchAutocomplete({ className, inputClassName, placeholder = 'S
                       onClick={() => setIsOpen(false)}
                     >
                       <div className="relative h-10 w-10 shrink-0 rounded overflow-hidden bg-muted">
-                        <Image src={product.images?.[0]?.url || '/placeholder.jpg'} alt={product.name} fill className="object-cover" />
+                        <Image src={product.images?.[0]?.url || '/placeholder.svg'} alt={product.name} fill className="object-cover" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{product.name}</p>

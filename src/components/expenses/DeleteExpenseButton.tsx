@@ -35,7 +35,7 @@ export function DeleteExpenseButton({ expenseId, expenseType }: { expenseId: str
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={handleDelete} disabled={isDeleting} className="text-destructive hover:text-destructive">
+    <Button variant="ghost" size="sm" onClick={handleDelete} disabled={isDeleting} className="text-destructive hover:text-destructive hover:bg-destructive/10">
       <Icons.trash2 className="h-4 w-4" />
     </Button>
   );

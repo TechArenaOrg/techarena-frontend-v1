@@ -21,13 +21,17 @@ interface ExpenseFormProps {
   // Only passed for the admin flow - lets an expense be assigned to a specific vendor,
   // or left unassigned for a platform-level expense (rent, admin salaries, etc).
   vendors?: Vendor[];
+  // Set by callers rendering this form inside a Dialog instead of a full page.
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  bare?: boolean;
 }
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({ expense, returnPath, vendors }: ExpenseFormProps) {
+export function ExpenseForm({ expense, returnPath, vendors, onSuccess, onCancel, bare }: ExpenseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const isEditing = !!expense;
@@ -66,7 +70,11 @@ export function ExpenseForm({ expense, returnPath, vendors }: ExpenseFormProps) 
         await expenseAPI.createExpense(input);
         toast({ title: 'Expense logged' });
       }
-      router.push(returnPath);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnPath);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
@@ -75,12 +83,8 @@ export function ExpenseForm({ expense, returnPath, vendors }: ExpenseFormProps) 
     }
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEditing ? 'Edit Expense' : 'Log Expense'}</CardTitle>
-      </CardHeader>
-      <CardContent>
+  const formBody = (
+    <>
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
@@ -165,12 +169,22 @@ export function ExpenseForm({ expense, returnPath, vendors }: ExpenseFormProps) 
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Log Expense'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push(returnPath)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.push(returnPath))} disabled={isSubmitting}>
               Cancel
             </Button>
           </div>
         </form>
-      </CardContent>
+    </>
+  );
+
+  return bare ? (
+    formBody
+  ) : (
+    <Card>
+      <CardHeader>
+        <CardTitle>{isEditing ? 'Edit Expense' : 'Log Expense'}</CardTitle>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

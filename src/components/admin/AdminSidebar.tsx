@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: Icons.layoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Icons.package },
+  { href: '/admin/products', label: 'Manage Products', icon: Icons.package },
   { href: '/admin/sales-report', label: 'Sales Report', icon: Icons.trendingUp },
   { href: '/admin/reports', label: 'Reports', icon: Icons.fileText },
 ];
@@ -16,7 +16,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:block w-56 shrink-0 border-r bg-muted/20">
+    <aside className="hidden md:block w-56 shrink-0 border-r bg-primary/30 dark:bg-primary/35">
       <div className="sticky top-14 p-4 space-y-1">
         <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Admin

@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { productsAPI } from '@/services/api/products-api';
@@ -13,10 +12,7 @@ export const metadata: Metadata = {
 
 export default async function NewVendorPurchaseOrderPage() {
   const session = await auth();
-  if (!session?.user) redirect('/auth/login');
-  const role = (session.user as any).role;
-  if (role !== 'vendor') redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
-
+  
   const token = (session as any).accessToken;
   const { vendor } = await vendorAPI.getMyDashboard(token);
   const { products } = await productsAPI.getProducts({ vendorId: vendor.id, limit: 200 }, token);
