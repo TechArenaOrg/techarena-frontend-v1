@@ -76,6 +76,14 @@ export const authAPI = {
     return { user: normalizeUser(result.user), accessToken: result.accessToken, refreshToken: result.refreshToken };
   },
 
+  // Exchanges a Google ID token (from NextAuth's Google provider) for the backend's
+  // own JWT pair - see GOOGLE_SIGNIN_API_SPEC.md. Returns the exact same shape as
+  // login()/register() so NextAuth's jwt callback doesn't need separate handling.
+  async loginWithGoogle(idToken: string) {
+    const result = await apiClient.post<AuthResult>('/auth/google', { idToken });
+    return { user: normalizeUser(result.user), accessToken: result.accessToken, refreshToken: result.refreshToken };
+  },
+
   async register(input: {
     email: string;
     password: string;

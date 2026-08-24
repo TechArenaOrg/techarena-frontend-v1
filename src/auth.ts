@@ -1,5 +1,6 @@
-import NextAuth, { NextAuthConfig } from 'next-auth';
+import NextAuth, { NextAuthConfig, Account } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { JWT } from 'next-auth/jwt';
 import { Session } from 'next-auth';
 import { z } from 'zod';
@@ -65,13 +66,38 @@ export const config: NextAuthConfig = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   pages: {
     signIn: '/account/login',
     error: '/account/login',
   },
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: any }) {
+    async jwt({ token, user, account }: { token: JWT; user?: any; account?: Account | null }) {
+      // Google sign-in: exchange the ID token NextAuth got from Google for this
+      // backend's own JWT pair, so the rest of the app (which only knows how to call
+      // this backend, not Google) works identically regardless of how the user
+      // signed in. See GOOGLE_SIGNIN_API_SPEC.md.
+      if (account?.provider === 'google' && account.id_token) {
+        try {
+          const { user: backendUser, accessToken, refreshToken } = await authAPI.loginWithGoogle(account.id_token);
+          token.role = backendUser.role;
+          token.id = backendUser.id;
+          token.accessToken = accessToken;
+          token.refreshToken = refreshToken;
+          token.accessTokenExpires = decodeJwtExpiryMs(accessToken);
+          token.error = undefined;
+          return token;
+        } catch (error) {
+          console.error('Google sign-in backend exchange failed:', error);
+          token.error = 'GoogleSignInFailed';
+          return token;
+        }
+      }
+
       if (user) {
         token.role = user.role;
         token.id = user.id;
