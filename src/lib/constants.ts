@@ -243,8 +243,8 @@ export const SOCIAL_LINKS = {
 
 // Contact Information
 export const CONTACT_INFO = {
-  EMAIL: 'hello@techarenaug.com',
-  PHONE: '+256 700 000 000',
+  EMAIL: 'techarenaug@gmail.com',
+  PHONE: '+256 757 206 101',
   ADDRESS: 'Kampala, Uganda',
   BUSINESS_HOURS: 'Mon - Fri: 8:00 AM - 6:00 PM',
 } as const;
