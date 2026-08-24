@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { ApiError } from '@/services/api/client';
+import { setPendingCartAction } from '@/lib/pending-cart-action';
 
 interface ProductDetailProps {
   product: Product & {
@@ -34,6 +35,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
+      setPendingCartAction(product.id, quantity);
       router.push(`/auth/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }

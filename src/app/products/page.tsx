@@ -2,13 +2,12 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { productsAPI } from '@/services/api/products-api';
 import { categoriesAPI } from '@/services/api/categories-api';
-import { ProductCard } from '@/components/product/ProductCard';
+import { ProductsInfiniteGrid } from '@/components/product/ProductsInfiniteGrid';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { ProductSort } from '@/components/product/ProductSort';
 import { ProductViewToggle } from '@/components/product/ProductViewToggle';
 import { PageHeaderSkeleton } from '@/components/ui/skeletons';
 import { Badge } from '@/components/ui/badge';
-import { Pagination } from '@/components/ui/pagination';
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -26,66 +25,27 @@ interface ProductsSearchParams {
   page?: string;
 }
 
-function ProductGrid({
-  products,
-  view,
-}: {
-  products: Awaited<ReturnType<typeof productsAPI.getProducts>>['products'];
-  view: 'grid' | 'list';
-}) {
-  if (products.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          No products found
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Try adjusting your search or filters.
-        </p>
-      </div>
-    );
-  }
-
-  if (view === 'list') {
-    return (
-      <div className="space-y-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} layout="list" />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
-  );
-}
-
 interface ProductsPageProps {
   searchParams: Promise<ProductsSearchParams>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = await searchParams;
-  const currentPage = resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1;
   const minPrice = resolvedSearchParams.minPrice ? Number(resolvedSearchParams.minPrice) : undefined;
   const maxPrice = resolvedSearchParams.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined;
   const minRating = resolvedSearchParams.minRating ? Number(resolvedSearchParams.minRating) : undefined;
-  const [{ products, totalCount, totalPages, hasNextPage, hasPreviousPage }, { categories }] = await Promise.all([
-    productsAPI.getProducts({
-      search: resolvedSearchParams.search,
-      categoryId: resolvedSearchParams.categoryId,
-      minPrice,
-      maxPrice,
-      minRating,
-      sortBy: resolvedSearchParams.sortBy,
-      page: currentPage,
-      limit: 12,
-    }),
+  const filters = {
+    search: resolvedSearchParams.search,
+    categoryId: resolvedSearchParams.categoryId,
+    minPrice,
+    maxPrice,
+    minRating,
+    sortBy: resolvedSearchParams.sortBy,
+  };
+  // Infinite scroll always starts from page 1 - filter changes (search/category/sort)
+  // reset the list rather than resuming from wherever ?page= last pointed.
+  const [{ products, totalCount, hasNextPage }, { categories }] = await Promise.all([
+    productsAPI.getProducts({ ...filters, page: 1, limit: 12 }),
     categoriesAPI.getCategories({ limit: 20 }),
   ]);
 
@@ -131,16 +91,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <ProductViewToggle currentView={view} />
               </div>
 
-              <ProductGrid products={products} view={view} />
-
-              <div className="mt-8 flex justify-center">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  hasNextPage={hasNextPage}
-                  hasPreviousPage={hasPreviousPage}
-                />
-              </div>
+              <ProductsInfiniteGrid initialProducts={products} initialHasNextPage={hasNextPage} filters={filters} view={view} />
             </div>
           </div>
         </div>

@@ -100,8 +100,8 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider>
-          <AuthProvider>
-            <ReactQueryProvider>
+          <ReactQueryProvider>
+            <AuthProvider>
               <ApolloWrapper>
                 <div className="relative flex min-h-screen flex-col">
                   <Header />
@@ -110,8 +110,8 @@ export default function RootLayout({
                 </div>
                 <Toaster />
               </ApolloWrapper>
-            </ReactQueryProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

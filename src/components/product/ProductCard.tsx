@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { ApiError } from '@/services/api/client';
+import { setPendingCartAction } from '@/lib/pending-cart-action';
 
 interface ProductCardProps {
   product: Product;
@@ -63,6 +64,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     if (product.stockQuantity === 0) return;
 
     if (!isAuthenticated) {
+      setPendingCartAction(product.id, 1);
       router.push(`/auth/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
@@ -313,17 +315,20 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             {/* Quick Add to Cart / Buy Now */}
             <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <Button
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className={product.stockQuantity === 0 ? 'flex-1 bg-blue-600 hover:bg-blue-700 text-white' : 'shrink-0 px-3 bg-blue-600 hover:bg-blue-700 text-white'}
                 disabled={product.stockQuantity === 0 || isLoading}
                 onClick={handleAddToCart}
+                title="Add to Cart"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
+                ) : product.stockQuantity === 0 ? (
                   <>
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    Out of Stock
                   </>
+                ) : (
+                  <ShoppingCart className="w-4 h-4" />
                 )}
               </Button>
               {product.stockQuantity > 0 && (
