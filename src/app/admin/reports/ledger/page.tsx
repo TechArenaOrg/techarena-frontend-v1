@@ -10,14 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { BootstrapVendorAccountsButton } from '@/components/ledger/BootstrapVendorAccountsButton';
 import { TransferFormDialog } from '@/components/ledger/TransferFormDialog';
-import { LedgerAccountFormDialog } from '@/components/ledger/LedgerAccountFormDialog';
+import { NewLedgerAccountButton } from '@/components/ledger/NewLedgerAccountButton';
 
 export const metadata: Metadata = {
   title: 'Chart of Accounts',
   description: 'Ledger accounts and their live balances.',
 };
 
-const KIND_LABELS: Record<string, string> = { cash: 'Cash', payable: 'Payable', receivable: 'Receivable' };
+const KIND_LABELS: Record<string, string> = { cash: 'Cash', payable: 'Payable', receivable: 'Receivable', stock: 'Stock' };
 
 export default async function AdminLedgerPage() {
   const session = await auth();
@@ -74,7 +74,7 @@ export default async function AdminLedgerPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Chart of Accounts</h1>
-            <p className="text-muted-foreground">Live balances across all cash, payable, and receivable accounts.</p>
+            <p className="text-muted-foreground">Live balances across all cash, payable, receivable, and stock accounts.</p>
           </div>
           <div className="flex items-end gap-3">
             <TransferFormDialog
@@ -86,15 +86,7 @@ export default async function AdminLedgerPage() {
                 </Button>
               }
             />
-            <LedgerAccountFormDialog
-              vendors={vendors}
-              trigger={
-                <Button>
-                  <Icons.plus className="mr-2 h-4 w-4" />
-                  New Account
-                </Button>
-              }
-            />
+            <NewLedgerAccountButton vendors={vendors} />
           </div>
         </div>
 

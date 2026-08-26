@@ -80,6 +80,7 @@ export function LedgerAccountForm({ returnPath, vendors, onSuccess, onCancel, ba
                 <SelectItem value="cash">Cash (petty cash, bank, mobile money...)</SelectItem>
                 <SelectItem value="payable">Payable (money the business owes)</SelectItem>
                 <SelectItem value="receivable">Receivable (money owed to the business)</SelectItem>
+                <SelectItem value="stock">Stock (inventory value)</SelectItem>
               </SelectContent>
             </Select>
           </div>

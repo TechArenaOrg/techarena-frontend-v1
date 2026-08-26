@@ -8,10 +8,9 @@ import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { ReceivedFilter } from '@/components/purchase-orders/ReceivedFilter';
-import { PurchaseOrderFormDialog } from '@/components/purchase-orders/PurchaseOrderFormDialog';
+import { NewPurchaseOrderButton } from '@/components/purchase-orders/NewPurchaseOrderButton';
 
 export const metadata: Metadata = {
   title: 'Purchase Orders',
@@ -36,7 +35,7 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
     ),
     vendorAPI.getMyDashboard(token).catch(() => null),
   ]);
-  // Only used to populate the New Purchase Order dialog's product picker - a hiccup
+  // Only used to populate the New Purchase Order form's product picker - a hiccup
   // fetching either shouldn't take down the whole order list.
   const { products } = dashboard
     ? await productsAPI.getProducts({ vendorId: dashboard.vendor.id, limit: 200 }, token).catch(() => ({ products: [] }))
@@ -55,15 +54,7 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
           </div>
           <div className="flex items-end gap-4">
             <ReceivedFilter currentValue={received} basePath="/vendor/purchase-orders" />
-            <PurchaseOrderFormDialog
-              products={productOptions}
-              trigger={
-                <Button>
-                  <Icons.plus className="mr-2 h-4 w-4" />
-                  New Purchase Order
-                </Button>
-              }
-            />
+            <NewPurchaseOrderButton products={productOptions} />
           </div>
         </div>
 

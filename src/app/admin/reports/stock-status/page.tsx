@@ -2,23 +2,33 @@ import { Metadata } from 'next';
 import { Fragment } from 'react';
 import { auth } from '@/auth';
 import { productsAPI } from '@/services/api/products-api';
+import { vendorAPI } from '@/services/api/vendor-api';
 import { formatCurrency, groupByKey } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 
 export const metadata: Metadata = {
   title: 'Stock Status',
   description: 'Current on-hand inventory value and margin by department.',
 };
 
-export default async function StockStatusPage() {
+interface PageProps {
+  searchParams: Promise<{ vendorId?: string }>;
+}
+
+export default async function StockStatusPage({ searchParams }: PageProps) {
   const session = await auth();
   const token = (session as any).accessToken;
+  const { vendorId } = await searchParams;
 
-  // Point-in-time inventory snapshot across the whole catalog - 500 comfortably covers
-  // the current volume. If the catalog grows well past that, this needs real pagination
-  // or a backend-side grouped endpoint instead of fetching everything at once.
-  const { products } = await productsAPI.getProducts({ limit: 500 }, token);
+  // Point-in-time inventory snapshot - 500 comfortably covers the current volume.
+  // If the catalog grows well past that, this needs real pagination or a
+  // backend-side grouped endpoint instead of fetching everything at once.
+  const [{ products }, vendors] = await Promise.all([
+    productsAPI.getProducts({ vendorId, limit: 500 }, token),
+    vendorAPI.getVendors(token).catch(() => []),
+  ]);
 
   const rows = products.map((product) => {
     const hasCost = product.costPrice !== undefined && product.costPrice !== null;
@@ -57,8 +67,13 @@ export default async function StockStatusPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
-        <h1 className="text-3xl font-bold tracking-tight">Stock Status</h1>
-        <p className="text-muted-foreground">Current inventory value as of now, by department.</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Stock Status</h1>
+            <p className="text-muted-foreground">Current inventory value as of now, by department.</p>
+          </div>
+          <ExpenseVendorFilter vendors={vendors} currentVendorId={vendorId} basePath="/admin/reports/stock-status" />
+        </div>
 
         {missingCostCount > 0 && (
           <Alert className="mt-6">

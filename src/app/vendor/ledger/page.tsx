@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: 'Your cash, payable, and receivable accounts.',
 };
 
-const KIND_LABELS: Record<string, string> = { cash: 'Cash', payable: 'Payable', receivable: 'Receivable' };
+const KIND_LABELS: Record<string, string> = { cash: 'Cash', payable: 'Payable', receivable: 'Receivable', stock: 'Stock' };
 
 export default async function VendorLedgerPage() {
   const session = await auth();
@@ -30,7 +30,7 @@ export default async function VendorLedgerPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">My Accounts</h1>
-            <p className="text-muted-foreground">Cash, payable, and receivable balances for your store.</p>
+            <p className="text-muted-foreground">Cash, payable, receivable, and stock balances for your store.</p>
           </div>
           {cashAccounts.length >= 2 && (
             <TransferFormDialog
@@ -50,7 +50,7 @@ export default async function VendorLedgerPage() {
             <CardContent className="text-center py-16">
               <p className="text-muted-foreground">
                 You don't have any ledger accounts yet. Only admins can create them — ask your admin to set up your Petty Cash, Bank, Mobile
-                Money, Creditors, and Debtors accounts.
+                Money, Creditors, Debtors, and Stock accounts.
               </p>
             </CardContent>
           </Card>

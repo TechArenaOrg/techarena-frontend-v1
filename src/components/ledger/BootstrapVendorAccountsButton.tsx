@@ -14,6 +14,7 @@ const STARTER_ACCOUNTS: Omit<LedgerAccountInput, 'vendorId'>[] = [
   { name: 'Mobile Money', kind: 'cash' },
   { name: 'Creditors', kind: 'payable' },
   { name: 'Debtors', kind: 'receivable' },
+  { name: 'Stock', kind: 'stock' },
 ];
 
 export function BootstrapVendorAccountsButton({ vendorId, vendorName }: { vendorId: string; vendorName: string }) {
@@ -22,7 +23,7 @@ export function BootstrapVendorAccountsButton({ vendorId, vendorName }: { vendor
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
-    if (!window.confirm(`Create the standard 5 ledger accounts (Petty Cash, Bank, Mobile Money, Creditors, Debtors) for ${vendorName}?`)) {
+    if (!window.confirm(`Create the standard 6 ledger accounts (Petty Cash, Bank, Mobile Money, Creditors, Debtors, Stock) for ${vendorName}?`)) {
       return;
     }
 

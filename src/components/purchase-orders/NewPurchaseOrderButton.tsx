@@ -1,8 +1,10 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { SimpleModal } from '@/components/ui/simple-modal';
+import { Icons } from '@/components/ui/icons';
 import { PurchaseOrderForm } from '@/components/purchase-orders/PurchaseOrderForm';
 import type { Vendor } from '@/types';
 
@@ -12,23 +14,22 @@ interface ProductOption {
   sku: string;
 }
 
-interface PurchaseOrderFormDialogProps {
-  trigger: ReactNode;
+interface NewPurchaseOrderButtonProps {
   products: ProductOption[];
   vendors?: Vendor[];
 }
 
-export function PurchaseOrderFormDialog({ trigger, products, vendors }: PurchaseOrderFormDialogProps) {
+export function NewPurchaseOrderButton({ products, vendors }: NewPurchaseOrderButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>New Purchase Order</DialogTitle>
-        </DialogHeader>
+    <>
+      <Button onClick={() => setOpen(true)}>
+        <Icons.plus className="mr-2 h-4 w-4" />
+        New Purchase Order
+      </Button>
+      <SimpleModal open={open} onClose={() => setOpen(false)} title="New Purchase Order" className="max-w-2xl">
         <PurchaseOrderForm
           products={products}
           vendors={vendors}
@@ -40,7 +41,7 @@ export function PurchaseOrderFormDialog({ trigger, products, vendors }: Purchase
           }}
           onCancel={() => setOpen(false)}
         />
-      </DialogContent>
-    </Dialog>
+      </SimpleModal>
+    </>
   );
 }

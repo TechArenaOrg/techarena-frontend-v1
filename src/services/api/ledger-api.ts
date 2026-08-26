@@ -8,7 +8,7 @@ interface RawPage<T> {
   pagination: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean };
 }
 
-export type LedgerAccountKind = 'cash' | 'payable' | 'receivable';
+export type LedgerAccountKind = 'cash' | 'payable' | 'receivable' | 'stock';
 
 export interface LedgerAccount {
   id: string;

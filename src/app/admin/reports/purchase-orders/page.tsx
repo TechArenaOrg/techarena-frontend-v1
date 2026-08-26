@@ -8,12 +8,11 @@ import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFilter';
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 import { ReceivedFilter } from '@/components/purchase-orders/ReceivedFilter';
-import { PurchaseOrderFormDialog } from '@/components/purchase-orders/PurchaseOrderFormDialog';
+import { NewPurchaseOrderButton } from '@/components/purchase-orders/NewPurchaseOrderButton';
 
 export const metadata: Metadata = {
   title: 'Purchase Orders',
@@ -35,7 +34,7 @@ export default async function AdminPurchaseOrdersPage({ searchParams }: PageProp
       { startDate, endDate, vendorId, received: received === undefined ? undefined : received === 'true', page: currentPage, limit: 20 },
       token
     ),
-    // Both only used for the filter bar / New Purchase Order dialog - a hiccup
+    // Both only used for the filter bar / New Purchase Order form - a hiccup
     // fetching either shouldn't take down the whole order list.
     vendorAPI.getVendors(token).catch(() => []),
     productsAPI.getProducts({ limit: 200 }, token).catch(() => ({ products: [] })),
@@ -56,16 +55,7 @@ export default async function AdminPurchaseOrdersPage({ searchParams }: PageProp
             <ExpenseDateRangeFilter startDate={startDate} endDate={endDate} basePath="/admin/reports/purchase-orders" />
             <ExpenseVendorFilter vendors={vendors} currentVendorId={vendorId} basePath="/admin/reports/purchase-orders" />
             <ReceivedFilter currentValue={received} basePath="/admin/reports/purchase-orders" />
-            <PurchaseOrderFormDialog
-              products={productOptions}
-              vendors={vendors}
-              trigger={
-                <Button>
-                  <Icons.plus className="mr-2 h-4 w-4" />
-                  New Purchase Order
-                </Button>
-              }
-            />
+            <NewPurchaseOrderButton products={productOptions} vendors={vendors} />
           </div>
         </div>
 

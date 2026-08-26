@@ -28,7 +28,7 @@ function todayIso() {
 export function LedgerEntryForm({ account, returnPath, onSuccess, onCancel, bare }: LedgerEntryFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const isCash = account.kind === 'cash';
+  const usesDirection = account.kind === 'cash' || account.kind === 'stock';
 
   const [amount, setAmount] = useState('');
   const [direction, setDirection] = useState<'in' | 'out'>('in');
@@ -47,8 +47,8 @@ export function LedgerEntryForm({ account, returnPath, onSuccess, onCancel, bare
       await ledgerAPI.createEntry({
         accountId: account.id,
         amount: parseFloat(amount),
-        direction: isCash ? direction : undefined,
-        isSettled: isCash ? undefined : isSettled,
+        direction: usesDirection ? direction : undefined,
+        isSettled: usesDirection ? undefined : isSettled,
         note: note || undefined,
         date,
       });
@@ -94,7 +94,7 @@ export function LedgerEntryForm({ account, returnPath, onSuccess, onCancel, bare
             </div>
           </div>
 
-          {isCash ? (
+          {usesDirection ? (
             <div className="space-y-2">
               <Label htmlFor="direction">Direction</Label>
               <Select value={direction} onValueChange={(value) => setDirection(value as 'in' | 'out')} disabled={isSubmitting}>
@@ -102,8 +102,17 @@ export function LedgerEntryForm({ account, returnPath, onSuccess, onCancel, bare
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="in">In (money received)</SelectItem>
-                  <SelectItem value="out">Out (money spent)</SelectItem>
+                  {account.kind === 'stock' ? (
+                    <>
+                      <SelectItem value="in">In (stock added)</SelectItem>
+                      <SelectItem value="out">Out (stock removed)</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="in">In (money received)</SelectItem>
+                      <SelectItem value="out">Out (money spent)</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
