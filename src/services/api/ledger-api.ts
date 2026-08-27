@@ -117,6 +117,11 @@ export const ledgerAPI = {
   async deleteEntry(id: string, token?: string) {
     await apiClient.delete<void>(`/ledger-entries/${id}`, { token });
   },
+
+  // Admin-only; backend rejects with 409 if the account still has entries.
+  async deleteAccount(id: string, token?: string) {
+    await apiClient.delete<void>(`/ledger-accounts/${id}`, { token });
+  },
 };
 
 export default ledgerAPI;

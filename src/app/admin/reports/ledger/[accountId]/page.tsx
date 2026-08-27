@@ -11,6 +11,7 @@ import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { BackLink } from '@/components/ui/back-link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
+import { DeleteLedgerAccountButton } from '@/components/ledger/DeleteLedgerAccountButton';
 import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
 
 export const metadata: Metadata = {
@@ -49,15 +50,18 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
               {vendorName} • Current balance: {formatCurrency(account.balance)}
             </p>
           </div>
-          <LedgerEntryFormDialog
-            account={account}
-            trigger={
-              <Button>
-                <Icons.plus className="mr-2 h-4 w-4" />
-                Record Entry
-              </Button>
-            }
-          />
+          <div className="flex items-center gap-3">
+            <DeleteLedgerAccountButton accountId={account.id} returnPath="/admin/reports/ledger" />
+            <LedgerEntryFormDialog
+              account={account}
+              trigger={
+                <Button>
+                  <Icons.plus className="mr-2 h-4 w-4" />
+                  Record Entry
+                </Button>
+              }
+            />
+          </div>
         </div>
 
         <Card className="mt-6">

@@ -1,77 +1,87 @@
-# Inventory in the Chart of Accounts — Backend Spec Request
+# Inventory in the Chart of Accounts
 
-**Status: proposed, not yet implemented.** Today the Chart of Accounts
-(`GET /ledger-accounts`) only knows about three account kinds — `cash`, `payable`,
-`receivable` — each backed by real double-entry ledger entries
-(`POST /ledger-entries`, `POST /ledger-entries/transfer`). Total stock cost exists
-today only as a separate, purely client-side snapshot: [Stock Status](src/app/admin/reports/stock-status/page.tsx#L37)
-computes `costPrice × stockQuantity` per product from `GET /products` and sums it —
-it has no relationship to the ledger at all. This doc proposes making inventory a
-real account in that same ledger.
+**Status: implemented and confirmed live.** The Chart of Accounts (`GET /ledger-accounts`)
+now has a fourth `LedgerAccountKind`, `stock`, alongside `cash` / `payable` /
+`receivable`. Every stock-mutation path has been explicitly tested and confirmed
+working: product creation with an initial quantity, manual stock edits, checkout,
+cancel/restore, PO receive, and PO delete-reversal. This doc now records what was
+actually built, for reference — the sections below describe the final, as-built
+behavior rather than the original proposal.
 
-## Why this needs backend work, not just a frontend display change
+## How it works
 
-`LedgerAccount.balance` ([ledger-api.ts](src/services/api/ledger-api.ts#L13)) comes
-straight from the API and is computed server-side from posted entries — the frontend
-never calculates a ledger balance itself. Adding an Inventory line to the Chart of
-Accounts that behaves like the existing accounts (has a balance, has an entry
-history, participates in transfers/reporting) requires the backend to know about
-stock movements as *accounting events*, not just as `stockQuantity` decrements on a
-product row. That's a new responsibility, not a display tweak.
+`LedgerAccount.balance` ([ledger-api.ts](src/services/api/ledger-api.ts#L11)) is
+computed server-side, same as the other three kinds. Backend deliberately kept the
+Inventory account's balance math **the same in/out model cash accounts already use**,
+not full double-entry — see "What was deliberately left out" below.
 
-## Proposed model: real inventory asset account, proper double-entry
+### Confirmed-live posting paths
 
-Add `stock` (or `inventory`) as a new `LedgerAccountKind`, alongside `cash` /
-`payable` / `receivable`. Unlike those, an inventory account isn't manually created
-per-vendor by an admin the way cash accounts are — recommend the backend
-auto-provisions one inventory account per vendor (and one platform-level one, if
-platform ever holds its own stock), the same way `BootstrapVendorAccountsButton`
-already bootstraps standard accounts for a vendor today.
+| Stock event | Cost source | Status |
+|---|---|---|
+| Product created with an initial `stockQuantity` | `product.costPrice` | ✅ confirmed |
+| Product's `stockQuantity` manually edited (delta-based) | `product.costPrice` | ✅ confirmed |
+| Checkout decrements stock | `product.costPrice` | ✅ confirmed |
+| Order cancel/restore reverses the above | `product.costPrice` | ✅ confirmed |
+| Purchase Order received | the PO item's own `unitCost` (more accurate than `costPrice` — it's what was actually paid) | ✅ confirmed |
+| Purchase Order deleted (reverses stock + ledger) | matches whatever was originally posted | ✅ confirmed |
 
-### When entries get posted (proposed)
+### Best-effort, never blocking
 
-| Stock event | Entry |
-|---|---|
-| Vendor adds a new product / restocks (`stockQuantity` increases) | Debit Inventory by `costPrice × quantityAdded` |
-| A sale ships (order moves to a state that decrements `stockQuantity`) | Credit Inventory, debit COGS by `costPrice × quantitySold` |
-| Manual stock adjustment / write-off (damage, loss, recount) | Credit or debit Inventory by `costPrice × quantityAdjusted`, matched against an adjustment/expense account |
+- A product with no `costPrice` set contributes a net entry value of `0` — the
+  posting is skipped entirely rather than writing a zero-amount entry. Matches how
+  [Stock Status](src/app/admin/reports/stock-status/page.tsx#L24) already treats
+  missing cost.
+- If the relevant vendor has no Stock account yet, the posting is skipped and logged
+  server-side only — it does not block the underlying stock/checkout/PO operation.
+- Any ledger-posting error is caught and logged, never rolls back or blocks the real
+  operation — same pattern as the existing payment→ledger integration.
 
-This means the backend needs to hook into wherever `stockQuantity` already changes
-(product creation/update, order fulfillment, any admin stock-adjustment action) and
-post the matching ledger entry alongside it, rather than treating `stockQuantity` as
-a bare counter. **Open question for backend:** does an "adjustment" admin action
-already exist, or does one need to be added so write-offs have somewhere to point?
+### What was deliberately left out (not gaps — explicit decisions)
 
-### Products without a `costPrice`
+- **No COGS account, no true double-entry.** Inventory's balance moves correctly on
+  every event above, but there's no automatic offsetting expense entry. Margin
+  reporting still only comes from the independently-computed
+  [Stock Status](src/app/admin/reports/stock-status/page.tsx) report, not from the
+  ledger. Revisit only if margin/P&L reporting through the ledger itself becomes a
+  real need later — it's a bigger addition (a new `LedgerAccountKind` plus its own
+  balance rule).
+- **No auto-provisioning per vendor.** Consistent with how `cash` / `payable` /
+  `receivable` already work (all manually created via admin), a vendor's Stock
+  account has to be created the same way — via "New Account" or the
+  `BootstrapVendorAccountsButton` starter-account flow, both of which now include
+  `stock` as an option. One platform-level "Inventory" account *is* auto-seeded, but
+  it will permanently stay at `0` since `Product.vendorId` is required (never null) —
+  there's no product-driven stock movement that has anywhere platform-level to land.
+- **No retroactive valuation.** A newly created vendor Stock account starts at `0`
+  and only reacts to movements from that point forward — it does not backfill the
+  vendor's pre-existing on-hand stock. To get an accurate starting balance, manually
+  post a one-time opening entry (via "Record Entry", direction "In") for that
+  vendor's current total stock cost, readable from
+  [Stock Status](src/app/admin/reports/stock-status/page.tsx) (now filterable by
+  vendor).
+- **Out of scope:** seed-data stock insertions (one-time demo data, not real
+  history) and `ProductVariant` stock (dead code today).
 
-[Stock Status](src/app/admin/reports/stock-status/page.tsx#L24) already handles this
-today by treating missing cost as `0` and flagging it in a banner. Recommend the same
-rule here: a product with no `costPrice` contributes `0` to any inventory entry
-(rather than blocking the stock movement), so accounting stays best-effort instead of
-breaking checkout/restock flows over missing data entry.
+## API surface
 
-### API surface
+No new endpoints. `stock` is just a valid value for `LedgerAccountKind`, returned
+from `GET /ledger-accounts` / `GET /ledger-entries` like any other kind, and
+accepted by the existing `POST /ledger-accounts` when creating one. The
+system-generated postings for the six events above are not driven through
+`POST /ledger-entries` — that endpoint is still for manually keyed entries (like a
+correction), separate from the automatic postings.
 
-No new endpoints needed if the above lands — `stock` just becomes a valid value
-returned in `LedgerAccount.kind`, and it shows up in `GET /ledger-accounts` /
-`GET /ledger-entries` like any other account. The only actual additions:
+## Frontend-side changes (implemented)
 
-- `LedgerAccountKind` gains `'stock'`.
-- Whatever internal service updates `stockQuantity` also calls the ledger-entry
-  creation logic for the matching account. No new public endpoint — existing
-  `POST /ledger-entries` isn't the entry point here since these postings are
-  system-generated from stock events, not manually keyed by a user the way a cash
-  entry is.
-
-## Frontend-side changes (once this exists)
-
-- `KIND_LABELS` in [ledger/page.tsx](src/app/admin/reports/ledger/page.tsx#L20) and
-  the vendor equivalent gets a `stock: 'Stock'` entry — trivial once the backend
-  returns it.
-- `LedgerAccountKind` in [ledger-api.ts](src/services/api/ledger-api.ts#L11) gains
+- `LedgerAccountKind` in [ledger-api.ts](src/services/api/ledger-api.ts#L11) includes
   `'stock'`.
-- Nothing else strictly required — the existing account table, grand-total row, and
-  per-account entry view all already work generically over whatever accounts the API
-  returns. Could later cross-check the ledger's Inventory balance against Stock
-  Status's independently-computed `extCost` total as a sanity check the two agree,
-  but that's optional polish, not required for this to work.
+- `KIND_LABELS` in both the admin and vendor ledger pages include `stock: 'Stock'`.
+- The "New Account" form and the vendor starter-account bootstrap both offer `stock`
+  as a kind.
+- The manual "Record Entry" form treats `stock` accounts like `cash` (in/out
+  direction, not the settled/outstanding checkbox), with stock-specific labels
+  ("stock added"/"stock removed" instead of "money received"/"money spent").
+- [Stock Status](src/app/admin/reports/stock-status/page.tsx) has a vendor filter, so
+  each vendor's current total stock cost can be read off for the opening-entry step
+  above.
