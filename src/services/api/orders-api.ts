@@ -1,7 +1,9 @@
 // Real order calls for the logged-in customer's own order history, via GET /orders
-// (auto-scoped to the current user for the customer role). Uses the same unified
-// {items, pagination} shape as /products, /categories, /vendors.
+// (auto-scoped to the current user for the customer role - admins/vendors get every
+// order through the same endpoint). Uses the same unified {items, pagination} shape
+// as /products, /categories, /vendors.
 import { apiClient } from './client';
+import type { OrderStatus, OrderItemStatus } from '@/types';
 
 interface RawPage<T> {
   items: T[];
@@ -98,6 +100,55 @@ export const ordersAPI = {
       hasNextPage: raw.pagination.hasNextPage,
       hasPreviousPage: raw.pagination.hasPrevPage,
     };
+  },
+
+  // Admin-only in practice: same GET /orders endpoint as getMyOrders, just named for
+  // where it's actually used - the backend scopes admins to see every order server-side.
+  async getOrders(params: { status?: string; page?: number; limit?: number }, token?: string) {
+    return ordersAPI.getMyOrders(params, token);
+  },
+
+  async getOrder(id: string, token?: string) {
+    const raw = await apiClient.get<any>(`/orders/${id}`, { token });
+    return normalizeOrder(raw);
+  },
+
+  // Admin/Vendor only (backend-enforced). Confirmed live: shippedAt/deliveredAt
+  // auto-populate when status crosses into 'shipped'/'delivered'.
+  async updateOrderStatus(id: string, status: OrderStatus, token?: string) {
+    const raw = await apiClient.put<any>(`/orders/${id}/status`, { status }, { token });
+    return normalizeOrder(raw);
+  },
+
+  // Vendor-scoped: only orders containing that vendor's own products.
+  async getVendorOrders(params: { page?: number; limit?: number }, token?: string) {
+    const raw = await apiClient.get<RawPage<any>>('/vendor/orders', { params, token });
+    const orders = raw.items.map(normalizeOrder);
+
+    return {
+      orders,
+      totalCount: raw.pagination.total,
+      currentPage: raw.pagination.page,
+      totalPages: raw.pagination.totalPages,
+      hasNextPage: raw.pagination.hasNextPage,
+      hasPreviousPage: raw.pagination.hasPrevPage,
+    };
+  },
+
+  // The backend has no single-order GET route scoped to a vendor - fetch the
+  // vendor's order list and find the one we want, same pattern as
+  // ledgerAPI.getAccount. Also preserves /vendor/orders's own scoping.
+  async getVendorOrder(id: string, token?: string) {
+    const { orders } = await ordersAPI.getVendorOrders({ limit: 100 }, token);
+    return orders.find((order) => order.id === id) ?? null;
+  },
+
+  // Confirmed live: updating a vendor's item status auto-advances the parent
+  // order's own status (and its shippedAt/deliveredAt) once every item on the
+  // order reaches that status.
+  async updateOrderItemStatus(orderId: string, itemId: string, status: OrderItemStatus, token?: string) {
+    const raw = await apiClient.patch<any>(`/vendor/orders/${orderId}/items/${itemId}/status`, { status }, { token });
+    return normalizeOrderItem(raw);
   },
 
   // Confirmed empirically against the live backend (Swagger has no DTO for this
