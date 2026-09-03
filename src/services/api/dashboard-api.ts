@@ -43,7 +43,13 @@ export const dashboardAPI = {
   // Runs server-side (a Server Component), where there's no browser token store - the
   // caller must pass the access token from the NextAuth session explicitly.
   async getMyDashboard(token?: string) {
-    const raw = await apiClient.get<any>('/dashboard/profile', token ? { token } : undefined);
+    const [raw, ordersPage] = await Promise.all([
+      apiClient.get<any>('/dashboard/profile', token ? { token } : undefined),
+      // /dashboard/profile's recentOrders is a capped preview (not a full order
+      // history), so recentOrders.length is not a real order count - limit: 1 here
+      // just to cheaply read the real total from the pagination metadata.
+      apiClient.get<{ pagination: { total: number } }>('/orders', { params: { limit: 1 }, token }),
+    ]);
     const orders = Array.isArray(raw.recentOrders) ? raw.recentOrders.map(normalizeOrder) : [];
 
     const totalSpent = orders.reduce((sum: number, order: any) => sum + order.totalAmount, 0);
@@ -63,7 +69,7 @@ export const dashboardAPI = {
 
     return {
       orders,
-      totalOrders: orders.length,
+      totalOrders: ordersPage.pagination.total,
       totalSpent,
       savedAmount,
     };
