@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -285,40 +286,15 @@ export function ProductForm({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
+              <CurrencyInput id="price" value={price} onChange={setPrice} required disabled={isSubmitting} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="comparePrice">Compare Price</Label>
-              <Input
-                id="comparePrice"
-                type="number"
-                step="0.01"
-                min="0"
-                value={comparePrice}
-                onChange={(e) => setComparePrice(e.target.value)}
-                disabled={isSubmitting}
-              />
+              <CurrencyInput id="comparePrice" value={comparePrice} onChange={setComparePrice} disabled={isSubmitting} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="costPrice">Cost Price</Label>
-              <Input
-                id="costPrice"
-                type="number"
-                step="0.01"
-                min="0"
-                value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
-                disabled={isSubmitting}
-              />
+              <CurrencyInput id="costPrice" value={costPrice} onChange={setCostPrice} disabled={isSubmitting} />
               <p className="text-xs text-muted-foreground">What you paid - used for profit reports.</p>
             </div>
             <div className="space-y-2">

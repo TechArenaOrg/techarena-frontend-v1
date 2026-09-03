@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -189,12 +190,9 @@ export function PurchaseOrderForm({ returnPath, products, vendors, onSuccess, on
                   </div>
                   <div className="w-36 space-y-1.5">
                     {index === 0 && <Label className="text-xs text-muted-foreground">Unit Cost (UGX)</Label>}
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={row.unitCost}
-                      onChange={(e) => updateRow(index, { unitCost: Number(e.target.value) })}
+                    <CurrencyInput
+                      value={String(row.unitCost || '')}
+                      onChange={(digits) => updateRow(index, { unitCost: Number(digits) || 0 })}
                       required
                       disabled={isSubmitting}
                     />
