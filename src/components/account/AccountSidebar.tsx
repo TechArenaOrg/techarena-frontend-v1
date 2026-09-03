@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 const navigationItems = [
   {
     name: 'Dashboard',
-    href: '/account',
+    href: '/dashboard',
     icon: User,
     description: 'Overview of your account'
   },
