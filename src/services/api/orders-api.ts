@@ -165,6 +165,18 @@ export const ordersAPI = {
     const raw = await apiClient.post<{ payment: any; gatewayResponse: any }>(`/orders/${orderId}/payment`, input);
     return raw.payment;
   },
+
+  // Customer (own order), admin, super_admin, or official_store_manager only -
+  // confirmed live, vendor gets a 403. Only works while status is 'pending' or
+  // 'confirmed' - rejected with a clear error from 'processing' onward, for every
+  // role. This is the ONLY path that correctly reverses stock, the inventory ledger,
+  // AND any cash credited from the sale - confirmed by direct before/after test.
+  // Do not "cancel" an order via updateOrderStatus(id, 'cancelled') instead: that
+  // path has no status restriction and reverses stock/inventory but NOT cash,
+  // confirmed live to leave a vendor's cash account overstated.
+  async cancelOrder(id: string, token?: string) {
+    await apiClient.delete<void>(`/orders/${id}`, { token });
+  },
 };
 
 export default ordersAPI;

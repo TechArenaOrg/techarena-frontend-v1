@@ -9,7 +9,11 @@ import { ordersAPI } from '@/services/api/orders-api';
 import { ApiError } from '@/services/api/client';
 import type { OrderStatus } from '@/types';
 
-const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'failed'];
+// 'cancelled' is deliberately excluded here - setting it through this generic status
+// update reverses stock and the inventory ledger but NOT any cash credited from the
+// sale, confirmed live. Use CancelOrderButton instead, which goes through the
+// dedicated cancel endpoint that reverses all three correctly.
+const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'refunded', 'failed'];
 
 export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string; currentStatus: OrderStatus }) {
   const router = useRouter();
