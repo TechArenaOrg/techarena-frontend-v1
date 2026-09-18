@@ -45,7 +45,7 @@ export function ExpenseFormDialog({ trigger, vendors, expenseId }: ExpenseFormDi
         </DialogHeader>
         {isEditing && loading ? (
           <div className="flex justify-center py-12">
-            <Icons.spinner className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Icons.spinner className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : isEditing && !expense ? (
           <p className="text-sm text-muted-foreground py-8 text-center">Couldn't load this expense.</p>

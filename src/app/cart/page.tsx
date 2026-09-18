@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { CartItems } from '@/components/blocks/cart-items';
 import { CartSummary } from '@/components/blocks/cart-summary';
-import { PageHeaderSkeleton } from '@/components/ui/skeletons';
+import { PageHeaderSkeleton, Skeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Icons } from '@/components/ui/icons';
@@ -34,13 +34,13 @@ export default function CartPage() {
                     <CardContent className="p-6">
                       <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center space-x-4 py-4 animate-pulse">
-                            <div className="h-16 w-16 bg-gray-200 rounded" />
+                          <div key={i} className="flex items-center space-x-4 py-4">
+                            <Skeleton className="h-16 w-16 rounded" />
                             <div className="flex-1 space-y-2">
-                              <div className="h-4 bg-gray-200 rounded" />
-                              <div className="h-3 bg-gray-200 rounded w-3/4" />
+                              <Skeleton className="h-4 w-full" />
+                              <Skeleton className="h-3 w-3/4" />
                             </div>
-                            <div className="h-4 w-16 bg-gray-200 rounded" />
+                            <Skeleton className="h-4 w-16" />
                           </div>
                         ))}
                       </div>
@@ -80,19 +80,19 @@ export default function CartPage() {
                 fallback={
                   <Card>
                     <CardContent className="p-6">
-                      <div className="space-y-4 animate-pulse">
-                        <div className="h-6 bg-gray-200 rounded" />
+                      <div className="space-y-4">
+                        <Skeleton className="h-6 w-full" />
                         <div className="space-y-3">
                           <div className="flex justify-between">
-                            <div className="h-4 bg-gray-200 rounded w-1/2" />
-                            <div className="h-4 bg-gray-200 rounded w-1/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-1/4" />
                           </div>
                           <div className="flex justify-between">
-                            <div className="h-4 bg-gray-200 rounded w-1/3" />
-                            <div className="h-4 bg-gray-200 rounded w-1/4" />
+                            <Skeleton className="h-4 w-1/3" />
+                            <Skeleton className="h-4 w-1/4" />
                           </div>
                         </div>
-                        <div className="h-10 bg-gray-200 rounded" />
+                        <Skeleton className="h-10 w-full" />
                       </div>
                     </CardContent>
                   </Card>

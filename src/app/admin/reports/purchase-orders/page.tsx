@@ -13,6 +13,7 @@ import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFi
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 import { ReceivedFilter } from '@/components/purchase-orders/ReceivedFilter';
 import { NewPurchaseOrderButton } from '@/components/purchase-orders/NewPurchaseOrderButton';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Purchase Orders',
@@ -44,6 +45,7 @@ export default async function AdminPurchaseOrdersPage({ searchParams }: PageProp
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
+        <BackLink href="/admin/reports" label="Back to Reports" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Purchase Orders</h1>

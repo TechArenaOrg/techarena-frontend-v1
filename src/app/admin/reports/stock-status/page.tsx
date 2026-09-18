@@ -7,6 +7,7 @@ import { formatCurrency, groupByKey } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Stock Status',
@@ -67,6 +68,7 @@ export default async function StockStatusPage({ searchParams }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
+        <BackLink href="/admin/reports" label="Back to Reports" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Stock Status</h1>

@@ -19,16 +19,24 @@ interface HomePageProps {
   searchParams: Promise<{ categoriesPage?: string }>;
 }
 
+async function HeroSectionData() {
+  const slides = await heroSlidesAPI.getActiveSlides().catch(() => []);
+  return <HeroSection slides={slides} />;
+}
+
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams;
   const categoriesPage = resolvedSearchParams.categoriesPage ? Number(resolvedSearchParams.categoriesPage) : 1;
-  const slides = await heroSlidesAPI.getActiveSlides().catch(() => []);
 
   return (
     <>
       <main className="flex-1">
-        {/* Hero Section */}
-        <HeroSection slides={slides} />
+        {/* Hero Section - streamed in separately so its fetch never blocks the rest of
+            the page; the fallback is HeroSection's own real default copy, not a
+            skeleton, so there's nothing to visually swap out once slides arrive. */}
+        <Suspense fallback={<HeroSection slides={[]} />}>
+          <HeroSectionData />
+        </Suspense>
 
         {/* Featured Categories */}
         <section className="py-3 bg-gray-50 dark:bg-gray-900">

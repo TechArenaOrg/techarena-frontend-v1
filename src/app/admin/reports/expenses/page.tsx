@@ -11,6 +11,7 @@ import { ExpenseDateRangeFilter } from '@/components/expenses/ExpenseDateRangeFi
 import { ExpenseVendorFilter } from '@/components/expenses/ExpenseVendorFilter';
 import { DeleteExpenseButton } from '@/components/expenses/DeleteExpenseButton';
 import { ExpenseFormDialog } from '@/components/expenses/ExpenseFormDialog';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Expenses',
@@ -39,6 +40,7 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
+        <BackLink href="/admin/reports" label="Back to Reports" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Expenses</h1>

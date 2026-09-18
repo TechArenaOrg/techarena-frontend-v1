@@ -11,6 +11,7 @@ import { Icons } from '@/components/ui/icons';
 import { BootstrapVendorAccountsButton } from '@/components/ledger/BootstrapVendorAccountsButton';
 import { TransferFormDialog } from '@/components/ledger/TransferFormDialog';
 import { NewLedgerAccountButton } from '@/components/ledger/NewLedgerAccountButton';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Chart of Accounts',
@@ -71,6 +72,7 @@ export default async function AdminLedgerPage() {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
+        <BackLink href="/admin/reports" label="Back to Reports" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Chart of Accounts</h1>

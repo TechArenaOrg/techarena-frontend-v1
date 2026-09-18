@@ -14,7 +14,6 @@ import {
   ImagePlus,
   LayoutDashboard,
   List,
-  Loader2,
   Lock,
   LogOut,
   Menu,
@@ -35,6 +34,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 export type Icon = LucideIcon;
 
@@ -55,7 +55,7 @@ export const Icons = {
   imagePlus: ImagePlus,
   layoutDashboard: LayoutDashboard,
   list: List,
-  loader: Loader2,
+  loader: Spinner,
   lock: Lock,
   logOut: LogOut,
   menu: Menu,
@@ -67,7 +67,7 @@ export const Icons = {
   settings: Settings,
   shield: Shield,
   shoppingCart: ShoppingCart,
-  spinner: Loader2,
+  spinner: Spinner,
   star: Star,
   store: Store,
   trash2: Trash2,

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckoutFormSkeleton } from '@/components/ui/skeletons';
 import { Icons } from '@/components/ui/icons';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
@@ -109,7 +110,11 @@ export function CheckoutForm({ defaultEmail }: CheckoutFormProps) {
     }
   };
 
-  if (!isCartLoading && items.length === 0) {
+  if (isCartLoading) {
+    return <CheckoutFormSkeleton />;
+  }
+
+  if (items.length === 0) {
     return (
       <Card>
         <CardContent className="text-center py-16">

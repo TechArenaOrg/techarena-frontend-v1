@@ -46,7 +46,7 @@ export function ProductFormDialog({ trigger, categories, vendors, productId }: P
         </DialogHeader>
         {isEditing && loading ? (
           <div className="flex justify-center py-12">
-            <Icons.spinner className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Icons.spinner className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : isEditing && !product ? (
           <p className="text-sm text-muted-foreground py-8 text-center">Couldn't load this product.</p>

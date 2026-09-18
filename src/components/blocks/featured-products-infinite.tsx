@@ -52,7 +52,7 @@ export function FeaturedProductsInfinite({ initialProducts, initialHasNextPage }
       <FeaturedProductsGrid products={products} />
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-4">
-          {loading && <Icons.spinner className="h-6 w-6 animate-spin text-muted-foreground" />}
+          {loading && <Icons.spinner className="h-6 w-6 animate-spin text-primary" />}
         </div>
       )}
     </div>

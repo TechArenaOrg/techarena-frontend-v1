@@ -96,7 +96,7 @@ export function ProductsInfiniteGrid({ initialProducts, initialHasNextPage, filt
         </div>
         {hasMore && (
           <div ref={sentinelRef} className="flex justify-center py-4">
-            {loading && <Icons.spinner className="h-6 w-6 animate-spin text-muted-foreground" />}
+            {loading && <Icons.spinner className="h-6 w-6 animate-spin text-primary" />}
           </div>
         )}
       </div>
@@ -114,7 +114,7 @@ export function ProductsInfiniteGrid({ initialProducts, initialHasNextPage, filt
       </motion.div>
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-4">
-          {loading && <Icons.spinner className="h-6 w-6 animate-spin text-muted-foreground" />}
+          {loading && <Icons.spinner className="h-6 w-6 animate-spin text-primary" />}
         </div>
       )}
     </div>

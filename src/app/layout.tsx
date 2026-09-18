@@ -4,6 +4,7 @@ import { ApolloWrapper } from '@/components/providers/apollo-wrapper';
 import { ReactQueryProvider } from '@/components/providers/react-query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { ScrollToTop } from '@/components/providers/scroll-to-top';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
@@ -103,6 +104,7 @@ export default function RootLayout({
           <ReactQueryProvider>
             <AuthProvider>
               <ApolloWrapper>
+                <ScrollToTop />
                 <div className="relative flex min-h-screen flex-col">
                   <Header />
                   {children}

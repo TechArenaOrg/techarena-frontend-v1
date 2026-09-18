@@ -6,6 +6,7 @@ import { formatCurrency, groupByKey } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SalesReportFilters } from '@/components/admin/SalesReportFilters';
+import { BackLink } from '@/components/ui/back-link';
 
 export const metadata: Metadata = {
   title: 'Sales Summary',
@@ -53,6 +54,7 @@ export default async function SalesSummaryPage({ searchParams }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
+        <BackLink href="/admin/reports" label="Back to Reports" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">Sales Summary</h1>

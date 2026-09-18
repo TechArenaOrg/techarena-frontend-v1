@@ -1,5 +1,6 @@
+import { Fragment } from 'react';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 interface SkeletonProps {
   className?: string;
@@ -159,6 +160,221 @@ export function ReviewSkeleton({ className }: { className?: string }) {
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-16 w-full" />
     </div>
+  );
+}
+
+export function CheckoutFormSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <Skeleton className="h-5 w-28 mb-1" />
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-14 w-14 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
+              </div>
+              <Skeleton className="h-4 w-16" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <Skeleton className="h-5 w-36 mb-1" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <div className="grid grid-cols-2 gap-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <Skeleton className="h-5 w-32 mb-1" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-6 space-y-3">
+          <Skeleton className="h-5 w-36 mb-1" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full" />
+          ))}
+        </CardContent>
+      </Card>
+      <Skeleton className="h-12 w-full" />
+    </div>
+  );
+}
+
+// A flat data table - expenses, sales report, ledger/PO lists.
+export function DataTableSkeleton({ columns = 5, rows = 8 }: { columns?: number; rows?: number }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b">
+            {Array.from({ length: columns }).map((_, i) => (
+              <th key={i} className="px-6 py-3">
+                <Skeleton className="h-4 w-20" />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {Array.from({ length: rows }).map((_, r) => (
+            <tr key={r}>
+              {Array.from({ length: columns }).map((_, c) => (
+                <td key={c} className="px-6 py-3">
+                  <Skeleton className="h-4 w-full max-w-[110px]" />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// A table grouped into labeled sections with subtotal rows - Stock Status,
+// Sales Summary (by department), Chart of Accounts (by vendor).
+export function GroupedTableSkeleton({
+  columns = 5,
+  groups = 3,
+  rowsPerGroup = 3,
+}: {
+  columns?: number;
+  groups?: number;
+  rowsPerGroup?: number;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b">
+            {Array.from({ length: columns }).map((_, i) => (
+              <th key={i} className="px-6 py-3">
+                <Skeleton className="h-4 w-20" />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {Array.from({ length: groups }).map((_, g) => (
+            <Fragment key={g}>
+              <tr className="bg-muted/40">
+                <td colSpan={columns} className="px-6 py-2">
+                  <Skeleton className="h-4 w-32" />
+                </td>
+              </tr>
+              {Array.from({ length: rowsPerGroup }).map((_, r) => (
+                <tr key={r}>
+                  {Array.from({ length: columns }).map((_, c) => (
+                    <td key={c} className="px-6 py-3">
+                      <Skeleton className={cn('h-4 w-full max-w-[100px]', c === 0 && 'ml-4')} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </Fragment>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// BackLink + title/subtitle + a row of action buttons - shared shape across every
+// admin/vendor "detail" page (ledger account, purchase order, order).
+export function DetailHeaderSkeleton({ actions = 2 }: { actions?: number }) {
+  return (
+    <div>
+      <Skeleton className="h-4 w-36 mb-6" />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <div className="flex items-center gap-3">
+          {Array.from({ length: actions }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Repeated Card+table blocks - the Chart of Accounts / My Accounts list, grouped
+// by vendor rather than one flat table.
+export function AccountGroupsSkeleton({ groups = 2 }: { groups?: number }) {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: groups }).map((_, i) => (
+        <Card key={i}>
+          <CardContent className="p-0">
+            <div className="px-6 py-3">
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <DataTableSkeleton columns={4} rows={3} />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// The address/fulfillment + items table + totals shape shared by every order
+// detail page (customer, vendor, admin) - columns varies slightly per role.
+export function OrderDetailSkeleton({ itemColumns = 5, cards = 2 }: { itemColumns?: number; cards?: number }) {
+  return (
+    <>
+      <div className={cn('grid grid-cols-1 gap-6 mt-6', cards > 1 && 'md:grid-cols-2')}>
+        {Array.from({ length: cards }).map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-4 w-32" />
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+              <Skeleton className="h-3 w-1/2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <Skeleton className="h-4 w-16" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <DataTableSkeleton columns={itemColumns} rows={2} />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardContent className="p-6 space-y-3">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex justify-between border-t pt-3">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-5 w-28" />
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }
 
