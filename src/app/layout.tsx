@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { ApolloWrapper } from '@/components/providers/apollo-wrapper';
 import { ReactQueryProvider } from '@/components/providers/react-query-provider';
@@ -24,6 +24,15 @@ const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
+
+// Declared as early as possible (in the raw HTML head, before any CSS or JS
+// loads) so the browser doesn't fall back to its own OS-driven dark rendering
+// for that very first paint - without this, a visitor with a dark-mode OS sees
+// a flash of dark before the app's own light-default CSS/JS ever get a chance
+// to run.
+export const viewport: Viewport = {
+  colorScheme: 'light',
+};
 
 export const metadata: Metadata = {
   title: {
