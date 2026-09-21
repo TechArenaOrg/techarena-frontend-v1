@@ -93,7 +93,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {order.items.map((item) => (
+                  {order.items.map((item: any) => (
                     <tr key={item.id}>
                       <td className="px-6 py-3 font-medium">{item.productName}</td>
                       <td className="px-6 py-3 text-muted-foreground">{item.vendor?.businessName ?? '—'}</td>
@@ -110,7 +110,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             </div>
 
             <div className="sm:hidden divide-y">
-              {order.items.map((item) => (
+              {order.items.map((item: any) => (
                 <div key={item.id} className="p-4 space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium">{item.productName}</p>

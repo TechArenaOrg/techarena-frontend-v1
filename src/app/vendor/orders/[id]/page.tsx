@@ -31,7 +31,7 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
 
   // /vendor/orders is already scoped to this vendor, but an order can span multiple
   // vendors - only show/act on the items that are actually this vendor's own.
-  const myItems = order.items.filter((item) => item.vendorId === vendor.id);
+  const myItems = order.items.filter((item: any) => item.vendorId === vendor.id);
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -78,7 +78,7 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {myItems.map((item) => (
+                  {myItems.map((item: any) => (
                     <tr key={item.id}>
                       <td className="px-6 py-3 font-medium">{item.productName}</td>
                       <td className="px-6 py-3 text-right">{item.quantity}</td>
@@ -93,7 +93,7 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
             </div>
 
             <div className="sm:hidden divide-y">
-              {myItems.map((item) => (
+              {myItems.map((item: any) => (
                 <div key={item.id} className="p-4 space-y-2">
                   <p className="font-medium">{item.productName}</p>
                   <p className="text-sm text-muted-foreground">
