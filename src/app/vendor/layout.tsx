@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { VendorSidebar } from '@/components/vendor/VendorSidebar';
+import { VendorSidebar, VENDOR_NAV_ITEMS } from '@/components/vendor/VendorSidebar';
+import { MobileSectionNav } from '@/components/ui/mobile-section-nav';
 
 export default async function VendorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -14,9 +15,12 @@ export default async function VendorLayout({ children }: { children: React.React
   }
 
   return (
-    <div className="flex-1 flex">
-      <VendorSidebar />
-      <div className="flex-1 min-w-0">{children}</div>
+    <div className="flex-1 flex flex-col">
+      <MobileSectionNav items={VENDOR_NAV_ITEMS} label="Vendor" />
+      <div className="flex-1 flex">
+        <VendorSidebar />
+        <div className="flex-1 min-w-0">{children}</div>
+      </div>
     </div>
   );
 }

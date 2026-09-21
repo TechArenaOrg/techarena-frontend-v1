@@ -31,14 +31,42 @@ export function UserMenu() {
 
   if (!session) {
     return (
-      <div className="flex items-center space-x-2">
-        <Button variant="ghost" asChild>
-          <Link href="/auth/login">Sign In</Link>
-        </Button>
-        <Button asChild>
-          <Link href="/auth/register">Sign Up</Link>
-        </Button>
-      </div>
+      <>
+        {/* Full text buttons - crammed in next to the logo, search bar, and
+            cart/wishlist icons, these were pushing content off the right edge of
+            the screen on a phone, so desktop only. */}
+        <div className="hidden lg:flex items-center space-x-2">
+          <Button variant="ghost" asChild>
+            <Link href="/auth/login">Sign In</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/auth/register">Sign Up</Link>
+          </Button>
+        </div>
+
+        {/* Mobile: a compact profile icon in the same spot the avatar occupies once
+            signed in, instead of burying Sign In/Up a tap deeper inside the hamburger
+            menu - directness was the whole point of the request. */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Icons.user className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href="/auth/login" className="cursor-pointer">
+                Sign In
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/auth/register" className="cursor-pointer">
+                Sign Up
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
     );
   }
 

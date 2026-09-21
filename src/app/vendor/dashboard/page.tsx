@@ -186,12 +186,12 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">{vendor.businessName}</h1>
             <p className="text-muted-foreground">Your vendor dashboard and store performance.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Badge variant={vendor.status === 'approved' ? 'default' : 'secondary'} className="capitalize">
               {vendor.status}
             </Badge>

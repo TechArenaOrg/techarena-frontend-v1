@@ -58,7 +58,7 @@ export default async function VendorLedgerPage() {
           <>
             <Card className="mt-6">
               <CardContent className="p-0">
-                <div className="overflow-x-auto">
+                <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-left text-muted-foreground">
@@ -85,6 +85,23 @@ export default async function VendorLedgerPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                <div className="sm:hidden divide-y">
+                  {accounts.map((account) => (
+                    <div key={account.id} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium">{account.name}</p>
+                        <Badge variant="outline" className="shrink-0">{KIND_LABELS[account.kind]}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between pt-1">
+                        <p className="font-medium">{formatCurrency(account.balance)}</p>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/vendor/ledger/${account.id}`}>View Entries</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

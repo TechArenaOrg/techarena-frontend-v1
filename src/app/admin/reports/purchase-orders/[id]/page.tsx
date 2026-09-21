@@ -38,7 +38,7 @@ export default async function AdminPurchaseOrderDetailPage({ params }: PageProps
               {po.receivedDate ? ` • Received ${new Date(po.receivedDate).toLocaleDateString()}` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Badge variant={po.isReceived ? 'success' : 'warning'}>{po.isReceived ? 'Received' : 'Pending'}</Badge>
             <ReceivedToggleButton purchaseOrderId={po.id} isReceived={po.isReceived} />
             <DeletePurchaseOrderButton purchaseOrderId={po.id} isReceived={po.isReceived} returnPath="/admin/reports/purchase-orders" />
@@ -52,7 +52,7 @@ export default async function AdminPurchaseOrderDetailPage({ params }: PageProps
             <CardTitle>Items</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
@@ -83,6 +83,22 @@ export default async function AdminPurchaseOrderDetailPage({ params }: PageProps
                   </tr>
                 </tfoot>
               </table>
+            </div>
+
+            <div className="sm:hidden divide-y">
+              {po.items.map((item) => (
+                <div key={item.id} className="p-4 space-y-1.5">
+                  <p className="font-medium">{item.productName}</p>
+                  <p className="text-sm text-muted-foreground">{item.categoryName ?? '—'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Qty {item.quantity} × {formatCurrency(item.unitCost)} = <span className="font-medium text-foreground">{formatCurrency(item.quantity * item.unitCost)}</span>
+                  </p>
+                </div>
+              ))}
+              <div className="p-4 flex items-center justify-between font-bold bg-muted/60">
+                <span>Total</span>
+                <span>{formatCurrency(po.totalAmount)}</span>
+              </div>
             </div>
           </CardContent>
         </Card>

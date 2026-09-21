@@ -134,7 +134,10 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
             ) : (
               <div className="divide-y">
                 {products.map((product) => (
-                  <div key={product.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-4">
+                  <div
+                    key={product.id}
+                    className="flex flex-col gap-3 p-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4"
+                  >
                     <div className="min-w-0">
                       <p className="text-base font-medium truncate">{product.name}</p>
                       <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1">
@@ -157,20 +160,22 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
                         </span>
                       </p>
                     </div>
-                    <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize justify-self-center">
-                      {product.status}
-                    </Badge>
-                    <div className="flex items-center gap-1 justify-self-end">
-                      <ProductFormDialog
-                        categories={categories}
-                        productId={product.id}
-                        trigger={
-                          <Button variant="ghost" size="sm">
-                            Edit
-                          </Button>
-                        }
-                      />
-                      <DeleteProductButton productId={product.id} productName={product.name} />
+                    <div className="flex items-center justify-between gap-2 sm:contents">
+                      <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize sm:justify-self-center">
+                        {product.status}
+                      </Badge>
+                      <div className="flex items-center gap-1 sm:justify-self-end">
+                        <ProductFormDialog
+                          categories={categories}
+                          productId={product.id}
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              Edit
+                            </Button>
+                          }
+                        />
+                        <DeleteProductButton productId={product.id} productName={product.name} />
+                      </div>
                     </div>
                   </div>
                 ))}

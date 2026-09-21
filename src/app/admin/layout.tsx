@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { AdminSidebar, ADMIN_NAV_ITEMS } from '@/components/admin/AdminSidebar';
+import { MobileSectionNav } from '@/components/ui/mobile-section-nav';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -14,9 +15,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="flex-1 flex">
-      <AdminSidebar />
-      <div className="flex-1 min-w-0">{children}</div>
+    <div className="flex-1 flex flex-col">
+      <MobileSectionNav items={ADMIN_NAV_ITEMS} label="Admin" />
+      <div className="flex-1 flex">
+        <AdminSidebar />
+        <div className="flex-1 min-w-0">{children}</div>
+      </div>
     </div>
   );
 }

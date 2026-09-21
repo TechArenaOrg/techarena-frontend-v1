@@ -38,34 +38,53 @@ export default async function AdminLedgerPage() {
 
   function AccountTable({ rows }: { rows: typeof accounts }) {
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-muted-foreground">
-              <th className="px-6 py-3 font-medium">Account</th>
-              <th className="px-6 py-3 font-medium">Kind</th>
-              <th className="px-6 py-3 font-medium text-right">Balance</th>
-              <th className="px-6 py-3 font-medium text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {rows.map((account) => (
-              <tr key={account.id}>
-                <td className="px-6 py-3 font-medium">{account.name}</td>
-                <td className="px-6 py-3">
-                  <Badge variant="outline">{KIND_LABELS[account.kind]}</Badge>
-                </td>
-                <td className="px-6 py-3 text-right">{formatCurrency(account.balance)}</td>
-                <td className="px-6 py-3 text-right">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={`/admin/reports/ledger/${account.id}`}>View Entries</Link>
-                  </Button>
-                </td>
+      <>
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-muted-foreground">
+                <th className="px-6 py-3 font-medium">Account</th>
+                <th className="px-6 py-3 font-medium">Kind</th>
+                <th className="px-6 py-3 font-medium text-right">Balance</th>
+                <th className="px-6 py-3 font-medium text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y">
+              {rows.map((account) => (
+                <tr key={account.id}>
+                  <td className="px-6 py-3 font-medium">{account.name}</td>
+                  <td className="px-6 py-3">
+                    <Badge variant="outline">{KIND_LABELS[account.kind]}</Badge>
+                  </td>
+                  <td className="px-6 py-3 text-right">{formatCurrency(account.balance)}</td>
+                  <td className="px-6 py-3 text-right">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/admin/reports/ledger/${account.id}`}>View Entries</Link>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="sm:hidden divide-y">
+          {rows.map((account) => (
+            <div key={account.id} className="p-4 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium">{account.name}</p>
+                <Badge variant="outline" className="shrink-0">{KIND_LABELS[account.kind]}</Badge>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <p className="font-medium">{formatCurrency(account.balance)}</p>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={`/admin/reports/ledger/${account.id}`}>View Entries</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
     );
   }
 
@@ -78,7 +97,7 @@ export default async function AdminLedgerPage() {
             <h1 className="text-3xl font-bold tracking-tight">Chart of Accounts</h1>
             <p className="text-muted-foreground">Live balances across all cash, payable, receivable, and stock accounts.</p>
           </div>
-          <div className="flex items-end gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <TransferFormDialog
               cashAccounts={cashAccounts}
               trigger={

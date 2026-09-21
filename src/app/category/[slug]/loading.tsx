@@ -31,7 +31,7 @@ export default function Loading() {
               <Skeleton className="h-4 w-48 mb-4 sm:mb-0" />
               <Skeleton className="h-10 w-40" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {Array.from({ length: 12 }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}

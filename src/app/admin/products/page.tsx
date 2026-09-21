@@ -137,7 +137,10 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
             ) : (
               <div className="divide-y">
                 {products.map((product) => (
-                  <div key={product.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-4">
+                  <div
+                    key={product.id}
+                    className="flex flex-col gap-3 p-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4"
+                  >
                     <div className="min-w-0">
                       <p className="text-base font-medium truncate">{product.name}</p>
                       <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1">
@@ -162,29 +165,31 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
                         </span>
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 justify-self-center">
-                      <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                        {product.status}
-                      </Badge>
-                      {product.isFeatured && (
-                        <Badge className="bg-orange-500 text-white border-0">
-                          <Icons.star className="mr-1 h-3 w-3 fill-current" />
-                          Featured
+                    <div className="flex items-center justify-between gap-2 sm:contents">
+                      <div className="flex items-center gap-2 sm:justify-self-center">
+                        <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="capitalize">
+                          {product.status}
                         </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 justify-self-end">
-                      <ProductFormDialog
-                        categories={categories}
-                        vendors={vendors}
-                        productId={product.id}
-                        trigger={
-                          <Button variant="ghost" size="sm">
-                            Edit
-                          </Button>
-                        }
-                      />
-                      <DeleteProductButton productId={product.id} productName={product.name} />
+                        {product.isFeatured && (
+                          <Badge className="bg-orange-500 text-white border-0">
+                            <Icons.star className="mr-1 h-3 w-3 fill-current" />
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 sm:justify-self-end">
+                        <ProductFormDialog
+                          categories={categories}
+                          vendors={vendors}
+                          productId={product.id}
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              Edit
+                            </Button>
+                          }
+                        />
+                        <DeleteProductButton productId={product.id} productName={product.name} />
+                      </div>
                     </div>
                   </div>
                 ))}

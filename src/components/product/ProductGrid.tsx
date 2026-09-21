@@ -68,7 +68,7 @@ export function ProductGrid({ searchParams }: ProductGridProps) {
   if (loading) {
     return (
       <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 12 }).map((_, i) => (
             <ProductCardSkeleton key={i} />
           ))}
@@ -127,7 +127,7 @@ export function ProductGrid({ searchParams }: ProductGridProps) {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
       >
         {products.map((product) => (
           <motion.div key={product.id} variants={item}>

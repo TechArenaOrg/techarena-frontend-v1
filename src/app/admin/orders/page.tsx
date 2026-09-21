@@ -45,40 +45,69 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                 <p className="text-muted-foreground">No orders found.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Order</th>
-                      <th className="px-6 py-3 font-medium">Customer</th>
-                      <th className="px-6 py-3 font-medium">Date</th>
-                      <th className="px-6 py-3 font-medium">Items</th>
-                      <th className="px-6 py-3 font-medium text-right">Total</th>
-                      <th className="px-6 py-3 font-medium">Status</th>
-                      <th className="px-6 py-3 font-medium text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {orders.map((order) => (
-                      <tr key={order.id}>
-                        <td className="px-6 py-3 font-medium">{order.orderNumber}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{order.customerEmail ?? order.user?.email ?? '—'}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{new Date(order.placedAt).toLocaleDateString()}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{order.items.length}</td>
-                        <td className="px-6 py-3 text-right">{formatCurrency(order.totalAmount)}</td>
-                        <td className="px-6 py-3">
-                          <OrderStatusBadge status={order.status} />
-                        </td>
-                        <td className="px-6 py-3 text-right">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/admin/orders/${order.id}`}>View</Link>
-                          </Button>
-                        </td>
+              <>
+                {/* Table - roomy enough at sm+ to show every column at once */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-medium">Order</th>
+                        <th className="px-6 py-3 font-medium">Customer</th>
+                        <th className="px-6 py-3 font-medium">Date</th>
+                        <th className="px-6 py-3 font-medium">Items</th>
+                        <th className="px-6 py-3 font-medium text-right">Total</th>
+                        <th className="px-6 py-3 font-medium">Status</th>
+                        <th className="px-6 py-3 font-medium text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y">
+                      {orders.map((order) => (
+                        <tr key={order.id}>
+                          <td className="px-6 py-3 font-medium">{order.orderNumber}</td>
+                          <td className="px-6 py-3 text-muted-foreground">{order.customerEmail ?? order.user?.email ?? '—'}</td>
+                          <td className="px-6 py-3 text-muted-foreground">{new Date(order.placedAt).toLocaleDateString()}</td>
+                          <td className="px-6 py-3 text-muted-foreground">{order.items.length}</td>
+                          <td className="px-6 py-3 text-right">{formatCurrency(order.totalAmount)}</td>
+                          <td className="px-6 py-3">
+                            <OrderStatusBadge status={order.status} />
+                          </td>
+                          <td className="px-6 py-3 text-right">
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/admin/orders/${order.id}`}>View</Link>
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Card list - a 7-column table doesn't fit a phone screen, and a
+                    horizontally-scrolling table hides the total/status/actions a
+                    vendor actually needs to see. */}
+                <div className="sm:hidden divide-y">
+                  {orders.map((order) => (
+                    <div key={order.id} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium">{order.orderNumber}</p>
+                        <OrderStatusBadge status={order.status} />
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {order.customerEmail ?? order.user?.email ?? '—'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(order.placedAt).toLocaleDateString()} • {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                      </p>
+                      <div className="flex items-center justify-between pt-1">
+                        <p className="font-medium">{formatCurrency(order.totalAmount)}</p>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/admin/orders/${order.id}`}>View</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

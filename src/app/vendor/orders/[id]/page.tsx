@@ -67,7 +67,7 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
             <CardTitle className="text-base">Your Items</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
@@ -90,6 +90,18 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="sm:hidden divide-y">
+              {myItems.map((item) => (
+                <div key={item.id} className="p-4 space-y-2">
+                  <p className="font-medium">{item.productName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Qty {item.quantity} • {formatCurrency(item.totalPrice)}
+                  </p>
+                  <OrderItemStatusSelect orderId={order.id} itemId={item.id} currentStatus={item.status} />
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

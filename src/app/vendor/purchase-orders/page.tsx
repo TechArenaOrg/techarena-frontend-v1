@@ -52,7 +52,7 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
               {totalCount} order{totalCount !== 1 ? 's' : ''} placed with suppliers
             </p>
           </div>
-          <div className="flex items-end gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <ReceivedFilter currentValue={received} basePath="/vendor/purchase-orders" />
             <NewPurchaseOrderButton products={productOptions} />
           </div>
@@ -65,38 +65,62 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
                 <p className="text-muted-foreground">No purchase orders match these filters.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Supplier</th>
-                      <th className="px-6 py-3 font-medium">Order Date</th>
-                      <th className="px-6 py-3 font-medium">Items</th>
-                      <th className="px-6 py-3 font-medium text-right">Total</th>
-                      <th className="px-6 py-3 font-medium">Status</th>
-                      <th className="px-6 py-3 font-medium text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {purchaseOrders.map((po) => (
-                      <tr key={po.id}>
-                        <td className="px-6 py-3 font-medium">{po.supplierName}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{new Date(po.orderDate).toLocaleDateString()}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{po.items.length}</td>
-                        <td className="px-6 py-3 text-right">{formatCurrency(po.totalAmount)}</td>
-                        <td className="px-6 py-3">
-                          <Badge variant={po.isReceived ? 'success' : 'warning'}>{po.isReceived ? 'Received' : 'Pending'}</Badge>
-                        </td>
-                        <td className="px-6 py-3 text-right">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/vendor/purchase-orders/${po.id}`}>View</Link>
-                          </Button>
-                        </td>
+              <>
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-medium">Supplier</th>
+                        <th className="px-6 py-3 font-medium">Order Date</th>
+                        <th className="px-6 py-3 font-medium">Items</th>
+                        <th className="px-6 py-3 font-medium text-right">Total</th>
+                        <th className="px-6 py-3 font-medium">Status</th>
+                        <th className="px-6 py-3 font-medium text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y">
+                      {purchaseOrders.map((po) => (
+                        <tr key={po.id}>
+                          <td className="px-6 py-3 font-medium">{po.supplierName}</td>
+                          <td className="px-6 py-3 text-muted-foreground">{new Date(po.orderDate).toLocaleDateString()}</td>
+                          <td className="px-6 py-3 text-muted-foreground">{po.items.length}</td>
+                          <td className="px-6 py-3 text-right">{formatCurrency(po.totalAmount)}</td>
+                          <td className="px-6 py-3">
+                            <Badge variant={po.isReceived ? 'success' : 'warning'}>{po.isReceived ? 'Received' : 'Pending'}</Badge>
+                          </td>
+                          <td className="px-6 py-3 text-right">
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/vendor/purchase-orders/${po.id}`}>View</Link>
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="sm:hidden divide-y">
+                  {purchaseOrders.map((po) => (
+                    <div key={po.id} className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium">{po.supplierName}</p>
+                        <Badge variant={po.isReceived ? 'success' : 'warning'} className="shrink-0">
+                          {po.isReceived ? 'Received' : 'Pending'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(po.orderDate).toLocaleDateString()} • {po.items.length} item{po.items.length !== 1 ? 's' : ''}
+                      </p>
+                      <div className="flex items-center justify-between pt-1">
+                        <p className="font-medium">{formatCurrency(po.totalAmount)}</p>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/vendor/purchase-orders/${po.id}`}>View</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

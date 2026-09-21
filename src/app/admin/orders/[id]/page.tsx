@@ -39,7 +39,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               Placed {new Date(order.placedAt).toLocaleString()} • {order.customerEmail ?? order.user?.email ?? 'Unknown customer'}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <OrderStatusBadge status={order.status} />
             <CancelOrderButton orderId={order.id} status={order.status} />
             {order.status !== 'cancelled' && <OrderStatusSelect orderId={order.id} currentStatus={order.status} />}
@@ -80,7 +80,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             <CardTitle className="text-base">Items</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
@@ -107,6 +107,23 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="sm:hidden divide-y">
+              {order.items.map((item) => (
+                <div key={item.id} className="p-4 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium">{item.productName}</p>
+                    <Badge variant="outline" className="shrink-0">
+                      {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{item.vendor?.businessName ?? '—'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Qty {item.quantity} × {formatCurrency(item.unitPrice)} = <span className="font-medium text-foreground">{formatCurrency(item.totalPrice)}</span>
+                  </p>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

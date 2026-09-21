@@ -11,7 +11,7 @@ export default function Loading() {
             <Skeleton className="h-8 w-32" />
             <Skeleton className="h-4 w-24" />
           </div>
-          <div className="flex items-end gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <Skeleton className="h-10 w-40" />
             <Skeleton className="h-10 w-40" />
             <Skeleton className="h-10 w-32" />

@@ -50,7 +50,7 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
               {vendorName} • Current balance: {formatCurrency(account.balance)}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <DeleteLedgerAccountButton accountId={account.id} returnPath="/admin/reports/ledger" />
             <LedgerEntryFormDialog
               account={account}
@@ -71,45 +71,78 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
                 <p className="text-muted-foreground">No entries recorded yet.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Date</th>
-                      <th className="px-6 py-3 font-medium">Note</th>
-                      <th className="px-6 py-3 font-medium">Type</th>
-                      <th className="px-6 py-3 font-medium text-right">Amount</th>
-                      <th className="px-6 py-3 font-medium text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {entries.map((entry) => (
-                      <tr key={entry.id}>
-                        <td className="px-6 py-3 text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
-                        <td className="px-6 py-3 text-muted-foreground">
-                          {entry.note || '—'}
-                          {entry.transferGroupId && (
-                            <Badge variant="outline" className="ml-2">
-                              Transfer
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="px-6 py-3">
-                          {entry.direction ? (
-                            <Badge variant={entry.direction === 'in' ? 'success' : 'destructive'}>{entry.direction === 'in' ? 'In' : 'Out'}</Badge>
-                          ) : (
-                            <Badge variant={entry.isSettled ? 'success' : 'warning'}>{entry.isSettled ? 'Settled' : 'Outstanding'}</Badge>
-                          )}
-                        </td>
-                        <td className="px-6 py-3 text-right">{formatCurrency(entry.amount)}</td>
-                        <td className="px-6 py-3 text-right">
-                          <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
-                        </td>
+              <>
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-medium">Date</th>
+                        <th className="px-6 py-3 font-medium">Note</th>
+                        <th className="px-6 py-3 font-medium">Type</th>
+                        <th className="px-6 py-3 font-medium text-right">Amount</th>
+                        <th className="px-6 py-3 font-medium text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y">
+                      {entries.map((entry) => (
+                        <tr key={entry.id}>
+                          <td className="px-6 py-3 text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
+                          <td className="px-6 py-3 text-muted-foreground">
+                            {entry.note || '—'}
+                            {entry.transferGroupId && (
+                              <Badge variant="outline" className="ml-2">
+                                Transfer
+                              </Badge>
+                            )}
+                          </td>
+                          <td className="px-6 py-3">
+                            {entry.direction ? (
+                              <Badge variant={entry.direction === 'in' ? 'success' : 'destructive'}>{entry.direction === 'in' ? 'In' : 'Out'}</Badge>
+                            ) : (
+                              <Badge variant={entry.isSettled ? 'success' : 'warning'}>{entry.isSettled ? 'Settled' : 'Outstanding'}</Badge>
+                            )}
+                          </td>
+                          <td className="px-6 py-3 text-right">{formatCurrency(entry.amount)}</td>
+                          <td className="px-6 py-3 text-right">
+                            <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="sm:hidden divide-y">
+                  {entries.map((entry) => (
+                    <div key={entry.id} className="p-4 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</p>
+                        {entry.direction ? (
+                          <Badge variant={entry.direction === 'in' ? 'success' : 'destructive'} className="shrink-0">
+                            {entry.direction === 'in' ? 'In' : 'Out'}
+                          </Badge>
+                        ) : (
+                          <Badge variant={entry.isSettled ? 'success' : 'warning'} className="shrink-0">
+                            {entry.isSettled ? 'Settled' : 'Outstanding'}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm">
+                        {entry.note || '—'}
+                        {entry.transferGroupId && (
+                          <Badge variant="outline" className="ml-2">
+                            Transfer
+                          </Badge>
+                        )}
+                      </p>
+                      <div className="flex items-center justify-between pt-1">
+                        <p className="font-medium">{formatCurrency(entry.amount)}</p>
+                        <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

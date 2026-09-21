@@ -58,7 +58,7 @@ export function WishlistGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {wishlistItems.map((product) => (
         <Card key={product.id} className="group overflow-hidden flex h-full flex-col">
           <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
