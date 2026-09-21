@@ -19,8 +19,14 @@ function TokenSync() {
   const { addItem: addToCart } = useCart();
 
   useEffect(() => {
+    // While NextAuth is still resolving the session (status 'loading'), `session` is
+    // `undefined` - syncing that would wipe out an already-valid persisted token before
+    // this render's real session ever arrives, and anything that reads the token in that
+    // gap (e.g. the cart fetch on a fresh page load) goes out unauthenticated and 401s.
+    // Only sync once we know the real answer, either way.
+    if (status === 'loading') return;
     setAuthToken((session as any)?.accessToken ?? null);
-  }, [session]);
+  }, [session, status]);
 
   useEffect(() => {
     if (status !== 'authenticated' || !(session as any)?.accessToken) return;
