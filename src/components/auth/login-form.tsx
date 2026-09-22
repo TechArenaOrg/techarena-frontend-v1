@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,7 +30,12 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  // Only set when the user was bounced here from a specific page (e.g. "sign in to
+  // check out") - in that case we honor it and send them back. Otherwise there's no
+  // explicit destination, and where "default" should land depends on the role we
+  // don't know until after sign-in resolves, so that case is handled in onSubmit.
+  const explicitCallbackUrl = searchParams.get('callbackUrl');
+  const callbackUrl = explicitCallbackUrl || '/dashboard';
 
   const {
     register,
@@ -58,7 +63,18 @@ export function LoginForm() {
           title: 'Login successful',
           description: 'Welcome back to TechArena!',
         });
-        router.push(callbackUrl);
+
+        if (explicitCallbackUrl) {
+          router.push(explicitCallbackUrl);
+        } else {
+          // No specific page sent them here - land somewhere useful for their role
+          // rather than the account-overview dashboard for everyone.
+          const session = await getSession();
+          const role = (session?.user as any)?.role;
+          if (role === 'vendor') router.push('/vendor/dashboard');
+          else if (role === 'admin' || role === 'super_admin') router.push('/admin/dashboard');
+          else router.push('/');
+        }
       }
     } catch {
       setError('An unexpected error occurred');

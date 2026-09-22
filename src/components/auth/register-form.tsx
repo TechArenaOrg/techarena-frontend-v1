@@ -91,7 +91,7 @@ export function RegisterForm() {
       });
 
       if (result?.ok) {
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -103,7 +103,7 @@ export function RegisterForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/dashboard' });
+      await signIn('google', { callbackUrl: '/' });
     } catch {
       setError('Failed to sign in with Google');
       setIsLoading(false);
