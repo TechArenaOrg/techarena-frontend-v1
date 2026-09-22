@@ -35,7 +35,6 @@ export function LoginForm() {
   // explicit destination, and where "default" should land depends on the role we
   // don't know until after sign-in resolves, so that case is handled in onSubmit.
   const explicitCallbackUrl = searchParams.get('callbackUrl');
-  const callbackUrl = explicitCallbackUrl || '/dashboard';
 
   const {
     register,
@@ -86,7 +85,12 @@ export function LoginForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn('google', { callbackUrl });
+      // Google OAuth can't know the role until after the redirect completes, so it
+      // can't jump straight to '/' the way credentials login does - it goes through
+      // /dashboard as a role router instead. The 'fresh' marker tells that page this
+      // is a just-signed-in landing (send a customer home) rather than someone who
+      // explicitly clicked "Dashboard" in the menu (show them the real page).
+      await signIn('google', { callbackUrl: explicitCallbackUrl || '/dashboard?fresh=1' });
     } catch {
       setError('Failed to sign in with Google');
       setIsLoading(false);
