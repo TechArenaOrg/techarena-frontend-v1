@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RefreshCw, CheckCircle, Minus, Plus, Zap } from 'lucide-react';
 import { Product } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { ApiError } from '@/services/api/client';
 import { setPendingCartAction } from '@/lib/pending-cart-action';
+import { cn } from '@/lib/utils';
 
 interface ProductDetailProps {
   product: Product & {
@@ -104,29 +104,24 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="space-y-4">
         {/* Main Image */}
         <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-          {/* Mounting a fresh Image per click meant the fade animation ran on its own
-              fixed timer while the new image was still a real network fetch in the
-              background - if the image took longer to load than the 0.3s fade, the
-              animation finished on an empty/transparent frame and the image then
-              popped in abruptly the moment it actually loaded. Rendering every gallery
-              image up front and toggling opacity between already-loaded images makes
-              switching an instant crossfade - but that only holds if every one of them
-              is actually fetched eagerly. Without `priority`, only the very first
-              image loads immediately; the rest are lazy-loaded and, on a cold cache
-              with no warm-up time before the user clicks, may still be mid-fetch. And
-              without `sizes`, Next.js assumed each image could render as wide as the
-              full viewport (100vw) and fetched an unnecessarily large file even though
-              this column is at most half that on desktop - `priority` on all of them
-              plus a `sizes` that matches the real layout gets every image loading
-              immediately, at the right (smaller, faster) size. */}
+          {/* Every gallery image is rendered and eager-loaded (priority) up front so
+              switching is never gated on a network fetch. Framer Motion still showed a
+              brief flash of the container's background on some machines - two
+              separately JS-animated layers (old fading 1->0, new fading 0->1) rely on
+              React/Framer Motion scheduling both in lockstep every frame, and any
+              tiny scheduling gap between them briefly drops combined coverage below
+              100%. Plain CSS opacity transitions avoid that: the browser's compositor
+              drives both layers off the same timeline natively, and the previously-
+              selected image is only ever covered (never actually removed or dropped to
+              opacity 0 while unstyled), so there's always something fully opaque
+              directly behind whichever image is fading in. */}
           {(product.images && product.images.length > 0 ? product.images : [{ url: '/placeholder.svg' }]).map((image, index) => (
-            <motion.div
+            <div
               key={image.url ?? index}
-              initial={false}
-              animate={{ opacity: selectedImage === index ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
-              style={{ zIndex: selectedImage === index ? 1 : 0 }}
+              className={cn(
+                'absolute inset-0 transition-opacity duration-300 ease-in-out [will-change:opacity]',
+                selectedImage === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              )}
             >
               <Image
                 src={image.url || '/placeholder.svg'}
@@ -136,7 +131,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 priority
               />
-            </motion.div>
+            </div>
           ))}
           
           {/* Badges */}
@@ -173,6 +168,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   alt={`${product.name} ${index + 1}`}
                   fill
                   className="object-cover"
+                  sizes="80px"
                 />
               </button>
             ))}
