@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RefreshCw, CheckCircle, Minus, Plus, Zap } from 'lucide-react';
 import { Product } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -104,30 +104,32 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="space-y-4">
         {/* Main Image */}
         <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-          {/* mode="wait" fully faded the old image out before the new one started
-              fading in - with the new image not yet loaded at that point (a fresh
-              network fetch, not just an opacity change), that gap showed the plain
-              background through for a moment. Absolutely-positioned + no "wait" lets
-              the old image stay put underneath, visible the whole time, while the new
-              one fades in over it - so there's never a frame with nothing to show. */}
-          <AnimatePresence>
+          {/* Mounting a fresh Image per click meant the fade animation ran on its own
+              fixed timer while the new image was still a real network fetch in the
+              background - if the image took longer to load than the 0.3s fade, the
+              animation finished on an empty/transparent frame and the image then
+              popped in abruptly the moment it actually loaded. Rendering every gallery
+              image up front (each one starts loading as soon as it's in the layout,
+              regardless of its opacity) and just toggling opacity between already-
+              loaded images makes switching an instant crossfade with no network wait. */}
+          {(product.images && product.images.length > 0 ? product.images : [{ url: '/placeholder.svg' }]).map((image, index) => (
             <motion.div
-              key={selectedImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              key={image.url ?? index}
+              initial={false}
+              animate={{ opacity: selectedImage === index ? 1 : 0 }}
               transition={{ duration: 0.3 }}
               className="absolute inset-0"
+              style={{ zIndex: selectedImage === index ? 1 : 0 }}
             >
               <Image
-                src={product.images?.[selectedImage]?.url || '/placeholder.svg'}
+                src={image.url || '/placeholder.svg'}
                 alt={product.name}
                 fill
                 className="object-cover"
-                priority
+                priority={index === 0}
               />
             </motion.div>
-          </AnimatePresence>
+          ))}
           
           {/* Badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-2">
