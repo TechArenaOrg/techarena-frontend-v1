@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ export function ExpenseVendorFilter({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
   const value = currentVendorId === undefined ? ALL : currentVendorId === 'null' ? PLATFORM_ONLY : currentVendorId;
   const options = [
@@ -38,7 +40,7 @@ export function ExpenseVendorFilter({
       params.set('vendorId', next);
     }
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => router.push(`${basePath}?${params.toString()}`));
   };
 
   return (

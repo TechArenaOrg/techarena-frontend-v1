@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
@@ -7,6 +8,7 @@ import { Icons } from '@/components/ui/icons';
 export function ProductViewToggle({ currentView }: { currentView: 'grid' | 'list' }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
   const setView = (view: 'grid' | 'list') => {
     const params = new URLSearchParams(searchParams.toString());
@@ -15,7 +17,7 @@ export function ProductViewToggle({ currentView }: { currentView: 'grid' | 'list
     } else {
       params.set('view', view);
     }
-    router.push(`/products?${params.toString()}`);
+    startTransition(() => router.push(`/products?${params.toString()}`));
   };
 
   return (

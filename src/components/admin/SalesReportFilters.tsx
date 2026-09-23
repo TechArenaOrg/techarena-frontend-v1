@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export function SalesReportFilters({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
   const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -34,7 +36,7 @@ export function SalesReportFilters({
     }
     // Changing the period/date invalidates whatever page we were on.
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => router.push(`${basePath}?${params.toString()}`));
   };
 
   return (

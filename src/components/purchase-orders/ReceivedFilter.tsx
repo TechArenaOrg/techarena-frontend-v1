@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,7 @@ const OPTIONS = [
 export function ReceivedFilter({ currentValue, basePath }: { currentValue?: string; basePath: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
   const handleChange = (next: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -25,7 +27,7 @@ export function ReceivedFilter({ currentValue, basePath }: { currentValue?: stri
       params.set('received', next);
     }
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => router.push(`${basePath}?${params.toString()}`));
   };
 
   return (

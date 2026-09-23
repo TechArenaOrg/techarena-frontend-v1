@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -39,6 +39,12 @@ export function ProductFilters({
     currentMinPrice ?? PRICE_MIN,
     currentMaxPrice ?? PRICE_MAX,
   ]);
+  // Without this, every filter click is a full navigation to a page whose data comes
+  // from searchParams - Next treats that as a real route change and swaps the whole
+  // page out for loading.tsx while it refetches. Wrapping the navigation in a
+  // transition tells it to keep the current page on screen instead.
+  const [, startTransition] = useTransition();
+  const navigate = (url: string) => startTransition(() => router.push(url));
 
   const toggleCategory = (categoryId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -48,7 +54,7 @@ export function ProductFilters({
       params.set('categoryId', categoryId);
     }
     params.delete('page');
-    router.push(`/products?${params.toString()}`);
+    navigate(`/products?${params.toString()}`);
   };
 
   const commitPriceRange = (range: [number, number]) => {
@@ -64,7 +70,7 @@ export function ProductFilters({
       params.set('maxPrice', String(range[1]));
     }
     params.delete('page');
-    router.push(`/products?${params.toString()}`);
+    navigate(`/products?${params.toString()}`);
   };
 
   const toggleMinRating = (rating: number) => {
@@ -75,7 +81,7 @@ export function ProductFilters({
       params.set('minRating', String(rating));
     }
     params.delete('page');
-    router.push(`/products?${params.toString()}`);
+    navigate(`/products?${params.toString()}`);
   };
 
   const clearFilters = () => {
@@ -86,7 +92,7 @@ export function ProductFilters({
     params.delete('minRating');
     params.delete('page');
     setPriceRange([PRICE_MIN, PRICE_MAX]);
-    router.push(`/products?${params.toString()}`);
+    navigate(`/products?${params.toString()}`);
   };
 
   const hasActiveFilters =

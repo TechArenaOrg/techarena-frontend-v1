@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -52,6 +52,11 @@ export function ProductListFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(currentSearch ?? '');
+  // Without this, every filter click is a full navigation to a page whose data comes
+  // from searchParams - Next treats that as a real route change and swaps the whole
+  // page out for loading.tsx while it refetches. Wrapping the navigation in a
+  // transition tells it to keep the current page on screen instead.
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     setSearch(currentSearch ?? '');
@@ -67,7 +72,7 @@ export function ProductListFilters({
       }
     }
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => router.push(`${basePath}?${params.toString()}`));
   };
 
   useEffect(() => {
@@ -88,7 +93,7 @@ export function ProductListFilters({
     params.delete('status');
     params.delete('vendorId');
     params.delete('page');
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => router.push(`${basePath}?${params.toString()}`));
   };
 
   const hasActiveFilters =
