@@ -104,14 +104,20 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="space-y-4">
         {/* Main Image */}
         <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-          <AnimatePresence mode="wait">
+          {/* mode="wait" fully faded the old image out before the new one started
+              fading in - with the new image not yet loaded at that point (a fresh
+              network fetch, not just an opacity change), that gap showed the plain
+              background through for a moment. Absolutely-positioned + no "wait" lets
+              the old image stay put underneath, visible the whole time, while the new
+              one fades in over it - so there's never a frame with nothing to show. */}
+          <AnimatePresence>
             <motion.div
               key={selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="relative w-full h-full"
+              className="absolute inset-0"
             >
               <Image
                 src={product.images?.[selectedImage]?.url || '/placeholder.svg'}
