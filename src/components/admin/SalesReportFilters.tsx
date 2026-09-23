@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { FilterChipRow } from '@/components/ui/filter-chip-row';
 
 const PERIODS = [
   { value: 'day', label: 'Day' },
@@ -37,8 +38,12 @@ export function SalesReportFilters({
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-4">
-      <div className="space-y-1.5">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+      <div className="sm:hidden">
+        <FilterChipRow label="Period" options={PERIODS} activeValue={period} onSelect={(v) => updateParam('period', v)} />
+      </div>
+
+      <div className="hidden sm:block space-y-1.5">
         <Label htmlFor="period">Period</Label>
         <Select value={period} onValueChange={(v) => updateParam('period', v)}>
           <SelectTrigger id="period" className="w-[140px]">
@@ -53,6 +58,7 @@ export function SalesReportFilters({
           </SelectContent>
         </Select>
       </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="date">Any date within period</Label>
         <Input
@@ -60,7 +66,7 @@ export function SalesReportFilters({
           type="date"
           value={date ?? ''}
           onChange={(e) => updateParam('date', e.target.value)}
-          className="w-[160px]"
+          className="w-full sm:w-[160px]"
         />
       </div>
     </div>

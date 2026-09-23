@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { FilterChipRow } from '@/components/ui/filter-chip-row';
 import type { Vendor } from '@/types';
 
 const ALL = 'all';
@@ -21,6 +22,11 @@ export function ExpenseVendorFilter({
   const searchParams = useSearchParams();
 
   const value = currentVendorId === undefined ? ALL : currentVendorId === 'null' ? PLATFORM_ONLY : currentVendorId;
+  const options = [
+    { value: ALL, label: 'All' },
+    { value: PLATFORM_ONLY, label: 'Platform-level only' },
+    ...vendors.map((vendor) => ({ value: vendor.id, label: vendor.businessName })),
+  ];
 
   const handleChange = (next: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -36,22 +42,26 @@ export function ExpenseVendorFilter({
   };
 
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor="vendorFilter">Vendor</Label>
-      <Select value={value} onValueChange={handleChange}>
-        <SelectTrigger id="vendorFilter" className="w-[220px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All</SelectItem>
-          <SelectItem value={PLATFORM_ONLY}>Platform-level only</SelectItem>
-          {vendors.map((vendor) => (
-            <SelectItem key={vendor.id} value={vendor.id}>
-              {vendor.businessName}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <>
+      <div className="sm:hidden">
+        <FilterChipRow label="Vendor" options={options} activeValue={value} onSelect={handleChange} />
+      </div>
+
+      <div className="hidden sm:block space-y-1.5">
+        <Label htmlFor="vendorFilter">Vendor</Label>
+        <Select value={value} onValueChange={handleChange}>
+          <SelectTrigger id="vendorFilter" className="w-[220px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </>
   );
 }

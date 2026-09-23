@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Icons } from '@/components/ui/icons';
+import { FilterChipRow } from '@/components/ui/filter-chip-row';
 import type { Category, Vendor } from '@/types';
 
 interface ProductListFiltersProps {
@@ -98,85 +99,156 @@ export function ProductListFilters({
     !!currentVendorId ||
     (!!currentStatus && currentStatus !== DEFAULT_STATUS);
 
+  const categoryOptions = [{ value: ALL_CATEGORIES, label: 'All Categories' }, ...categories.map((c) => ({ value: c.id, label: c.name }))];
+  const vendorOptions = vendors
+    ? [{ value: ALL_VENDORS, label: 'All Vendors' }, ...vendors.map((v) => ({ value: v.id, label: v.businessName }))]
+    : [];
+
   return (
-    // Below lg this used to lay out as one field per row (each Select had a fixed
-    // desktop pixel width that wouldn't shrink to fit a phone), pushing the actual
-    // product list far down. A 2-column grid pairs fields up instead; lg+ reverts to
-    // the original flex-wrap row unchanged.
-    <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-wrap lg:items-end lg:gap-4">
-      <div className="col-span-2 space-y-1.5 lg:flex-1 lg:min-w-[200px]">
-        <Label htmlFor="productSearch">Search</Label>
-        <Input
-          id="productSearch"
-          placeholder="Search by name or SKU..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+    <>
+      {/* Below lg: same treatment as the customer product filters - Status/Category/
+          Vendor become single-row horizontal-scroll chips instead of full-width
+          selects, so this stays a few compact rows instead of one field per row. */}
+      <div className="space-y-2.5 lg:hidden">
+        <div className="space-y-1.5">
+          <Label htmlFor="productSearchMobile">Search</Label>
+          <Input
+            id="productSearchMobile"
+            placeholder="Search by name or SKU..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <FilterChipRow
+          label="Status"
+          options={STATUS_OPTIONS}
+          activeValue={currentStatus ?? DEFAULT_STATUS}
+          onSelect={(value) => updateParams({ status: value })}
         />
+
+        <FilterChipRow
+          label="Category"
+          options={categoryOptions}
+          activeValue={currentCategoryId ?? ALL_CATEGORIES}
+          onSelect={(value) => updateParams({ categoryId: value === ALL_CATEGORIES ? undefined : value })}
+        />
+
+        {vendors && (
+          <FilterChipRow
+            label="Vendor"
+            options={vendorOptions}
+            activeValue={currentVendorId ?? ALL_VENDORS}
+            onSelect={(value) => updateParams({ vendorId: value === ALL_VENDORS ? undefined : value })}
+          />
+        )}
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="lowStockFilterMobile"
+              checked={!!currentLowStock}
+              onCheckedChange={(checked) => updateParams({ lowStock: checked === true ? 'true' : undefined })}
+            />
+            <Label htmlFor="lowStockFilterMobile" className="cursor-pointer text-sm">
+              Low Stock
+            </Label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="featuredFilterMobile"
+              checked={!!currentFeatured}
+              onCheckedChange={(checked) => updateParams({ isFeatured: checked === true ? 'true' : undefined })}
+            />
+            <Label htmlFor="featuredFilterMobile" className="cursor-pointer text-sm">
+              Featured
+            </Label>
+          </div>
+        </div>
+
+        {hasActiveFilters && (
+          <Button variant="outline" size="sm" className="w-full" onClick={clearFilters}>
+            <Icons.x className="w-3.5 h-3.5 mr-1.5" />
+            Clear Filters
+          </Button>
+        )}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="statusFilter">Status</Label>
-        <Select
-          value={currentStatus ?? DEFAULT_STATUS}
-          onValueChange={(value) => updateParams({ status: value })}
-        >
-          <SelectTrigger id="statusFilter" className="w-full lg:w-[160px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* lg+: original inline flex-wrap row, unchanged. */}
+      <div className="hidden lg:flex lg:flex-wrap lg:items-end lg:gap-4">
+        <div className="flex-1 min-w-[200px] space-y-1.5">
+          <Label htmlFor="productSearch">Search</Label>
+          <Input
+            id="productSearch"
+            placeholder="Search by name or SKU..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="categoryFilter">Category</Label>
-        <Select
-          value={currentCategoryId ?? ALL_CATEGORIES}
-          onValueChange={(value) => updateParams({ categoryId: value === ALL_CATEGORIES ? undefined : value })}
-        >
-          <SelectTrigger id="categoryFilter" className="w-full lg:w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_CATEGORIES}>All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {vendors && (
-        <div className="col-span-2 space-y-1.5 lg:col-span-1">
-          <Label htmlFor="vendorFilter">Vendor</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="statusFilter">Status</Label>
           <Select
-            value={currentVendorId ?? ALL_VENDORS}
-            onValueChange={(value) => updateParams({ vendorId: value === ALL_VENDORS ? undefined : value })}
+            value={currentStatus ?? DEFAULT_STATUS}
+            onValueChange={(value) => updateParams({ status: value })}
           >
-            <SelectTrigger id="vendorFilter" className="w-full lg:w-[200px]">
+            <SelectTrigger id="statusFilter" className="w-[160px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_VENDORS}>All Vendors</SelectItem>
-              {vendors.map((vendor) => (
-                <SelectItem key={vendor.id} value={vendor.id}>
-                  {vendor.businessName}
+              {STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-      )}
 
-      <div className="col-span-2 flex items-center gap-4 lg:col-span-1 lg:contents">
-        <div className="flex items-center space-x-2 lg:pb-2.5">
+        <div className="space-y-1.5">
+          <Label htmlFor="categoryFilter">Category</Label>
+          <Select
+            value={currentCategoryId ?? ALL_CATEGORIES}
+            onValueChange={(value) => updateParams({ categoryId: value === ALL_CATEGORIES ? undefined : value })}
+          >
+            <SelectTrigger id="categoryFilter" className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_CATEGORIES}>All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {vendors && (
+          <div className="space-y-1.5">
+            <Label htmlFor="vendorFilter">Vendor</Label>
+            <Select
+              value={currentVendorId ?? ALL_VENDORS}
+              onValueChange={(value) => updateParams({ vendorId: value === ALL_VENDORS ? undefined : value })}
+            >
+              <SelectTrigger id="vendorFilter" className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VENDORS}>All Vendors</SelectItem>
+                {vendors.map((vendor) => (
+                  <SelectItem key={vendor.id} value={vendor.id}>
+                    {vendor.businessName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <div className="flex items-center space-x-2 pb-2.5">
           <Checkbox
             id="lowStockFilter"
             checked={!!currentLowStock}
@@ -187,7 +259,7 @@ export function ProductListFilters({
           </Label>
         </div>
 
-        <div className="flex items-center space-x-2 lg:pb-2.5">
+        <div className="flex items-center space-x-2 pb-2.5">
           <Checkbox
             id="featuredFilter"
             checked={!!currentFeatured}
@@ -197,14 +269,14 @@ export function ProductListFilters({
             Featured
           </Label>
         </div>
-      </div>
 
-      {hasActiveFilters && (
-        <Button variant="outline" onClick={clearFilters} className="col-span-2 lg:col-span-1 lg:w-auto">
-          <Icons.x className="w-4 h-4 mr-2" />
-          Clear Filters
-        </Button>
-      )}
-    </div>
+        {hasActiveFilters && (
+          <Button variant="outline" onClick={clearFilters}>
+            <Icons.x className="w-4 h-4 mr-2" />
+            Clear Filters
+          </Button>
+        )}
+      </div>
+    </>
   );
 }
