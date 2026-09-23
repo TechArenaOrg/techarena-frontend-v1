@@ -73,6 +73,7 @@ export function ProductForm({
     (product?.images ?? []).map((img) => ({ url: img.url, altText: img.altText, isPrimary: img.isPrimary }))
   );
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,13 +91,15 @@ export function ProductForm({
 
     setError(null);
     setIsUploading(true);
+    setUploadProgress(0);
     try {
-      const url = await uploadAPI.uploadImage(file, 'products');
+      const url = await uploadAPI.uploadImage(file, 'products', setUploadProgress);
       setImages((prev) => [...prev, { url, altText: name, isPrimary: prev.length === 0 }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -374,7 +377,7 @@ export function ProductForm({
                 {isUploading ? (
                   <>
                     <Icons.spinner className="h-5 w-5 animate-spin" />
-                    <span className="text-xs font-medium">Uploading...</span>
+                    <span className="text-xs font-medium">{uploadProgress}%</span>
                   </>
                 ) : (
                   <>

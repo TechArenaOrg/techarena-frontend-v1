@@ -10,7 +10,11 @@ interface SignedUrlResponse {
 }
 
 export const uploadAPI = {
-  async uploadImage(file: File, folder: string = 'products'): Promise<string> {
+  async uploadImage(
+    file: File,
+    folder: string = 'products',
+    onProgress?: (percent: number) => void
+  ): Promise<string> {
     const { uploadUrl, fileUrl } = await apiClient.post<SignedUrlResponse>('/upload/signed-url', {
       fileName: file.name,
       fileType: file.type,
@@ -18,15 +22,27 @@ export const uploadAPI = {
       folder,
     });
 
-    const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
-      headers: { 'Content-Type': file.type },
+    // XMLHttpRequest instead of fetch: fetch has no upload progress events,
+    // so there's no way to report percent-complete for the PUT with it.
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', uploadUrl);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && onProgress) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error('Failed to upload the image to storage. Please try again.'));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Failed to upload the image to storage. Please try again.'));
+      xhr.send(file);
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to upload the image to storage. Please try again.');
-    }
 
     return fileUrl;
   },
