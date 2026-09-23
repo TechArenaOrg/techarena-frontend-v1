@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { productsAPI } from '@/services/api/products-api';
 import { categoriesAPI } from '@/services/api/categories-api';
 import { ProductsInfiniteGrid } from '@/components/product/ProductsInfiniteGrid';
-import { ProductFilters } from '@/components/product/ProductFilters';
+import { ProductFiltersResponsive } from '@/components/product/ProductFiltersResponsive';
 import { ProductSort } from '@/components/product/ProductSort';
 import { ProductViewToggle } from '@/components/product/ProductViewToggle';
 import { PageHeaderSkeleton } from '@/components/ui/skeletons';
@@ -71,7 +71,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
-              <ProductFilters
+              <ProductFiltersResponsive
                 categories={categories}
                 currentCategoryId={resolvedSearchParams.categoryId}
                 currentMinPrice={minPrice}

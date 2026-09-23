@@ -108,93 +108,101 @@ export function CartItems() {
 
         <div className="space-y-6">
           {items.map((item) => (
-            <div 
-              key={item.id} 
-              className="flex items-center space-x-4 py-4 border-b last:border-b-0"
+            <div
+              key={item.id}
+              className="flex flex-col gap-3 py-4 border-b last:border-b-0 sm:flex-row sm:items-center sm:gap-4"
             >
-              <div className="relative h-16 w-16 rounded-md overflow-hidden">
-                <Image
-                  src={item.product?.images?.[0]?.url || '/placeholder.svg'}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <div className="flex gap-4 sm:flex-1 sm:min-w-0">
+                <div className="relative h-16 w-16 shrink-0 rounded-md overflow-hidden">
+                  <Image
+                    src={item.product?.images?.[0]?.url || '/placeholder.svg'}
+                    alt={item.product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-              <div className="flex-1 min-w-0">
-                <Link 
-                  href={`/product/${item.product.slug}`}
-                  className="text-sm font-medium hover:text-primary line-clamp-2"
-                >
-                  {item.product.name}
-                </Link>
-                <p className="text-sm text-muted-foreground">
-                  {item.product.vendor?.businessName}
-                </p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <span className="text-sm font-medium">
-                    {formatCurrency(item.product.price)}
-                  </span>
-                  {item.product.comparePrice && item.product.comparePrice > item.product.price && (
-                    <span className="text-sm text-muted-foreground line-through">
-                      {formatCurrency(item.product.comparePrice)}
+                <div className="flex-1 min-w-0">
+                  <Link
+                    href={`/product/${item.product.slug}`}
+                    className="text-sm font-medium hover:text-primary line-clamp-2"
+                  >
+                    {item.product.name}
+                  </Link>
+                  <p className="text-sm text-muted-foreground">
+                    {item.product.vendor?.businessName}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <span className="text-sm font-medium">
+                      {formatCurrency(item.product.price)}
                     </span>
-                  )}
-                  {item.product.comparePrice && item.product.comparePrice > item.product.price && (
-                    <Badge variant="destructive" className="text-xs">
-                      Sale
-                    </Badge>
-                  )}
+                    {item.product.comparePrice && item.product.comparePrice > item.product.price && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        {formatCurrency(item.product.comparePrice)}
+                      </span>
+                    )}
+                    {item.product.comparePrice && item.product.comparePrice > item.product.price && (
+                      <Badge variant="destructive" className="text-xs">
+                        Sale
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                  disabled={item.quantity <= 1 || isUpdating === item.id}
-                >
-                  <Icons.minus className="h-3 w-3" />
-                </Button>
-                <Input
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={item.quantity}
-                  onChange={(e) => {
-                    const newQuantity = parseInt(e.target.value);
-                    if (!isNaN(newQuantity) && newQuantity > 0) {
-                      handleQuantityChange(item.id, newQuantity);
-                    }
-                  }}
-                  className="h-8 w-16 text-center"
-                  disabled={isUpdating === item.id}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                  disabled={isUpdating === item.id}
-                >
-                  <Icons.plus className="h-3 w-3" />
-                </Button>
-              </div>
+              {/* Quantity + line total + remove - grouped on their own row on mobile
+                  (was a single unbreakable row before, which let the Sale badge above
+                  collide with the remove button once the row got too narrow to fit
+                  everything), side by side with the image/info row on desktop. */}
+              <div className="flex items-center justify-between gap-3 sm:shrink-0 sm:justify-end sm:gap-4">
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1 || isUpdating === item.id}
+                  >
+                    <Icons.minus className="h-3 w-3" />
+                  </Button>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const newQuantity = parseInt(e.target.value);
+                      if (!isNaN(newQuantity) && newQuantity > 0) {
+                        handleQuantityChange(item.id, newQuantity);
+                      }
+                    }}
+                    className="h-8 w-16 text-center"
+                    disabled={isUpdating === item.id}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                    disabled={isUpdating === item.id}
+                  >
+                    <Icons.plus className="h-3 w-3" />
+                  </Button>
+                </div>
 
-              <div className="text-right min-w-0">
-                <p className="text-sm font-medium">
-                  {formatCurrency(item.product.price * item.quantity)}
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveItem(item.id, item.product.name)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 mt-1"
-                >
-                  <Icons.trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2 sm:block sm:text-right">
+                  <p className="text-sm font-medium whitespace-nowrap">
+                    {formatCurrency(item.product.price * item.quantity)}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveItem(item.id, item.product.name)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 sm:mt-1"
+                  >
+                    <Icons.trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
