@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { DeleteProductButton } from '@/components/vendor/DeleteProductButton';
-import { ProductListFiltersResponsive } from '@/components/product/ProductListFiltersResponsive';
+import { ProductListFilters } from '@/components/product/ProductListFilters';
 import { ProductFormDialog } from '@/components/vendor/ProductFormDialog';
 import { AddProductDialog } from '@/components/vendor/AddProductDialog';
 
@@ -100,7 +100,7 @@ export default async function VendorProductsPage({ searchParams }: PageProps) {
 
         <Card className="mt-6">
           <CardContent className="p-6">
-            <ProductListFiltersResponsive
+            <ProductListFilters
               basePath="/vendor/products"
               categories={categories}
               currentSearch={search}

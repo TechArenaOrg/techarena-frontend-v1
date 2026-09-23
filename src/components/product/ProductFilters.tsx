@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Icons } from '@/components/ui/icons';
+import { cn } from '@/lib/utils';
 import type { Category } from '@/types';
 
 const PRICE_MIN = 0;
@@ -93,34 +94,61 @@ export function ProductFilters({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="space-y-6">
+      <CardContent className="p-4 lg:p-6">
+        <div className="space-y-4 lg:space-y-6">
           <div>
-            <h3 className="text-lg font-semibold mb-3">Categories</h3>
+            <h3 className="text-base lg:text-lg font-semibold mb-2 lg:mb-3">Categories</h3>
             {categories.length === 0 ? (
               <p className="text-sm text-muted-foreground">No categories yet.</p>
             ) : (
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`category-${category.id}`}
-                      checked={currentCategoryId === category.id}
-                      onCheckedChange={() => toggleCategory(category.id)}
-                    />
-                    <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
-                      {category.name}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+              <>
+                {/* Below lg this used to be a full-height vertical checkbox list that,
+                    combined with the price slider and rating list below it, pushed
+                    every product off-screen - compact wrapping pills fit the same
+                    choices in a couple of lines instead. */}
+                <div className="flex flex-wrap gap-2 lg:hidden">
+                  {categories.map((category) => {
+                    const active = currentCategoryId === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => toggleCategory(category.id)}
+                        className={cn(
+                          'rounded-full border px-3 py-1.5 text-sm transition-colors',
+                          active
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-input hover:bg-muted'
+                        )}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="hidden lg:block space-y-2">
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={currentCategoryId === category.id}
+                        onCheckedChange={() => toggleCategory(category.id)}
+                      />
+                      <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
+                        {category.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
           <Separator />
 
           <div>
-            <h3 className="text-lg font-semibold mb-3">Price Range</h3>
+            <h3 className="text-base lg:text-lg font-semibold mb-2 lg:mb-3">Price Range</h3>
             <div className="px-3">
               <Slider
                 value={priceRange}
@@ -141,8 +169,31 @@ export function ProductFilters({
           <Separator />
 
           <div>
-            <h3 className="text-lg font-semibold mb-3">Rating</h3>
-            <div className="space-y-2">
+            <h3 className="text-base lg:text-lg font-semibold mb-2 lg:mb-3">Rating</h3>
+
+            <div className="flex flex-wrap gap-2 lg:hidden">
+              {RATING_OPTIONS.map((rating) => {
+                const active = currentMinRating === rating;
+                return (
+                  <button
+                    key={rating}
+                    type="button"
+                    onClick={() => toggleMinRating(rating)}
+                    className={cn(
+                      'flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors',
+                      active
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-input hover:bg-muted'
+                    )}
+                  >
+                    <Icons.star className={cn('w-3.5 h-3.5 fill-current', active ? '' : 'text-yellow-400')} />
+                    {rating}+ & Up
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="hidden lg:block space-y-2">
               {RATING_OPTIONS.map((rating) => (
                 <div key={rating} className="flex items-center space-x-2">
                   <Checkbox

@@ -99,8 +99,12 @@ export function ProductListFilters({
     (!!currentStatus && currentStatus !== DEFAULT_STATUS);
 
   return (
-    <div className="flex flex-wrap items-end gap-4">
-      <div className="space-y-1.5 flex-1 min-w-[200px]">
+    // Below lg this used to lay out as one field per row (each Select had a fixed
+    // desktop pixel width that wouldn't shrink to fit a phone), pushing the actual
+    // product list far down. A 2-column grid pairs fields up instead; lg+ reverts to
+    // the original flex-wrap row unchanged.
+    <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-wrap lg:items-end lg:gap-4">
+      <div className="col-span-2 space-y-1.5 lg:flex-1 lg:min-w-[200px]">
         <Label htmlFor="productSearch">Search</Label>
         <Input
           id="productSearch"
@@ -116,7 +120,7 @@ export function ProductListFilters({
           value={currentStatus ?? DEFAULT_STATUS}
           onValueChange={(value) => updateParams({ status: value })}
         >
-          <SelectTrigger id="statusFilter" className="w-[160px]">
+          <SelectTrigger id="statusFilter" className="w-full lg:w-[160px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -135,7 +139,7 @@ export function ProductListFilters({
           value={currentCategoryId ?? ALL_CATEGORIES}
           onValueChange={(value) => updateParams({ categoryId: value === ALL_CATEGORIES ? undefined : value })}
         >
-          <SelectTrigger id="categoryFilter" className="w-[180px]">
+          <SelectTrigger id="categoryFilter" className="w-full lg:w-[180px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -150,13 +154,13 @@ export function ProductListFilters({
       </div>
 
       {vendors && (
-        <div className="space-y-1.5">
+        <div className="col-span-2 space-y-1.5 lg:col-span-1">
           <Label htmlFor="vendorFilter">Vendor</Label>
           <Select
             value={currentVendorId ?? ALL_VENDORS}
             onValueChange={(value) => updateParams({ vendorId: value === ALL_VENDORS ? undefined : value })}
           >
-            <SelectTrigger id="vendorFilter" className="w-[200px]">
+            <SelectTrigger id="vendorFilter" className="w-full lg:w-[200px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -171,30 +175,32 @@ export function ProductListFilters({
         </div>
       )}
 
-      <div className="flex items-center space-x-2 pb-2.5">
-        <Checkbox
-          id="lowStockFilter"
-          checked={!!currentLowStock}
-          onCheckedChange={(checked) => updateParams({ lowStock: checked === true ? 'true' : undefined })}
-        />
-        <Label htmlFor="lowStockFilter" className="cursor-pointer">
-          Low Stock
-        </Label>
-      </div>
+      <div className="col-span-2 flex items-center gap-4 lg:col-span-1 lg:contents">
+        <div className="flex items-center space-x-2 lg:pb-2.5">
+          <Checkbox
+            id="lowStockFilter"
+            checked={!!currentLowStock}
+            onCheckedChange={(checked) => updateParams({ lowStock: checked === true ? 'true' : undefined })}
+          />
+          <Label htmlFor="lowStockFilter" className="cursor-pointer">
+            Low Stock
+          </Label>
+        </div>
 
-      <div className="flex items-center space-x-2 pb-2.5">
-        <Checkbox
-          id="featuredFilter"
-          checked={!!currentFeatured}
-          onCheckedChange={(checked) => updateParams({ isFeatured: checked === true ? 'true' : undefined })}
-        />
-        <Label htmlFor="featuredFilter" className="cursor-pointer">
-          Featured
-        </Label>
+        <div className="flex items-center space-x-2 lg:pb-2.5">
+          <Checkbox
+            id="featuredFilter"
+            checked={!!currentFeatured}
+            onCheckedChange={(checked) => updateParams({ isFeatured: checked === true ? 'true' : undefined })}
+          />
+          <Label htmlFor="featuredFilter" className="cursor-pointer">
+            Featured
+          </Label>
+        </div>
       </div>
 
       {hasActiveFilters && (
-        <Button variant="outline" onClick={clearFilters}>
+        <Button variant="outline" onClick={clearFilters} className="col-span-2 lg:col-span-1 lg:w-auto">
           <Icons.x className="w-4 h-4 mr-2" />
           Clear Filters
         </Button>

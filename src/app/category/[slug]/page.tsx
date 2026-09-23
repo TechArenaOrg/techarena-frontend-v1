@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { categoriesAPI } from '@/services/api/categories-api';
 import { productsAPI } from '@/services/api/products-api';
 import { ProductsInfiniteGrid } from '@/components/product/ProductsInfiniteGrid';
-import { ProductFiltersResponsive } from '@/components/product/ProductFiltersResponsive';
+import { ProductFilters } from '@/components/product/ProductFilters';
 import { ProductSort } from '@/components/product/ProductSort';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Badge } from '@/components/ui/badge';
@@ -106,7 +106,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
             <aside className="lg:col-span-1">
               <div className="sticky top-24">
                 <Suspense fallback={<div>Loading filters...</div>}>
-                  <ProductFiltersResponsive categories={categories} currentCategoryId={category.id} />
+                  <ProductFilters categories={categories} currentCategoryId={category.id} />
                 </Suspense>
               </div>
             </aside>
