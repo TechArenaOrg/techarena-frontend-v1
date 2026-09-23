@@ -109,9 +109,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
               background - if the image took longer to load than the 0.3s fade, the
               animation finished on an empty/transparent frame and the image then
               popped in abruptly the moment it actually loaded. Rendering every gallery
-              image up front (each one starts loading as soon as it's in the layout,
-              regardless of its opacity) and just toggling opacity between already-
-              loaded images makes switching an instant crossfade with no network wait. */}
+              image up front and toggling opacity between already-loaded images makes
+              switching an instant crossfade - but that only holds if every one of them
+              is actually fetched eagerly. Without `priority`, only the very first
+              image loads immediately; the rest are lazy-loaded and, on a cold cache
+              with no warm-up time before the user clicks, may still be mid-fetch. And
+              without `sizes`, Next.js assumed each image could render as wide as the
+              full viewport (100vw) and fetched an unnecessarily large file even though
+              this column is at most half that on desktop - `priority` on all of them
+              plus a `sizes` that matches the real layout gets every image loading
+              immediately, at the right (smaller, faster) size. */}
           {(product.images && product.images.length > 0 ? product.images : [{ url: '/placeholder.svg' }]).map((image, index) => (
             <motion.div
               key={image.url ?? index}
@@ -126,7 +133,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 alt={product.name}
                 fill
                 className="object-cover"
-                priority={index === 0}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                priority
               />
             </motion.div>
           ))}
