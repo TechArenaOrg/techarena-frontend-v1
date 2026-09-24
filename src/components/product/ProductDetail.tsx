@@ -135,7 +135,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           ))}
           
           {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
             {product.isFeatured && (
               <Badge className="bg-orange-500 text-white border-0">
                 <Zap className="w-3 h-3 mr-1" />
