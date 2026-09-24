@@ -119,6 +119,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(min-width: 640px) 192px, 100vw"
             />
             <div className="absolute top-3 left-3 flex flex-col gap-2">
               {product.isFeatured && (
@@ -251,6 +252,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
             />
             {images.length > 1 && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-1">
@@ -377,7 +379,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             )}
 
             {/* Price */}
-            <div className="flex items-center justify-between mt-auto pt-2">
+            <div className="flex flex-col items-start gap-1 lg:flex-row lg:items-center lg:justify-between mt-auto pt-2">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-gray-900 dark:text-white">
                   UGX {product.price.toLocaleString()}
@@ -390,7 +392,7 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               </div>
 
               {/* Stock Status */}
-              <div className="text-right">
+              <div className="text-left lg:text-right">
                 {product.stockQuantity > product.lowStockThreshold ? (
                   <span className="text-xs text-green-600 dark:text-green-400 font-medium">
                     In Stock
