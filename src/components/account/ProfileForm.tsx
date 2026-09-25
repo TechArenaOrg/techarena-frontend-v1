@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, MapPin } from 'lucide-react';
+import { FormEvent, useEffect, useState } from 'react';
+import { User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Icons } from '@/components/ui/icons';
 import { useToast } from '@/hooks/use-toast';
+import { usersAPI } from '@/services/api/users-api';
+import { ApiError } from '@/services/api/client';
 
 interface ProfileFormProps {
   user: {
@@ -18,21 +22,46 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
-  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    usersAPI
+      .getProfile()
+      .then((data) => {
+        setFirstName(data.profile.firstName ?? '');
+        setLastName(data.profile.lastName ?? '');
+        setPhone(data.user.phone ?? '');
+      })
+      .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load your profile.'))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await usersAPI.updateProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim() || null,
       });
-    }, 1000);
+      toast({
+        title: 'Profile updated',
+        description: 'Your profile has been updated successfully.',
+      });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -45,86 +74,65 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Icons.spinner className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
               <div>
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" defaultValue={user.email || ''} disabled />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your email can't be changed here - contact support if you need it updated.
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="phone">Phone Number</Label>
                 <Input
-                  id="firstName"
-                  defaultValue={user.name?.split(' ')[0] || ''}
-                  required
+                  id="phone"
+                  type="tel"
+                  placeholder="+256 xxx xxx xxx"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  defaultValue={user.name?.split(' ')[1] || ''}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                defaultValue={user.email || ''}
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+256 xxx xxx xxx"
-              />
-            </div>
-            
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            Address Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="address">Street Address</Label>
-              <Input id="address" placeholder="Enter your address" />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="city">City</Label>
-                <Input id="city" placeholder="Kampala" />
-              </div>
-              <div>
-                <Label htmlFor="region">Region</Label>
-                <Input id="region" placeholder="Central Region" />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="postalCode">Postal Code</Label>
-              <Input id="postalCode" placeholder="00000" />
-            </div>
-            
-            <Button variant="outline">
-              Save Address
-            </Button>
-          </div>
+
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

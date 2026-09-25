@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
@@ -27,6 +28,14 @@ export function Pagination({
 }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Next.js only auto-scrolls to top on a pathname change - navigating to the same
+  // route with just a different `?page=` doesn't trigger it, leaving the new page's
+  // content rendered wherever the user was scrolled to (often the bottom, right where
+  // they clicked Next/a page number).
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentPage]);
 
   const createPageURL = (page: number) => {
     const params = new URLSearchParams(searchParams);

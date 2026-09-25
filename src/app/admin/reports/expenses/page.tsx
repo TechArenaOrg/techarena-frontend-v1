@@ -72,18 +72,18 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left text-muted-foreground">
-                        <th className="px-6 py-3 font-medium">Type</th>
-                        <th className="px-6 py-3 font-medium">Vendor</th>
-                        <th className="px-6 py-3 font-medium">Notes</th>
-                        <th className="px-6 py-3 font-medium">Date</th>
-                        <th className="px-6 py-3 font-medium text-right">Amount</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                      <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-semibold text-foreground">Type</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Vendor</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Notes</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Date</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Amount</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {expenses.map((expense) => (
-                        <tr key={expense.id}>
+                        <tr key={expense.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                           <td className="px-6 py-3">{expense.type}</td>
                           <td className="px-6 py-3 text-muted-foreground">
                             {expense.vendor?.businessName ?? 'Platform'}
@@ -124,7 +124,7 @@ export default async function AdminExpensesPage({ searchParams }: PageProps) {
 
                 <div className="sm:hidden divide-y">
                   {expenses.map((expense) => (
-                    <div key={expense.id} className="p-4 space-y-1.5">
+                    <div key={expense.id} className="p-4 space-y-1.5 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium">{expense.type}</p>
                         <p className="font-medium shrink-0">{formatCurrency(expense.amount)}</p>

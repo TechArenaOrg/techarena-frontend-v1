@@ -97,14 +97,14 @@ export default async function StockStatusPage({ searchParams }: PageProps) {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Department / Item</th>
-                      <th className="px-6 py-3 font-medium text-right">On-hand Qty</th>
-                      <th className="px-6 py-3 font-medium text-right">Margin %</th>
-                      <th className="px-6 py-3 font-medium text-right">Cost</th>
-                      <th className="px-6 py-3 font-medium text-right">Price</th>
-                      <th className="px-6 py-3 font-medium text-right">Ext Cost</th>
-                      <th className="px-6 py-3 font-medium text-right">Ext Price</th>
+                    <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                      <th className="px-6 py-3 font-semibold text-foreground">Department / Item</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">On-hand Qty</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Margin %</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Cost</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Price</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Ext Cost</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Ext Price</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -116,7 +116,7 @@ export default async function StockStatusPage({ searchParams }: PageProps) {
                           </td>
                         </tr>
                         {dept.items.map((row) => (
-                          <tr key={row.id}>
+                          <tr key={row.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                             <td className="px-6 py-3 pl-10">{row.name}</td>
                             <td className="px-6 py-3 text-right">{row.onHandQty}</td>
                             <td className="px-6 py-3 text-right">

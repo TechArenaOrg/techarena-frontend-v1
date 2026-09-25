@@ -73,17 +73,17 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left text-muted-foreground">
-                        <th className="px-6 py-3 font-medium">Date</th>
-                        <th className="px-6 py-3 font-medium">Note</th>
-                        <th className="px-6 py-3 font-medium">Type</th>
-                        <th className="px-6 py-3 font-medium text-right">Amount</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                      <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-semibold text-foreground">Date</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Note</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Type</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Amount</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {entries.map((entry) => (
-                        <tr key={entry.id}>
+                        <tr key={entry.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                           <td className="px-6 py-3 text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</td>
                           <td className="px-6 py-3 text-muted-foreground">
                             {entry.note || '—'}
@@ -112,7 +112,7 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
 
                 <div className="sm:hidden divide-y">
                   {entries.map((entry) => (
-                    <div key={entry.id} className="p-4 space-y-1.5">
+                    <div key={entry.id} className="p-4 space-y-1.5 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm text-muted-foreground">{new Date(entry.date).toLocaleDateString()}</p>
                         {entry.direction ? (

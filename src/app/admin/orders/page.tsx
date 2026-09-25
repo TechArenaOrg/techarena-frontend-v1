@@ -50,20 +50,20 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left text-muted-foreground">
-                        <th className="px-6 py-3 font-medium">Order</th>
-                        <th className="px-6 py-3 font-medium">Customer</th>
-                        <th className="px-6 py-3 font-medium">Date</th>
-                        <th className="px-6 py-3 font-medium">Items</th>
-                        <th className="px-6 py-3 font-medium text-right">Total</th>
-                        <th className="px-6 py-3 font-medium">Status</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                      <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-semibold text-foreground">Order</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Customer</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Date</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Items</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Total</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Status</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {orders.map((order) => (
-                        <tr key={order.id}>
-                          <td className="px-6 py-3 font-medium">{order.orderNumber}</td>
+                        <tr key={order.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
+                          <td className="px-6 py-3 font-semibold text-primary">{order.orderNumber}</td>
                           <td className="px-6 py-3 text-muted-foreground">{order.customerEmail ?? order.user?.email ?? '—'}</td>
                           <td className="px-6 py-3 text-muted-foreground">{new Date(order.placedAt).toLocaleDateString()}</td>
                           <td className="px-6 py-3 text-muted-foreground">{order.items.length}</td>
@@ -87,9 +87,9 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                     vendor actually needs to see. */}
                 <div className="sm:hidden divide-y">
                   {orders.map((order) => (
-                    <div key={order.id} className="p-4 space-y-2">
+                    <div key={order.id} className="p-4 space-y-2 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-medium">{order.orderNumber}</p>
+                        <p className="font-semibold text-primary">{order.orderNumber}</p>
                         <OrderStatusBadge status={order.status} />
                       </div>
                       <p className="text-sm text-muted-foreground truncate">

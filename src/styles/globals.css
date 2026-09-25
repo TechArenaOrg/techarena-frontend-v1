@@ -61,10 +61,14 @@
      the app leaned heavily on those smaller sizes for body text throughout. */
   html {
     font-size: 18px;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
   }
   
   /* Custom scrollbar */

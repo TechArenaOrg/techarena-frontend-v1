@@ -42,16 +42,16 @@ export default async function AdminLedgerPage() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="px-6 py-3 font-medium">Account</th>
-                <th className="px-6 py-3 font-medium">Kind</th>
-                <th className="px-6 py-3 font-medium text-right">Balance</th>
-                <th className="px-6 py-3 font-medium text-right">Actions</th>
+              <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                <th className="px-6 py-3 font-semibold text-foreground">Account</th>
+                <th className="px-6 py-3 font-semibold text-foreground">Kind</th>
+                <th className="px-6 py-3 font-semibold text-foreground text-right">Balance</th>
+                <th className="px-6 py-3 font-semibold text-foreground text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {rows.map((account) => (
-                <tr key={account.id}>
+                <tr key={account.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                   <td className="px-6 py-3 font-medium">{account.name}</td>
                   <td className="px-6 py-3">
                     <Badge variant="outline">{KIND_LABELS[account.kind]}</Badge>
@@ -70,7 +70,7 @@ export default async function AdminLedgerPage() {
 
         <div className="sm:hidden divide-y">
           {rows.map((account) => (
-            <div key={account.id} className="p-4 space-y-2">
+            <div key={account.id} className="p-4 space-y-2 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-medium">{account.name}</p>
                 <Badge variant="outline" className="shrink-0">{KIND_LABELS[account.kind]}</Badge>

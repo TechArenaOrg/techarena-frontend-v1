@@ -139,7 +139,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="flex flex-col gap-3 p-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4"
+                    className="flex flex-col gap-3 p-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4 hover:bg-muted/50 transition-colors"
                   >
                     <div className="min-w-0">
                       <p className="text-base font-medium truncate">{product.name}</p>

@@ -89,19 +89,19 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Product</th>
-                      <th className="px-6 py-3 font-medium">Vendor</th>
-                      <th className="px-6 py-3 font-medium">Sold On</th>
-                      <th className="px-6 py-3 font-medium text-right">Units</th>
-                      <th className="px-6 py-3 font-medium text-right">Revenue</th>
-                      <th className="px-6 py-3 font-medium text-right">Commission</th>
-                      <th className="px-6 py-3 font-medium text-right">Profit</th>
+                    <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                      <th className="px-6 py-3 font-semibold text-foreground">Product</th>
+                      <th className="px-6 py-3 font-semibold text-foreground">Vendor</th>
+                      <th className="px-6 py-3 font-semibold text-foreground">Sold On</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Units</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Revenue</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Commission</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Profit</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {report.products.map((product) => (
-                      <tr key={product.productId}>
+                      <tr key={product.productId} className="border-b hover:bg-muted/50 even:bg-muted/25">
                         <td className="px-6 py-3">{product.productName}</td>
                         <td className="px-6 py-3 text-muted-foreground">{product.vendorName}</td>
                         <td className="px-6 py-3 text-muted-foreground">

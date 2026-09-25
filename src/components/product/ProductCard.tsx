@@ -24,6 +24,13 @@ interface ProductCardProps {
 export function ProductCard({ product, className, layout = 'grid' }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
+  // CSS :hover (including group-hover) makes WebKit/Chrome treat the first tap on a
+  // touchscreen as "settling" the hover state, requiring a second tap to actually
+  // follow the link - regardless of whether the underlying :hover rule is itself
+  // gated behind an @media(hover:hover) query. Driving the same visual effects off
+  // real React state (only ever set by mouse events, never touch) sidesteps that
+  // browser heuristic entirely.
+  const [isHovered, setIsHovered] = useState(false);
   const cycleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toast } = useToast();
   const router = useRouter();
@@ -39,7 +46,12 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     };
   }, []);
 
-  const handleImageHoverStart = () => {
+  // Touch interactions fire a synthetic mouseenter/mouseleave for compatibility with
+  // mouse-only sites, which would otherwise trigger these hover effects from a tap.
+  // Pointer events expose the real input source, so checking pointerType filters those
+  // synthetic firings out - isHovered (and this image-cycle effect) stays mouse-only.
+  const handleImageHoverStart = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
     if (images.length < 2 || cycleIntervalRef.current) return;
     // Switch to the next image right away instead of waiting out setInterval's first
     // tick - otherwise hovering feels unresponsive for the first ~second.
@@ -49,7 +61,8 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     }, 800);
   };
 
-  const handleImageHoverEnd = () => {
+  const handleImageHoverEnd = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
     if (cycleIntervalRef.current) {
       clearInterval(cycleIntervalRef.current);
       cycleIntervalRef.current = null;
@@ -107,18 +120,24 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
 
   if (layout === 'list') {
     return (
-      <div className={`group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300 ${className ?? ''}`}>
+      <div
+        className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${
+          isHovered ? 'shadow-lg border-blue-200 dark:border-blue-600' : 'border-gray-200 dark:border-gray-700'
+        } ${className ?? ''}`}
+        onPointerEnter={(e) => e.pointerType === 'mouse' && setIsHovered(true)}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && setIsHovered(false)}
+      >
         <Link href={`/product/${product.slug}`} className="flex flex-col sm:flex-row">
           <div
             className="relative w-full sm:w-48 aspect-square sm:aspect-auto shrink-0 overflow-hidden bg-gray-50 dark:bg-gray-700"
-            onMouseEnter={handleImageHoverStart}
-            onMouseLeave={handleImageHoverEnd}
+            onPointerEnter={handleImageHoverStart}
+            onPointerLeave={handleImageHoverEnd}
           >
             <Image
               src={images[imageIndex]?.url || '/placeholder.svg'}
               alt={product.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`object-cover transition-transform duration-300 ${isHovered ? 'scale-105' : ''}`}
               sizes="(min-width: 640px) 192px, 100vw"
             />
             <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -151,7 +170,11 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
                 {product.vendor?.businessName || 'TechArena'}
               </p>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3
+                className={`font-semibold mb-1 line-clamp-1 transition-colors ${
+                  isHovered ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
+                }`}
+              >
                 {product.name}
               </h3>
               {product.shortDescription && (
@@ -237,75 +260,94 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="group h-full"
+      className="h-full"
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setIsHovered(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setIsHovered(false)}
     >
       <Link href={`/product/${product.slug}`} className="block h-full">
-        <div className="flex h-full flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-300">
+        <div
+          className={`flex h-full flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border overflow-hidden transition-all duration-300 ${
+            isHovered ? 'shadow-xl border-blue-200 dark:border-blue-600' : 'border-gray-200 dark:border-gray-700'
+          }`}
+        >
           {/* Product Image */}
           <div
             className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700"
-            onMouseEnter={handleImageHoverStart}
-            onMouseLeave={handleImageHoverEnd}
+            onPointerEnter={handleImageHoverStart}
+            onPointerLeave={handleImageHoverEnd}
           >
             <Image
               src={images[imageIndex]?.url || '/placeholder.svg'}
               alt={product.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`object-cover transition-transform duration-300 ${isHovered ? 'scale-105' : ''}`}
               sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
             />
-            {images.length > 1 && (
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-1">
-                {images.map((_, i) => (
-                  <span
-                    key={i}
-                    className={`h-1.5 w-1.5 rounded-full transition-colors ${i === imageIndex ? 'bg-white' : 'bg-white/50'}`}
-                  />
-                ))}
+            {/* Badges - a horizontal, wrapping row takes far less of the image's height
+                than stacking them, since there can be up to 3 of these at once. On
+                phone the wishlist heart shares this same row (smaller, right-aligned)
+                instead of its own top-right slot - there's no hover to reveal it there
+                the way desktop does. */}
+            <div className="absolute top-2 left-2 right-2 flex items-start justify-between gap-1">
+              <div className="flex flex-wrap gap-1">
+                {product.isFeatured && (
+                  <Badge className="bg-orange-500 text-white border-0 px-1.5 py-0 text-[10px]">
+                    <Zap className="w-2.5 h-2.5 mr-0.5" />
+                    Featured
+                  </Badge>
+                )}
+                {product.comparePrice && product.comparePrice > product.price && (
+                  <Badge className="bg-red-500 text-white border-0 px-1.5 py-0.5 text-xs font-bold">
+                    -{Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}%
+                  </Badge>
+                )}
+                {product.stockQuantity <= product.lowStockThreshold && product.stockQuantity > 0 && (
+                  <Badge variant="destructive" className="px-1.5 py-0 text-[10px]">
+                    Low Stock
+                  </Badge>
+                )}
+                {product.stockQuantity === 0 && (
+                  <Badge variant="destructive" className="px-1.5 py-0 text-[10px]">
+                    Out of Stock
+                  </Badge>
+                )}
               </div>
-            )}
-
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {product.isFeatured && (
-                <Badge className="bg-orange-500 text-white border-0">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Featured
-                </Badge>
-              )}
-              {product.comparePrice && product.comparePrice > product.price && (
-                <Badge className="bg-red-500 text-white border-0">
-                  -{Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}%
-                </Badge>
-              )}
-              {product.stockQuantity <= product.lowStockThreshold && product.stockQuantity > 0 && (
-                <Badge variant="destructive">
-                  Low Stock
-                </Badge>
-              )}
-              {product.stockQuantity === 0 && (
-                <Badge variant="destructive">
-                  Out of Stock
-                </Badge>
-              )}
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Button
                 size="sm"
                 variant="secondary"
-                className={`w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 hover:text-gray-900 ${
+                className={`lg:hidden shrink-0 w-6 h-6 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 ${
+                  isWishlisted ? '!text-red-500' : ''
+                }`}
+                onClick={handleWishlist}
+              >
+                <Heart className={`w-3 h-3 ${isWishlisted ? 'fill-current' : ''}`} />
+              </Button>
+            </div>
+
+            {/* Quick Action Buttons - always visible on phone/tablet (no hover to reveal
+                them with); hidden until hovered on desktop, where there's room to spare. */}
+            <div
+              className={`absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300 opacity-100 ${
+                isHovered ? 'lg:opacity-100' : 'lg:opacity-0'
+              }`}
+            >
+              <Button
+                size="sm"
+                variant="secondary"
+                className={`hidden lg:flex w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 hover:text-gray-900 ${
                   isWishlisted ? '!text-red-500' : ''
                 }`}
                 onClick={handleWishlist}
               >
                 <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
               </Button>
+              {/* Doesn't do anything a card tap doesn't already do (no click handler,
+                  no quick-view preview behind it) - kept for desktop only, where it at
+                  least visually implies "look closer" before hovering elsewhere. */}
               <Button
                 size="sm"
                 variant="secondary"
-                className="w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 hover:text-gray-900"
+                className="hidden lg:flex w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-md text-gray-700 hover:text-gray-900"
                 asChild
               >
                 <div>
@@ -314,34 +356,32 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
               </Button>
             </div>
 
-            {/* Quick Add to Cart / Buy Now */}
-            <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+            {/* Buy Now - same phone-always-visible, desktop-hover-only split. There was
+                previously a separate "Add to Cart" cart-icon button here too, but it
+                called the exact same handler as Buy Now - a redundant second button
+                doing the same thing, and one less element covering the image. */}
+            <div
+              className={`absolute bottom-0 left-2 right-2 lg:bottom-2 transform transition-all duration-300 opacity-100 translate-y-0 ${
+                isHovered ? 'lg:opacity-100 lg:translate-y-0' : 'lg:opacity-0 lg:translate-y-2'
+              }`}
+            >
               <Button
-                className={product.stockQuantity === 0 ? 'flex-1 bg-blue-600 hover:bg-blue-700 text-white' : 'shrink-0 px-3 bg-blue-600 hover:bg-blue-700 text-white'}
+                size="sm"
+                className="w-full h-6 text-xs lg:h-8 bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-60"
                 disabled={product.stockQuantity === 0 || isLoading}
                 onClick={handleAddToCart}
-                title="Add to Cart"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : product.stockQuantity === 0 ? (
-                  <>
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Out of Stock
-                  </>
+                  'Out of Stock'
                 ) : (
-                  <ShoppingCart className="w-4 h-4" />
+                  <>
+                    <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+                    Buy Now
+                  </>
                 )}
               </Button>
-              {product.stockQuantity > 0 && (
-                <Button
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
-                  disabled={isLoading}
-                  onClick={handleAddToCart}
-                >
-                  Buy Now
-                </Button>
-              )}
             </div>
           </div>
 
@@ -353,7 +393,11 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             </p>
             
             {/* Product Name */}
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3
+              className={`font-semibold mb-2 line-clamp-2 transition-colors ${
+                isHovered ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
+              }`}
+            >
               {product.name}
             </h3>
             

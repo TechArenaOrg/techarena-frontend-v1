@@ -70,16 +70,16 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="px-6 py-3 font-medium">Product</th>
-                    <th className="px-6 py-3 font-medium text-right">Qty</th>
-                    <th className="px-6 py-3 font-medium text-right">Total</th>
-                    <th className="px-6 py-3 font-medium">Status</th>
+                  <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                    <th className="px-6 py-3 font-semibold text-foreground">Product</th>
+                    <th className="px-6 py-3 font-semibold text-foreground text-right">Qty</th>
+                    <th className="px-6 py-3 font-semibold text-foreground text-right">Total</th>
+                    <th className="px-6 py-3 font-semibold text-foreground">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {myItems.map((item: any) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                       <td className="px-6 py-3 font-medium">{item.productName}</td>
                       <td className="px-6 py-3 text-right">{item.quantity}</td>
                       <td className="px-6 py-3 text-right">{formatCurrency(item.totalPrice)}</td>
@@ -94,7 +94,7 @@ export default async function VendorOrderDetailPage({ params }: PageProps) {
 
             <div className="sm:hidden divide-y">
               {myItems.map((item: any) => (
-                <div key={item.id} className="p-4 space-y-2">
+                <div key={item.id} className="p-4 space-y-2 hover:bg-muted/50 transition-colors">
                   <p className="font-medium">{item.productName}</p>
                   <p className="text-sm text-muted-foreground">
                     Qty {item.quantity} • {formatCurrency(item.totalPrice)}

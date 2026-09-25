@@ -69,18 +69,18 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left text-muted-foreground">
-                        <th className="px-6 py-3 font-medium">Supplier</th>
-                        <th className="px-6 py-3 font-medium">Order Date</th>
-                        <th className="px-6 py-3 font-medium">Items</th>
-                        <th className="px-6 py-3 font-medium text-right">Total</th>
-                        <th className="px-6 py-3 font-medium">Status</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                      <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                        <th className="px-6 py-3 font-semibold text-foreground">Supplier</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Order Date</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Items</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Total</th>
+                        <th className="px-6 py-3 font-semibold text-foreground">Status</th>
+                        <th className="px-6 py-3 font-semibold text-foreground text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {purchaseOrders.map((po) => (
-                        <tr key={po.id}>
+                        <tr key={po.id} className="border-b hover:bg-muted/50 even:bg-muted/25">
                           <td className="px-6 py-3 font-medium">{po.supplierName}</td>
                           <td className="px-6 py-3 text-muted-foreground">{new Date(po.orderDate).toLocaleDateString()}</td>
                           <td className="px-6 py-3 text-muted-foreground">{po.items.length}</td>
@@ -101,7 +101,7 @@ export default async function VendorPurchaseOrdersPage({ searchParams }: PagePro
 
                 <div className="sm:hidden divide-y">
                   {purchaseOrders.map((po) => (
-                    <div key={po.id} className="p-4 space-y-2">
+                    <div key={po.id} className="p-4 space-y-2 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium">{po.supplierName}</p>
                         <Badge variant={po.isReceived ? 'success' : 'warning'} className="shrink-0">

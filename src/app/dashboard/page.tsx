@@ -89,9 +89,9 @@ function RecentOrders({ orders }: { orders: DashboardOrders }) {
       <CardContent>
         <div className="space-y-4">
           {orders.slice(0, 5).map((order: DashboardOrders[number]) => (
-            <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-b-0">
+            <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-b-0 hover:bg-muted/50 transition-colors -mx-2 px-2 rounded">
               <div className="space-y-1">
-                <p className="text-sm font-medium">{order.orderNumber}</p>
+                <p className="text-sm font-semibold text-primary">{order.orderNumber}</p>
                 <p className="text-sm text-muted-foreground">
                   {order.items.length} item{order.items.length !== 1 ? 's' : ''} •{' '}
                   {order.placedAt.toLocaleDateString()}

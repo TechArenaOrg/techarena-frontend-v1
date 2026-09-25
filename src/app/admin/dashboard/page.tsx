@@ -93,9 +93,9 @@ function RecentOrdersCard({ orders }: { orders: AdminDashboard['recentOrders'] }
         ) : (
           <div className="space-y-4">
             {orders.map((order: AdminDashboard['recentOrders'][number]) => (
-              <div key={order.id} className="flex items-center justify-between border-b pb-3 last:border-b-0">
+              <div key={order.id} className="flex items-center justify-between border-b pb-3 last:border-b-0 hover:bg-muted/50 transition-colors -mx-2 px-2 rounded">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">{order.orderNumber}</p>
+                  <p className="text-sm font-semibold text-primary">{order.orderNumber}</p>
                   <p className="text-xs text-muted-foreground">{order.createdAt.toLocaleDateString()}</p>
                 </div>
                 <div className="text-right space-y-1">

@@ -81,12 +81,12 @@ export default async function SalesSummaryPage({ searchParams }: PageProps) {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Department / Item</th>
-                      <th className="px-6 py-3 font-medium text-right">Qty Sold</th>
-                      <th className="px-6 py-3 font-medium text-right">Ext Price</th>
-                      <th className="px-6 py-3 font-medium text-right">Ext Cost</th>
-                      <th className="px-6 py-3 font-medium text-right">Profit</th>
+                    <tr className="border-b bg-muted/30 text-left text-muted-foreground">
+                      <th className="px-6 py-3 font-semibold text-foreground">Department / Item</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Qty Sold</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Ext Price</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Ext Cost</th>
+                      <th className="px-6 py-3 font-semibold text-foreground text-right">Profit</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -98,7 +98,7 @@ export default async function SalesSummaryPage({ searchParams }: PageProps) {
                           </td>
                         </tr>
                         {dept.items.map((product) => (
-                          <tr key={product.productId}>
+                          <tr key={product.productId} className="border-b hover:bg-muted/50 even:bg-muted/25">
                             <td className="px-6 py-3 pl-10">{product.productName}</td>
                             <td className="px-6 py-3 text-right">{product.unitsSold}</td>
                             <td className="px-6 py-3 text-right">{formatCurrency(product.revenue)}</td>
