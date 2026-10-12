@@ -11,6 +11,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: '/admin/orders', label: 'Manage Orders', icon: Icons.shoppingCart },
   { href: '/admin/sales-report', label: 'Sales Report', icon: Icons.trendingUp },
   { href: '/admin/reports', label: 'Reports', icon: Icons.fileText },
+  { href: '/admin/settings', label: 'Settings', icon: Icons.settings },
 ];
 
 export function AdminSidebar() {

@@ -9,6 +9,7 @@ import { BackLink } from '@/components/ui/back-link';
 import { OrderStatusBadge } from '@/components/order/OrderStatusBadge';
 import { OrderStatusSelect } from '@/components/order/OrderStatusSelect';
 import { CancelOrderButton } from '@/components/order/CancelOrderButton';
+import { ResendConfirmationButton } from '@/components/order/ResendConfirmationButton';
 
 export const metadata: Metadata = {
   title: 'Order Details',
@@ -41,6 +42,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <OrderStatusBadge status={order.status} />
+            <ResendConfirmationButton orderId={order.id} />
             <CancelOrderButton orderId={order.id} status={order.status} />
             {order.status !== 'cancelled' && <OrderStatusSelect orderId={order.id} currentStatus={order.status} />}
           </div>

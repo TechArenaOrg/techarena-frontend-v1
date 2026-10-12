@@ -120,6 +120,11 @@ export const ordersAPI = {
     return normalizeOrder(raw);
   },
 
+  // Admin only (backend-enforced).
+  async resendConfirmation(id: string, token?: string) {
+    return apiClient.post<{ sent: boolean }>(`/orders/${id}/resend-confirmation`, undefined, { token });
+  },
+
   // Vendor-scoped: only orders containing that vendor's own products.
   async getVendorOrders(params: { page?: number; limit?: number }, token?: string) {
     const raw = await apiClient.get<RawPage<any>>('/vendor/orders', { params, token });
