@@ -99,6 +99,16 @@ export function UserMenu() {
         .toUpperCase()
     : 'U';
 
+  // Each role has its own dashboard route - "Dashboard" should go straight there
+  // instead of always pointing at the customer one, which is what made a separate
+  // "Admin Panel" / "Vendor Dashboard" entry seem necessary in the first place.
+  // Orders and Wishlist are shopping features with no vendor/admin equivalent on
+  // this platform - a vendor manages their own orders via /vendor/orders, not a
+  // personal order history, and nobody "wishlists" as a vendor or admin.
+  const role = (session.user as any)?.role;
+  const isCustomer = role !== 'admin' && role !== 'vendor';
+  const dashboardHref = role === 'admin' ? '/admin/dashboard' : role === 'vendor' ? '/vendor/dashboard' : '/dashboard';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -120,7 +130,7 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/dashboard" className="cursor-pointer">
+          <Link href={dashboardHref} className="cursor-pointer">
             <Icons.dashboard className="mr-2 h-4 w-4" />
             Dashboard
           </Link>
@@ -131,34 +141,21 @@ export function UserMenu() {
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/orders" className="cursor-pointer">
-            <Icons.package className="mr-2 h-4 w-4" />
-            Orders
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/account/wishlist" className="cursor-pointer">
-            <Icons.heart className="mr-2 h-4 w-4" />
-            Wishlist
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {(session.user as any)?.role === 'admin' && (
-          <DropdownMenuItem asChild>
-            <Link href="/admin/dashboard" className="cursor-pointer">
-              <Icons.settings className="mr-2 h-4 w-4" />
-              Admin Panel
-            </Link>
-          </DropdownMenuItem>
-        )}
-        {((session.user as any)?.role === 'vendor' || (session.user as any)?.role === 'admin') && (
-          <DropdownMenuItem asChild>
-            <Link href="/vendor/dashboard" className="cursor-pointer">
-              <Icons.store className="mr-2 h-4 w-4" />
-              Vendor Dashboard
-            </Link>
-          </DropdownMenuItem>
+        {isCustomer && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/account/orders" className="cursor-pointer">
+                <Icons.package className="mr-2 h-4 w-4" />
+                Orders
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/account/wishlist" className="cursor-pointer">
+                <Icons.heart className="mr-2 h-4 w-4" />
+                Wishlist
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">

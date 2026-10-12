@@ -2,75 +2,83 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
-import { 
-  User, 
-  Package, 
-  Heart, 
-  CreditCard, 
-  MapPin, 
-  Bell, 
-  Settings, 
+import { signOut, useSession } from 'next-auth/react';
+import {
+  User,
+  Package,
+  Heart,
+  MapPin,
+  Bell,
+  Settings,
+  Shield,
   LogOut,
-  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-const navigationItems = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: User,
-    description: 'Overview of your account'
-  },
-  {
-    name: 'Orders',
-    href: '/account/orders',
-    icon: Package,
-    description: 'View and track your orders'
-  },
-  {
-    name: 'Wishlist',
-    href: '/account/wishlist',
-    icon: Heart,
-    description: 'Your saved products'
-  },
-  {
-    name: 'Payment Methods',
-    href: '/account/payment-methods',
-    icon: CreditCard,
-    description: 'Manage payment options'
-  },
-  {
-    name: 'Addresses',
-    href: '/account/addresses',
-    icon: MapPin,
-    description: 'Shipping and billing addresses'
-  },
-  {
-    name: 'Notifications',
-    href: '/account/notifications',
-    icon: Bell,
-    description: 'Email and SMS preferences'
-  },
-  {
-    name: 'Profile Settings',
-    href: '/account/profile',
-    icon: Settings,
-    description: 'Update your personal information'
-  },
-  {
-    name: 'Security',
-    href: '/account/security',
-    icon: Shield,
-    description: 'Password and security settings'
-  },
-];
-
 export function AccountSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  // This list used to be static and shown to every role unconditionally - an admin
+  // or vendor would see "Orders"/"Wishlist" (shopping features neither role has a use
+  // for) and "Dashboard" always pointed at the customer dashboard regardless of role.
+  // Notifications and Security apply to every role equally (unlike Orders/Wishlist),
+  // but the backend has no endpoints for either yet (no change-password-while-logged-in
+  // or notification-preferences API) - kept visible as a roadmap placeholder pointing
+  // at a "coming soon" page rather than a 404, for whenever that backend work lands.
+  // Payment Methods was dropped outright - not on the roadmap, no page, pure dead link.
+  const role = (session?.user as any)?.role;
+  const isCustomer = role !== 'admin' && role !== 'vendor';
+  const dashboardHref = role === 'admin' ? '/admin/dashboard' : role === 'vendor' ? '/vendor/dashboard' : '/dashboard';
+
+  const navigationItems = [
+    {
+      name: 'Dashboard',
+      href: dashboardHref,
+      icon: User,
+      description: 'Overview of your account'
+    },
+    ...(isCustomer ? [
+      {
+        name: 'Orders',
+        href: '/account/orders',
+        icon: Package,
+        description: 'View and track your orders'
+      },
+      {
+        name: 'Wishlist',
+        href: '/account/wishlist',
+        icon: Heart,
+        description: 'Your saved products'
+      },
+      {
+        name: 'Addresses',
+        href: '/account/addresses',
+        icon: MapPin,
+        description: 'Shipping and billing addresses'
+      },
+    ] : []),
+    {
+      name: 'Notifications',
+      href: '/account/notifications',
+      icon: Bell,
+      description: 'Email and SMS preferences'
+    },
+    {
+      name: 'Profile Settings',
+      href: '/account/profile',
+      icon: Settings,
+      description: 'Update your personal information'
+    },
+    {
+      name: 'Security',
+      href: '/account/security',
+      icon: Shield,
+      description: 'Password and security settings'
+    },
+  ];
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
