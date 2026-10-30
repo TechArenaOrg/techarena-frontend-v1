@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { BackLink } from '@/components/ui/back-link';
 import { OrderStatusBadge } from '@/components/order/OrderStatusBadge';
 import { CancelOrderButton } from '@/components/order/CancelOrderButton';
+import { OrderTimeline } from '@/components/order/OrderTimeline';
 
 export const metadata: Metadata = {
   title: 'Order Details',
@@ -44,6 +45,18 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
             <CancelOrderButton orderId={order.id} status={order.status} />
           </div>
         </div>
+
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <OrderTimeline
+              status={order.status}
+              placedAt={order.placedAt}
+              shippedAt={order.shippedAt}
+              deliveredAt={order.deliveredAt}
+              cancelledAt={order.cancelledAt}
+            />
+          </CardContent>
+        </Card>
 
         <Card className="mt-6">
           <CardHeader>

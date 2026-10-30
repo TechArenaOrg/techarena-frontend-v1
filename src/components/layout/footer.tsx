@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import { CONTACT_INFO } from '@/lib/constants';
 
 export function Footer() {
   return (
@@ -89,15 +90,17 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center text-gray-400">
                 <MapPin className="w-4 h-4 mr-2" />
-                <span>Kampala, Uganda</span>
+                <span>{CONTACT_INFO.ADDRESS}</span>
               </div>
               <div className="flex items-center text-gray-400">
                 <Phone className="w-4 h-4 mr-2" />
-                <span>+256 757 206 101</span>
+                <span>{CONTACT_INFO.PHONE}</span>
               </div>
               <div className="flex items-center text-gray-400">
                 <Mail className="w-4 h-4 mr-2" />
-                <span>info@techarenaug.com</span>
+                <a href={`mailto:${CONTACT_INFO.EMAIL}`} className="hover:text-white transition-colors">
+                  {CONTACT_INFO.EMAIL}
+                </a>
               </div>
             </div>
           </div>
