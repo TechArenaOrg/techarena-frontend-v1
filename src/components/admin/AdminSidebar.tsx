@@ -9,6 +9,8 @@ export const ADMIN_NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: Icons.layoutDashboard },
   { href: '/admin/products', label: 'Manage Products', icon: Icons.package },
   { href: '/admin/orders', label: 'Manage Orders', icon: Icons.shoppingCart },
+  { href: '/admin/vendors', label: 'Vendor Applications', icon: Icons.store },
+  { href: '/admin/users', label: 'Manage Users', icon: Icons.users },
   { href: '/admin/sales-report', label: 'Sales Report', icon: Icons.trendingUp },
   { href: '/admin/reports', label: 'Reports', icon: Icons.fileText },
   { href: '/admin/settings', label: 'Settings', icon: Icons.settings },

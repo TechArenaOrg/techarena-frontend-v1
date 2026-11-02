@@ -31,6 +31,7 @@ import {
   Trash2,
   Truck,
   User,
+  Users,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -74,5 +75,6 @@ export const Icons = {
   trendingUp: TrendingUp,
   truck: Truck,
   user: User,
+  users: Users,
   x: X,
 };

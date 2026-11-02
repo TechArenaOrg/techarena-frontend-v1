@@ -52,6 +52,60 @@ export const vendorAPI = {
     const raw = await apiClient.get<RawPage<any>>('/vendors', { params: { limit: 100 }, token });
     return raw.items.map(normalizeVendor);
   },
+
+  // Any authenticated user - creates a pending Vendor application for their own
+  // account. Approving it (see below) is what actually flips their role to vendor.
+  async applyToBecomeVendor(
+    data: {
+      businessName: string;
+      businessType?: string;
+      businessRegistrationNumber?: string;
+      taxNumber?: string;
+      description?: string;
+      websiteUrl?: string;
+    },
+    token?: string
+  ) {
+    const raw = await apiClient.post<any>('/vendors', data, { token });
+    return normalizeVendor(raw);
+  },
+
+  // Admin/super_admin only. Omit status to get every vendor regardless of status.
+  async getVendorApplications(
+    params: { status?: 'pending' | 'approved' | 'suspended' | 'rejected'; page?: number; limit?: number },
+    token?: string
+  ) {
+    const raw = await apiClient.get<RawPage<any>>('/vendors', { params, token });
+    return {
+      vendors: raw.items.map(normalizeVendor),
+      totalCount: raw.pagination.total,
+      totalPages: raw.pagination.totalPages,
+      hasNextPage: raw.pagination.hasNextPage,
+      hasPreviousPage: raw.pagination.hasPrevPage,
+    };
+  },
+
+  // Admin/super_admin only. Approving/rejecting/suspending a vendor application is
+  // what the backend uses to flip the underlying user's role to/from 'vendor'.
+  async approveVendor(id: string, token?: string) {
+    const raw = await apiClient.put<any>(`/vendors/${id}/approve`, undefined, { token });
+    return normalizeVendor(raw);
+  },
+
+  async rejectVendor(id: string, token?: string) {
+    const raw = await apiClient.put<any>(`/vendors/${id}/reject`, undefined, { token });
+    return normalizeVendor(raw);
+  },
+
+  async suspendVendor(id: string, token?: string) {
+    const raw = await apiClient.put<any>(`/vendors/${id}/suspend`, undefined, { token });
+    return normalizeVendor(raw);
+  },
+
+  async updateVendorCommission(id: string, commissionRate: number, token?: string) {
+    const raw = await apiClient.put<any>(`/vendors/${id}/commission`, { commissionRate }, { token });
+    return normalizeVendor(raw);
+  },
 };
 
 export default vendorAPI;

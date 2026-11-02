@@ -12,6 +12,7 @@ import {
   Settings,
   Shield,
   LogOut,
+  Store,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,6 +59,12 @@ export function AccountSidebar() {
         href: '/account/addresses',
         icon: MapPin,
         description: 'Shipping and billing addresses'
+      },
+      {
+        name: 'Become a Vendor',
+        href: '/account/become-vendor',
+        icon: Store,
+        description: 'Apply to sell on TechArena'
       },
     ] : []),
     {
