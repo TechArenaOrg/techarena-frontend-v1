@@ -2,10 +2,12 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { adminAPI } from '@/services/api/admin-api';
+import { ApiError } from '@/services/api/client';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
+import { SessionRefreshNotice } from '@/components/auth/SessionRefreshNotice';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -173,8 +175,18 @@ function TopProductsCard({ topProducts }: { topProducts: AdminDashboard['topProd
 
 export default async function AdminDashboardPage() {
   const session = await auth();
-  const { platformStats, recentOrders, pendingVendors, topProducts, systemHealth } =
-    await adminAPI.getDashboard((session as any).accessToken);
+  let dashboard;
+  try {
+    dashboard = await adminAPI.getDashboard((session as any).accessToken);
+  } catch (err) {
+    // The session's cached role can be stale if it changed server-side (e.g. this
+    // account was demoted from admin) since this browser last signed in.
+    if (err instanceof ApiError && err.status === 403) {
+      return <SessionRefreshNotice />;
+    }
+    throw err;
+  }
+  const { platformStats, recentOrders, pendingVendors, topProducts, systemHealth } = dashboard;
 
   return (
     <main className="flex-1 space-y-6 p-6">

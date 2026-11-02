@@ -2,11 +2,13 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { dashboardAPI } from '@/services/api/dashboard-api';
+import { ApiError } from '@/services/api/client';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { WishlistStatCard } from '@/components/dashboard/WishlistStatCard';
+import { SessionRefreshNotice } from '@/components/auth/SessionRefreshNotice';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -156,9 +158,19 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     );
   }
 
-  const { orders, totalOrders, totalSpent, savedAmount } = await dashboardAPI.getMyDashboard(
-    (session as any).accessToken
-  );
+  let dashboard;
+  try {
+    dashboard = await dashboardAPI.getMyDashboard((session as any).accessToken);
+  } catch (err) {
+    // The session's cached role can be stale if it changed server-side (e.g. a vendor
+    // application got approved) since this browser last signed in - the backend then
+    // 403s a customer-only endpoint for what it knows is no longer a customer account.
+    if (err instanceof ApiError && err.status === 403) {
+      return <SessionRefreshNotice />;
+    }
+    throw err;
+  }
+  const { orders, totalOrders, totalSpent, savedAmount } = dashboard;
 
   return (
     <main className="flex-1 space-y-6 p-6">

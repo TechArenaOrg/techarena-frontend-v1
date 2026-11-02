@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { productsAPI } from '@/services/api/products-api';
+import { ApiError } from '@/services/api/client';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
+import { SessionRefreshNotice } from '@/components/auth/SessionRefreshNotice';
 
 export const metadata: Metadata = {
   title: 'Vendor Dashboard',
@@ -177,11 +179,21 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
   const { lowStockPage } = await searchParams;
   const currentLowStockPage = lowStockPage ? Number(lowStockPage) : 1;
 
-  const { vendor, analytics, recentOrders } = await vendorAPI.getMyDashboard(token);
-  const lowStock = await productsAPI.getProducts(
-    { vendorId: vendor.id, lowStock: true, page: currentLowStockPage, limit: 5 },
-    token
-  );
+  let vendor, analytics, recentOrders, lowStock;
+  try {
+    ({ vendor, analytics, recentOrders } = await vendorAPI.getMyDashboard(token));
+    lowStock = await productsAPI.getProducts(
+      { vendorId: vendor.id, lowStock: true, page: currentLowStockPage, limit: 5 },
+      token
+    );
+  } catch (err) {
+    // The session's cached role can be stale if it changed server-side (e.g. this
+    // vendor application was only just approved) since this browser last signed in.
+    if (err instanceof ApiError && err.status === 403) {
+      return <SessionRefreshNotice />;
+    }
+    throw err;
+  }
 
   return (
     <main className="flex-1 space-y-6 p-6">

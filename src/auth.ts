@@ -21,8 +21,21 @@ function decodeJwtExpiryMs(jwt: string): number {
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
     const refreshed = await authAPI.refreshToken(token.refreshToken as string);
+
+    // The refresh response doesn't include the user's current role, and this is the
+    // only point in a long-lived session where we talk to the backend again - without
+    // this, a role change (vendor approval, admin promotion) made after someone signs
+    // in wouldn't take effect until they fully sign out and back in, up to 30 days
+    // later. This bounds that staleness to one access-token lifetime (24h) instead.
+    // Best-effort: if it fails, keep the old role rather than failing the refresh.
+    const role = await authAPI
+      .getCurrentUser(refreshed.accessToken)
+      .then((user) => user.role)
+      .catch(() => token.role);
+
     return {
       ...token,
+      role,
       accessToken: refreshed.accessToken,
       refreshToken: refreshed.refreshToken,
       accessTokenExpires: decodeJwtExpiryMs(refreshed.accessToken),
