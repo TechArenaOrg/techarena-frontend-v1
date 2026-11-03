@@ -245,7 +245,7 @@ export const SOCIAL_LINKS = {
 export const CONTACT_INFO = {
   EMAIL: 'info@techarenaug.com',
   PHONE: '+256 757 206 101',
-  ADDRESS: 'Kampala, Uganda',
+  ADDRESS: 'Nalubega Complex, near Equatorial Mall, Kampala, Uganda',
   BUSINESS_HOURS: 'Mon - Fri: 8:00 AM - 6:00 PM',
 } as const;
 
