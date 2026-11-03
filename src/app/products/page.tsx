@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 interface ProductsSearchParams {
   search?: string;
   categoryId?: string;
+  brand?: string;
   minPrice?: string;
   maxPrice?: string;
   minRating?: string;
@@ -37,6 +38,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const filters = {
     search: resolvedSearchParams.search,
     categoryId: resolvedSearchParams.categoryId,
+    brand: resolvedSearchParams.brand,
     minPrice,
     maxPrice,
     minRating,
@@ -44,9 +46,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   };
   // Infinite scroll always starts from page 1 - filter changes (search/category/sort)
   // reset the list rather than resuming from wherever ?page= last pointed.
-  const [{ products, totalCount, hasNextPage }, { categories }] = await Promise.all([
+  const [{ products, totalCount, hasNextPage }, { categories }, brands] = await Promise.all([
     productsAPI.getProducts({ ...filters, page: 1, limit: 12 }),
     categoriesAPI.getCategories({ limit: 20 }),
+    // Only the brands with real products behind them - empty until vendors start
+    // filling in the (optional) brand field on their products.
+    productsAPI.getBrands().catch(() => []),
   ]);
 
   const activeCategory = categories.find((c) => c.id === resolvedSearchParams.categoryId);
@@ -74,6 +79,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <ProductFilters
                 categories={categories}
                 currentCategoryId={resolvedSearchParams.categoryId}
+                brands={brands}
+                currentBrand={resolvedSearchParams.brand}
                 currentMinPrice={minPrice}
                 currentMaxPrice={maxPrice}
                 currentMinRating={minRating}

@@ -188,6 +188,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {product.name}
               </h1>
+              {product.brand && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Brand: <span className="font-medium text-gray-700 dark:text-gray-300">{product.brand}</span>
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <Button

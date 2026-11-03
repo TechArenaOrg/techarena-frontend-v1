@@ -13,6 +13,7 @@ export interface ProductInput {
   slug: string;
   sku: string;
   categoryId: string;
+  brand?: string;
   shortDescription?: string;
   description?: string;
   price: number;
@@ -31,6 +32,7 @@ export const productsAPI = {
     params?: {
       categoryId?: string;
       vendorId?: string;
+      brand?: string;
       search?: string;
       isFeatured?: boolean;
       lowStock?: boolean;
@@ -56,6 +58,7 @@ export const productsAPI = {
         limit,
         categoryId: params?.categoryId,
         vendorId: params?.vendorId,
+        brand: params?.brand,
         search: params?.search,
         isFeatured: params?.isFeatured,
         lowStock: params?.lowStock,
@@ -98,6 +101,12 @@ export const productsAPI = {
   async getFeaturedProducts(limit = 8) {
     const raw = await apiClient.get<any[]>('/products/featured', { params: { limit } });
     return raw.map(normalizeProduct);
+  },
+
+  // Sorted list of distinct brand strings currently in use by at least one product -
+  // drives brand nav/filter UI so it never shows a brand with nothing behind it.
+  async getBrands() {
+    return apiClient.get<string[]>('/products/brands');
   },
 
   async searchProducts(query: string) {

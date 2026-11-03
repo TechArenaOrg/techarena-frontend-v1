@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { HeroSection } from '@/components/blocks/hero-section';
+import { BrandBar } from '@/components/blocks/brand-bar';
 import { FeaturedCategories } from '@/components/blocks/featured-categories';
 import { FeaturedProducts } from '@/components/blocks/featured-products';
 import { NewsletterSection } from '@/components/blocks/newsletter-section';
@@ -55,6 +56,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </Suspense>
           </div>
         </section>
+
+        {/* Shop by Brand - renders nothing until at least one product has a brand set */}
+        <Suspense fallback={null}>
+          <BrandBar />
+        </Suspense>
 
         {/* Featured Products */}
         <section className="py-3">

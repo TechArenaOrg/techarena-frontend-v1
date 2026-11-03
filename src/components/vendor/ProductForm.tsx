@@ -57,6 +57,7 @@ export function ProductForm({
   const [slug, setSlug] = useState(product?.slug ?? '');
   const [slugTouched, setSlugTouched] = useState(false);
   const [sku, setSku] = useState(product?.sku ?? '');
+  const [brand, setBrand] = useState(product?.brand ?? '');
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? '');
   const [shortDescription, setShortDescription] = useState(product?.shortDescription ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
@@ -143,6 +144,7 @@ export function ProductForm({
       slug: trimmedSlug,
       sku,
       categoryId,
+      brand: brand.trim() || undefined,
       shortDescription: shortDescription || undefined,
       description: description || undefined,
       price: parseFloat(price),
@@ -265,14 +267,26 @@ export function ProductForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="shortDescription">Short Description</Label>
-            <Input
-              id="shortDescription"
-              value={shortDescription}
-              onChange={(e) => setShortDescription(e.target.value)}
-              disabled={isSubmitting}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="brand">Brand</Label>
+              <Input
+                id="brand"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                placeholder="e.g. Apple, Samsung, Xiaomi"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="shortDescription">Short Description</Label>
+              <Input
+                id="shortDescription"
+                value={shortDescription}
+                onChange={(e) => setShortDescription(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

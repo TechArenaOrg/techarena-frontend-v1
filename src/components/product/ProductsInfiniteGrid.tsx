@@ -10,6 +10,7 @@ import type { Product } from '@/types';
 interface ProductFilters {
   search?: string;
   categoryId?: string;
+  brand?: string;
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;

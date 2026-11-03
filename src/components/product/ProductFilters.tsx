@@ -21,6 +21,8 @@ const RATING_OPTIONS = [4, 3, 2, 1];
 interface ProductFiltersProps {
   categories: Category[];
   currentCategoryId?: string;
+  brands?: string[];
+  currentBrand?: string;
   currentMinPrice?: number;
   currentMaxPrice?: number;
   currentMinRating?: number;
@@ -29,6 +31,8 @@ interface ProductFiltersProps {
 export function ProductFilters({
   categories,
   currentCategoryId,
+  brands = [],
+  currentBrand,
   currentMinPrice,
   currentMaxPrice,
   currentMinRating,
@@ -52,6 +56,17 @@ export function ProductFilters({
       params.delete('categoryId');
     } else {
       params.set('categoryId', categoryId);
+    }
+    params.delete('page');
+    navigate(`/products?${params.toString()}`);
+  };
+
+  const toggleBrand = (brand: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (currentBrand === brand) {
+      params.delete('brand');
+    } else {
+      params.set('brand', brand);
     }
     params.delete('page');
     navigate(`/products?${params.toString()}`);
@@ -87,6 +102,7 @@ export function ProductFilters({
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('categoryId');
+    params.delete('brand');
     params.delete('minPrice');
     params.delete('maxPrice');
     params.delete('minRating');
@@ -96,7 +112,7 @@ export function ProductFilters({
   };
 
   const hasActiveFilters =
-    !!currentCategoryId || currentMinPrice !== undefined || currentMaxPrice !== undefined || currentMinRating !== undefined;
+    !!currentCategoryId || !!currentBrand || currentMinPrice !== undefined || currentMaxPrice !== undefined || currentMinRating !== undefined;
 
   return (
     <Card>
@@ -126,6 +142,32 @@ export function ProductFilters({
                       )}
                     >
                       {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {brands.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Brand</p>
+              <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {brands.map((brand) => {
+                  const active = currentBrand === brand;
+                  return (
+                    <button
+                      key={brand}
+                      type="button"
+                      onClick={() => toggleBrand(brand)}
+                      className={cn(
+                        'shrink-0 rounded-full border px-2.5 py-1 text-xs transition-colors',
+                        active
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-input hover:bg-muted'
+                      )}
+                    >
+                      {brand}
                     </button>
                   );
                 })}
@@ -203,6 +245,29 @@ export function ProductFilters({
               </div>
             )}
           </div>
+
+          {brands.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Brand</h3>
+                <div className="space-y-2">
+                  {brands.map((brand) => (
+                    <div key={brand} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`brand-${brand}`}
+                        checked={currentBrand === brand}
+                        onCheckedChange={() => toggleBrand(brand)}
+                      />
+                      <Label htmlFor={`brand-${brand}`} className="cursor-pointer">
+                        {brand}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           <Separator />
 
