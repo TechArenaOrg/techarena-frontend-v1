@@ -32,10 +32,12 @@ export function UserMenu() {
   if (!session) {
     return (
       <>
-        {/* Full text buttons - crammed in next to the logo, search bar, and
-            cart/wishlist icons, these were pushing content off the right edge of
-            the screen on a phone, so desktop only. */}
-        <div className="hidden lg:flex items-center space-x-2">
+        {/* Full text buttons - crammed in next to the logo, full nav links, search
+            bar, and cart/wishlist icons, these overflowed the header (pushed off the
+            right edge, inaccessible) anywhere from 1024px up to about 1120px wide -
+            a real "small laptop" width, not just phones. xl: (1280px) is the
+            narrowest width confirmed to fit everything with room to spare. */}
+        <div className="hidden xl:flex items-center space-x-2">
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>
           </Button>
@@ -44,12 +46,12 @@ export function UserMenu() {
           </Button>
         </div>
 
-        {/* Mobile: a compact profile icon in the same spot the avatar occupies once
+        {/* Below xl: a compact profile icon in the same spot the avatar occupies once
             signed in, instead of burying Sign In/Up a tap deeper inside the hamburger
             menu - directness was the whole point of the request. */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden">
+            <Button variant="ghost" size="icon" className="xl:hidden">
               <Icons.user className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>

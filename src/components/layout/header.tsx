@@ -38,8 +38,11 @@ export function Header() {
           <span className="font-bold text-xl hidden sm:inline">TechArena</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
+        {/* Desktop Navigation - xl:, not lg: (1024px): at lg, this row plus the
+            fixed-width search box plus Sign In/Sign Up overflowed the header on
+            anything from 1024px up to about 1120px wide (a real "small laptop"
+            width), pushing Sign Up off the right edge and out of reach entirely. */}
+        <nav className="hidden xl:flex items-center space-x-6 text-sm font-medium">
           {navigationItems.map((item) => (
             <Link
               key={item.name}
@@ -51,11 +54,11 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-between space-x-2 lg:justify-end">
+        <div className="flex flex-1 items-center justify-between space-x-2 xl:justify-end">
           {/* Search */}
           <SearchAutocomplete
-            className="w-full min-w-[80px] flex-1 lg:w-auto lg:flex-none"
-            inputClassName="w-full rounded-lg bg-background lg:w-[200px] xl:w-[300px]"
+            className="w-full min-w-[80px] flex-1 xl:w-auto xl:flex-none"
+            inputClassName="w-full rounded-lg bg-background xl:w-[200px] 2xl:w-[300px]"
           />
 
           <div className="flex items-center space-x-2 shrink-0">
@@ -100,10 +103,11 @@ export function Header() {
             {/* User Menu */}
             <UserMenu />
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu - xl:hidden to match the desktop nav's xl:flex above, so
+                there's no gap in between where neither one shows. */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
+                <Button variant="ghost" size="icon" className="xl:hidden">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
