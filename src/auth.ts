@@ -57,9 +57,31 @@ export const config: NextAuthConfig = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        // Only used by the email-verification auto-login path (see below) - never
+        // rendered as form fields, just extra fields signIn() can pass through.
+        accessToken: { label: 'Access Token', type: 'text' },
+        refreshToken: { label: 'Refresh Token', type: 'text' },
       },
       async authorize(credentials) {
         try {
+          // Email verification auto-login: the backend already issued a token pair
+          // (in the verify-email redirect's URL fragment) - there's no password to
+          // check here, just adopt those tokens the same way a normal login would.
+          if (credentials?.accessToken && credentials?.refreshToken) {
+            const accessToken = credentials.accessToken as string;
+            const refreshToken = credentials.refreshToken as string;
+            const user = await authAPI.getCurrentUser(accessToken);
+            return {
+              id: user.id,
+              email: user.email,
+              name: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''}`.trim() || user.email,
+              role: user.role,
+              image: user.profile?.avatarUrl,
+              accessToken,
+              refreshToken,
+            };
+          }
+
           const { email, password } = loginSchema.parse(credentials);
 
           const { user, accessToken, refreshToken } = await authAPI.login(email, password);

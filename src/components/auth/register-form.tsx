@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,6 +15,7 @@ import { Icons } from '@/components/ui/icons';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from 'next-auth/react';
+import { Mail } from 'lucide-react';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -40,7 +40,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const { toast } = useToast();
 
   const {
@@ -78,21 +78,10 @@ export function RegisterForm() {
         throw new Error(errorData.message || 'Registration failed');
       }
 
-      toast({
-        title: 'Registration successful',
-        description: 'Please check your email to verify your account.',
-      });
-
-      // Auto sign in after registration
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (result?.ok) {
-        router.push('/');
-      }
+      // Registration no longer logs the user in - the backend requires email
+      // verification before login now (unverified accounts get a 401), so there's no
+      // valid session to sign in with yet. Show a "check your email" screen instead.
+      setSubmittedEmail(data.email);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
@@ -109,6 +98,23 @@ export function RegisterForm() {
       setIsLoading(false);
     }
   };
+
+  if (submittedEmail) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardContent className="py-12 text-center space-y-3">
+          <Mail className="w-8 h-8 mx-auto text-primary" />
+          <h2 className="text-lg font-semibold">Check your email</h2>
+          <p className="text-muted-foreground">
+            We've sent a verification link to <span className="font-medium text-foreground">{submittedEmail}</span>. Please verify your email before signing in.
+          </p>
+          <Link href="/auth/login" className="text-sm text-primary hover:underline inline-block pt-2">
+            Back to sign in
+          </Link>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md">
