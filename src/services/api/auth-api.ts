@@ -111,6 +111,20 @@ export const authAPI = {
     const result = await apiClient.get<ProfileResponse>('/auth/profile', token ? { token } : undefined);
     return normalizeUser(result.user);
   },
+
+  // Always returns the same generic success response whether or not the email exists -
+  // don't use it to tell the user "no account found", that's intentional for security.
+  async requestPasswordReset(email: string) {
+    await apiClient.post<void>('/auth/request-password-reset', { email });
+  },
+
+  async resetPassword(token: string, password: string, confirmPassword: string) {
+    await apiClient.post<void>('/auth/reset-password', { token, password, confirmPassword });
+  },
+
+  async resendVerification(email: string) {
+    await apiClient.post<void>('/auth/resend-verification', { email });
+  },
 };
 
 export default authAPI;
