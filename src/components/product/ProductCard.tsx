@@ -167,9 +167,6 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
 
           <div className="flex flex-1 flex-col justify-between p-4">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                {product.vendor?.businessName || 'TechArena'}
-              </p>
               <h3
                 className={`font-semibold mb-1 line-clamp-1 transition-colors ${
                   isHovered ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
@@ -387,11 +384,6 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
 
           {/* Product Info */}
           <div className="p-4 flex flex-1 flex-col">
-            {/* Brand */}
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
-              {product.vendor?.businessName || 'TechArena'}
-            </p>
-            
             {/* Product Name */}
             <h3
               className={`font-semibold mb-2 line-clamp-2 transition-colors ${
