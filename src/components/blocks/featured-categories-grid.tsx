@@ -25,22 +25,27 @@ export function FeaturedCategoriesGrid({ categories }: { categories: Category[] 
       variants={container}
       initial="hidden"
       animate="show"
-      // Horizontal scroll on narrow screens (more categories than fit in one row),
-      // wrapping and centered once there's enough width - no heading/subtitle above
-      // this anymore, so the icon row itself is the whole section.
-      className="flex flex-nowrap overflow-x-auto sm:flex-wrap sm:overflow-visible sm:justify-center gap-x-5 gap-y-3 px-1 pb-1 -mx-1 sm:mx-0 scrollbar-hide"
+      className="flex flex-wrap justify-center gap-2"
     >
       {categories.map((category) => (
-        <motion.div key={category.id} variants={item} className="shrink-0">
+        <motion.div
+          key={category.id}
+          variants={item}
+          whileHover={{ scale: 1.05, transition: { type: 'spring', stiffness: 300 } }}
+          whileTap={{ scale: 0.95 }}
+        >
           <Link
             href={`/category/${category.slug}`}
-            className="group flex w-16 sm:w-20 flex-col items-center gap-1.5"
+            className="group flex items-center gap-1.5 bg-white dark:bg-gray-800 rounded-full pl-1.5 pr-3 py-1 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-600 transition-all duration-200"
           >
-            <span className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-gray-100 text-2xl shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:bg-blue-50 dark:bg-gray-800 dark:group-hover:bg-blue-900/20 sm:text-3xl">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-sm">
               {category.icon}
             </span>
-            <span className="line-clamp-1 text-center text-xs font-medium text-gray-700 transition-colors group-hover:text-blue-600 dark:text-gray-300 dark:group-hover:text-blue-400 sm:text-sm">
+            <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {category.name}
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {category.products?.length || 0}
             </span>
           </Link>
         </motion.div>
