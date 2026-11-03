@@ -238,7 +238,7 @@ export const SOCIAL_LINKS = {
   INSTAGRAM: 'https://instagram.com/techarenaug',
   LINKEDIN: 'https://linkedin.com/company/techarenaug',
   YOUTUBE: 'https://youtube.com/@techarenaug',
-  WHATSAPP: 'https://wa.me/256700000000',
+  WHATSAPP: 'https://wa.me/256757206101',
 } as const;
 
 // Contact Information
