@@ -392,7 +392,12 @@ export function ProductCard({ product, className, layout = 'grid' }: ProductCard
             >
               {product.name}
             </h3>
-            
+            {product.shortDescription && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
+                {product.shortDescription}
+              </p>
+            )}
+
             {/* Rating */}
             {product.averageRating && (
               <div className="flex items-center gap-1 mb-3">
