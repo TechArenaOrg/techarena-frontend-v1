@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { BrandAutocomplete } from '@/components/ui/brand-autocomplete';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -270,10 +271,10 @@ export function ProductForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="brand">Brand</Label>
-              <Input
+              <BrandAutocomplete
                 id="brand"
                 value={brand}
-                onChange={(e) => setBrand(e.target.value)}
+                onChange={setBrand}
                 placeholder="e.g. Apple, Samsung, Xiaomi"
                 disabled={isSubmitting}
               />
