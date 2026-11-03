@@ -39,6 +39,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <HeroSectionData />
         </Suspense>
 
+        {/* Shop by Brand - above categories, renders nothing until at least one
+            product has a brand set */}
+        <Suspense fallback={null}>
+          <BrandBar />
+        </Suspense>
+
         {/* Featured Categories */}
         <section className="py-3 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4">
@@ -56,11 +62,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </Suspense>
           </div>
         </section>
-
-        {/* Shop by Brand - renders nothing until at least one product has a brand set */}
-        <Suspense fallback={null}>
-          <BrandBar />
-        </Suspense>
 
         {/* Featured Products */}
         <section className="py-3">

@@ -12,25 +12,20 @@ export async function BrandBar() {
   }
 
   return (
-    <section className="py-3 bg-white dark:bg-gray-950 border-y border-gray-100 dark:border-gray-800">
+    <nav className="bg-gray-900 dark:bg-black overflow-x-auto scrollbar-hide">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-2">
-          <h2 className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
-            Shop by Brand
-          </h2>
-        </div>
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex items-center gap-6 py-2.5 whitespace-nowrap">
           {brands.map((brand) => (
             <Link
               key={brand}
               href={`/products?brand=${encodeURIComponent(brand)}`}
-              className="rounded-full bg-white dark:bg-gray-800 px-4 py-1.5 text-sm font-semibold text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+              className="shrink-0 text-sm font-semibold text-gray-200 hover:text-white transition-colors"
             >
               {brand}
             </Link>
           ))}
         </div>
       </div>
-    </section>
+    </nav>
   );
 }
