@@ -7,6 +7,7 @@ import { AuthProvider } from '@/components/auth/auth-provider';
 import { ScrollToTop } from '@/components/providers/scroll-to-top';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { SEO } from '@/lib/constants';
@@ -114,11 +115,12 @@ export default function RootLayout({
             <AuthProvider>
               <ApolloWrapper>
                 <ScrollToTop />
-                <div className="relative flex min-h-screen flex-col">
+                <div className="relative flex min-h-screen flex-col pb-14 lg:pb-0">
                   <Header />
                   {children}
                   <Footer />
                 </div>
+                <MobileBottomNav />
                 <Toaster />
               </ApolloWrapper>
             </AuthProvider>
