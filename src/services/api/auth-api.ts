@@ -125,6 +125,15 @@ export const authAPI = {
   async resendVerification(email: string) {
     await apiClient.post<void>('/auth/resend-verification', { email });
   },
+
+  // The email-verification link's redirect carries a single-use, 60-second code in
+  // the URL fragment instead of raw tokens - this trades it for the real token pair.
+  // Calling it twice with the same code 400s ("Invalid or expired code"), so the
+  // caller must guarantee this only ever fires once per code.
+  async exchangeCode(code: string) {
+    const result = await apiClient.post<AuthResult>('/auth/exchange-code', { code });
+    return { user: normalizeUser(result.user), accessToken: result.accessToken, refreshToken: result.refreshToken };
+  },
 };
 
 export default authAPI;
