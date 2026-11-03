@@ -38,18 +38,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <HeroSectionData />
         </Suspense>
 
-        {/* Featured Categories */}
+        {/* Featured Categories - no heading here on purpose: a quick row of category
+            icons the customer already recognizes doesn't need one, and skipping it
+            means real products start higher up the page instead of further down. */}
         <section className="py-3 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-2">
-              <h2 className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
-                Shop by Category
-              </h2>
-              <p className="text-xs text-muted-foreground max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
-                Explore our wide range of technology categories to find exactly what you need
-              </p>
-            </div>
-
             <Suspense fallback={<CategoriesSkeleton />}>
               <FeaturedCategories page={categoriesPage} />
             </Suspense>
@@ -110,9 +103,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 // Skeleton components for loading states
 function CategoriesSkeleton() {
   return (
-    <div className="flex flex-wrap justify-center gap-2">
+    <div className="flex flex-wrap justify-center gap-x-5 gap-y-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <CategoryCardSkeleton key={i} className="h-9 w-28 rounded-full" />
+        <div key={i} className="flex w-16 sm:w-20 flex-col items-center gap-1.5">
+          <CategoryCardSkeleton className="h-14 w-14 sm:h-16 sm:w-16 rounded-full" />
+          <CategoryCardSkeleton className="h-3 w-12 rounded" />
+        </div>
       ))}
     </div>
   );
