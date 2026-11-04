@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/pagination';
 import { BackLink } from '@/components/ui/back-link';
+import Link from 'next/link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
 import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
 import { ApiError } from '@/services/api/client';
@@ -92,6 +93,11 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
                                 Transfer
                               </Badge>
                             )}
+                            {entry.orderId && (
+                              <Link href={`/vendor/orders/${entry.orderId}`} className="ml-2 underline hover:text-foreground">
+                                View Order
+                              </Link>
+                            )}
                           </td>
                           <td className="px-6 py-3">
                             {entry.direction ? (
@@ -131,6 +137,11 @@ export default async function VendorLedgerAccountPage({ params, searchParams }: 
                           <Badge variant="outline" className="ml-2">
                             Transfer
                           </Badge>
+                        )}
+                        {entry.orderId && (
+                          <Link href={`/vendor/orders/${entry.orderId}`} className="ml-2 underline hover:text-foreground">
+                            View Order
+                          </Link>
                         )}
                       </p>
                       <div className="flex items-center justify-between pt-1">

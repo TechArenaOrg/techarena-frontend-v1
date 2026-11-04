@@ -32,6 +32,9 @@ export interface LedgerEntry {
   recordedBy: string;
   createdAt: string;
   updatedAt: string;
+  // Set only on entries the backend auto-posts for an order's payment/refund -
+  // null for manually-created entries.
+  orderId: string | null;
 }
 
 export interface LedgerAccountInput {
