@@ -15,6 +15,7 @@ import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryBu
 import { DeleteLedgerAccountButton } from '@/components/ledger/DeleteLedgerAccountButton';
 import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
 import { MarkSettledButton } from '@/components/admin/MarkSettledButton';
+import { ReconcileInventoryButton } from '@/components/admin/ReconcileInventoryButton';
 
 export const metadata: Metadata = {
   title: 'Ledger Account',
@@ -53,6 +54,7 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {account.kind === 'stock' && account.vendorId && <ReconcileInventoryButton vendorId={account.vendorId} />}
             <DeleteLedgerAccountButton accountId={account.id} returnPath="/admin/reports/ledger" />
             <LedgerEntryFormDialog
               account={account}

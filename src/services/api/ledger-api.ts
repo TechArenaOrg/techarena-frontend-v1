@@ -185,6 +185,18 @@ export const ledgerAPI = {
       },
     };
   },
+
+  // Admin/super_admin only - ensures the vendor's Inventory (stock) account exists,
+  // recomputes what its balance should be (sum of stockQuantity * costPrice across
+  // the vendor's products), and posts one correcting entry for the gap versus the
+  // current balance. entry is null if the account was already correct.
+  async reconcileInventory(vendorId: string, token?: string) {
+    return apiClient.post<{ expectedBalance: number; adjustmentAmount: number; entry: any | null }>(
+      `/ledger-accounts/reconcile-inventory/${vendorId}`,
+      undefined,
+      { token }
+    );
+  },
 };
 
 export default ledgerAPI;
