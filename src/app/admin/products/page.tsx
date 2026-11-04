@@ -119,6 +119,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
           <AddProductDialog
             categories={categories}
             vendors={vendors}
+            isAdmin
             trigger={
               <Button size="lg">
                 <Icons.plus className="mr-2 h-5 w-5" />
@@ -181,6 +182,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
                         <ProductFormDialog
                           categories={categories}
                           vendors={vendors}
+                          isAdmin
                           productId={product.id}
                           trigger={
                             <Button variant="ghost" size="sm">

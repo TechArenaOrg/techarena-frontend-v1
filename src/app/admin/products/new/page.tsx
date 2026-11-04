@@ -24,7 +24,7 @@ export default async function AdminNewProductPage() {
       <div className="container max-w-3xl">
         <BackLink href="/admin/products" label="Back to Products" />
         <h1 className="text-3xl font-bold tracking-tight mb-6">Add Product</h1>
-        <ProductForm categories={categories} vendors={vendors} returnPath="/admin/products" />
+        <ProductForm categories={categories} vendors={vendors} isAdmin returnPath="/admin/products" />
       </div>
     </main>
   );

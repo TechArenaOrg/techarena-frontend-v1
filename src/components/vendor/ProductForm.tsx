@@ -34,6 +34,11 @@ interface ProductFormProps {
   // Only passed by the admin create flow - admins aren't vendors themselves, so unlike
   // a vendor creating their own product, the backend needs an explicit vendorId from them.
   vendors?: Vendor[];
+  // Gates the Commission Rate field - the backend 403s a vendor for including that
+  // field in the request at all, so it must never even render on the vendor-facing
+  // form, not just be disabled. Set explicitly by admin call sites (vendors is an
+  // unreliable proxy for this - the admin product edit page doesn't pass it).
+  isAdmin?: boolean;
   // Set by callers rendering this form inside a Dialog instead of a full page.
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -45,6 +50,7 @@ export function ProductForm({
   product,
   returnPath = '/vendor/products',
   vendors,
+  isAdmin,
   onSuccess,
   onCancel,
   bare,
@@ -62,6 +68,9 @@ export function ProductForm({
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? '');
   const [shortDescription, setShortDescription] = useState(product?.shortDescription ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
+  const [commissionRate, setCommissionRate] = useState(
+    product?.commissionRate != null ? String(product.commissionRate) : ''
+  );
   const [price, setPrice] = useState(product ? String(product.price) : '');
   const [comparePrice, setComparePrice] = useState(product?.comparePrice ? String(product.comparePrice) : '');
   const [costPrice, setCostPrice] = useState(product?.costPrice ? String(product.costPrice) : '');
@@ -139,6 +148,13 @@ export function ProductForm({
       setError('Please select which vendor this product belongs to.');
       return;
     }
+    if (isAdmin && commissionRate.trim()) {
+      const parsed = Number(commissionRate);
+      if (Number.isNaN(parsed) || parsed < 0 || parsed > 100) {
+        setError('Commission rate must be a number between 0 and 100.');
+        return;
+      }
+    }
 
     const input: ProductInput = {
       name,
@@ -146,6 +162,9 @@ export function ProductForm({
       sku,
       categoryId,
       brand: brand.trim() || undefined,
+      // Only ever included for admin - the backend 403s a vendor for sending this
+      // field at all, so it must be entirely absent from the vendor-facing submit.
+      ...(isAdmin ? { commissionRate: commissionRate.trim() ? parseFloat(commissionRate) : undefined } : {}),
       shortDescription: shortDescription || undefined,
       description: description || undefined,
       price: parseFloat(price),
@@ -441,6 +460,29 @@ export function ProductForm({
               </Label>
             </div>
           </div>
+
+          {isAdmin && (
+            <div className="space-y-2 max-w-xs">
+              <Label htmlFor="commissionRate">Commission Rate Override</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="commissionRate"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={commissionRate}
+                  onChange={(e) => setCommissionRate(e.target.value)}
+                  placeholder="Vendor default"
+                  disabled={isSubmitting}
+                />
+                <span className="text-sm text-muted-foreground">%</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Leave blank to use the vendor's own commission rate. Only applies to this product.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-2">
             <Button type="submit" disabled={isSubmitting}>

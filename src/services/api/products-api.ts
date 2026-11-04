@@ -14,6 +14,9 @@ export interface ProductInput {
   sku: string;
   categoryId: string;
   brand?: string;
+  // Admin-only (admin/super_admin/official_store_manager) - a vendor including this
+  // field at all gets a 403, so it must never be sent from the vendor-facing form.
+  commissionRate?: number;
   shortDescription?: string;
   description?: string;
   price: number;

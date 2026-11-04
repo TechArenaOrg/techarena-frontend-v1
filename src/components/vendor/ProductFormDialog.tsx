@@ -12,12 +12,15 @@ interface ProductFormDialogProps {
   trigger: ReactNode;
   categories: Category[];
   vendors?: Vendor[];
+  // Set explicitly by admin call sites - gates the Commission Rate field, which the
+  // backend 403s a vendor for even including in the request.
+  isAdmin?: boolean;
   // When set, the dialog fetches this product's full record on open and shows the
   // edit form. When omitted, it shows the create form.
   productId?: string;
 }
 
-export function ProductFormDialog({ trigger, categories, vendors, productId }: ProductFormDialogProps) {
+export function ProductFormDialog({ trigger, categories, vendors, isAdmin, productId }: ProductFormDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
@@ -54,6 +57,7 @@ export function ProductFormDialog({ trigger, categories, vendors, productId }: P
           <ProductForm
             categories={categories}
             vendors={vendors}
+            isAdmin={isAdmin}
             product={product ?? undefined}
             bare
             returnPath=""

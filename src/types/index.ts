@@ -130,6 +130,9 @@ export interface Product {
   name: string;
   slug: string;
   brand?: string;
+  // Admin-only override of the vendor's default commission rate for this specific
+  // product. null/undefined means "no override" - use the vendor's own rate, not 0%.
+  commissionRate?: number | null;
   shortDescription?: string;
   description?: string;
   price: number;

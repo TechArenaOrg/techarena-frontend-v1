@@ -34,7 +34,7 @@ export default async function AdminEditProductPage({ params }: PageProps) {
       <div className="container max-w-3xl">
         <BackLink href="/admin/products" label="Back to Products" />
         <h1 className="text-3xl font-bold tracking-tight mb-6">Edit Product</h1>
-        <ProductForm categories={categories} product={product} returnPath="/admin/products" />
+        <ProductForm categories={categories} product={product} isAdmin returnPath="/admin/products" />
       </div>
     </main>
   );

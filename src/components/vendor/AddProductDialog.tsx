@@ -10,9 +10,12 @@ interface AddProductDialogProps {
   trigger: ReactNode;
   categories: Category[];
   vendors?: Vendor[];
+  // Set explicitly by admin call sites - gates the Commission Rate field, which the
+  // backend 403s a vendor for even including in the request.
+  isAdmin?: boolean;
 }
 
-export function AddProductDialog({ trigger, categories, vendors }: AddProductDialogProps) {
+export function AddProductDialog({ trigger, categories, vendors, isAdmin }: AddProductDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -26,6 +29,7 @@ export function AddProductDialog({ trigger, categories, vendors }: AddProductDia
         <ProductForm
           categories={categories}
           vendors={vendors}
+          isAdmin={isAdmin}
           bare
           returnPath=""
           onSuccess={() => {
