@@ -12,6 +12,7 @@ export const VENDOR_NAV_ITEMS = [
   { href: '/vendor/expenses', label: 'Expenses', icon: Icons.creditCard },
   { href: '/vendor/purchase-orders', label: 'Purchase Orders', icon: Icons.truck },
   { href: '/vendor/ledger', label: 'My Accounts', icon: Icons.fileText },
+  { href: '/vendor/earnings', label: 'My Earnings', icon: Icons.dollarSign },
 ];
 
 export function VendorSidebar() {

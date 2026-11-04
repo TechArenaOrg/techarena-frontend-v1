@@ -60,6 +60,20 @@ export interface LedgerTransferInput {
   note?: string;
 }
 
+export interface PayoutSummary {
+  pendingPayout: number;
+  paidOut: number;
+  totalEarned: number;
+  entries: {
+    items: LedgerEntry[];
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 function toNumber(value: unknown): number {
   const n = typeof value === 'string' ? parseFloat(value) : (value as number);
   return Number.isNaN(n) ? 0 : n;
@@ -124,6 +138,26 @@ export const ledgerAPI = {
   // Admin-only; backend rejects with 409 if the account still has entries.
   async deleteAccount(id: string, token?: string) {
     await apiClient.delete<void>(`/ledger-accounts/${id}`, { token });
+  },
+
+  // As a vendor: always returns their own summary, vendorId is ignored.
+  // As admin/super_admin: vendorId is required - backend 400s without it.
+  async getPayoutSummary(params: { vendorId?: string; page?: number; limit?: number }, token?: string): Promise<PayoutSummary> {
+    const raw = await apiClient.get<any>('/ledger-entries/payouts/summary', { params, token });
+    const items: any[] = raw.entries.items;
+    return {
+      pendingPayout: toNumber(raw.pendingPayout),
+      paidOut: toNumber(raw.paidOut),
+      totalEarned: toNumber(raw.totalEarned),
+      entries: {
+        items: items.map(normalizeEntry),
+        totalCount: raw.entries.pagination.total,
+        currentPage: raw.entries.pagination.page,
+        totalPages: raw.entries.pagination.totalPages,
+        hasNextPage: raw.entries.pagination.hasNextPage,
+        hasPreviousPage: raw.entries.pagination.hasPrevPage,
+      },
+    };
   },
 };
 
