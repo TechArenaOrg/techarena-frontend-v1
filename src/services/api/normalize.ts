@@ -26,6 +26,9 @@ export function normalizeVendor(raw: any): Vendor {
 export function normalizeCategory(raw: any): Category {
   return {
     ...raw,
+    // Some category responses nest the parent as a { parent: { id } } relation
+    // instead of a flat parentId field - normalize to the flat field either way.
+    parentId: raw.parentId ?? raw.parent?.id ?? undefined,
     icon: raw.icon ?? undefined,
     imageUrl: raw.imageUrl ?? undefined,
     createdAt: toDate(raw.createdAt) ?? new Date(),

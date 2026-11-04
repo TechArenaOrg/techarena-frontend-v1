@@ -51,6 +51,60 @@ export const categoriesAPI = {
       products: allProducts.filter((p) => p.categoryId === category.id),
     }));
   },
+
+  // Admin/super_admin only. slug is required by the backend - the form generates it
+  // from the name but lets an admin override it, same pattern as product slugs.
+  // parentId must be omitted (not null) for a top-level category - the backend 400s
+  // on an explicit null.
+  async createCategory(
+    data: {
+      name: string;
+      slug: string;
+      parentId?: string;
+      description?: string;
+      imageUrl?: string;
+      icon?: string;
+      isFeatured?: boolean;
+      sortOrder?: number;
+      metaTitle?: string;
+      metaDescription?: string;
+      status?: 'active' | 'inactive';
+    },
+    token?: string
+  ) {
+    const raw = await apiClient.post<any>('/categories', data, { token });
+    return normalizeCategory(raw);
+  },
+
+  // Admin/super_admin only. All fields optional - send only what changed. Same
+  // parentId caveat as createCategory - omit it, don't send null.
+  async updateCategory(
+    id: string,
+    data: {
+      name?: string;
+      slug?: string;
+      parentId?: string;
+      description?: string;
+      imageUrl?: string;
+      icon?: string;
+      isFeatured?: boolean;
+      sortOrder?: number;
+      metaTitle?: string;
+      metaDescription?: string;
+      status?: 'active' | 'inactive';
+    },
+    token?: string
+  ) {
+    const raw = await apiClient.patch<any>(`/categories/${id}`, data, { token });
+    return normalizeCategory(raw);
+  },
+
+  // Admin/super_admin only. The backend is expected to reject this (409 or similar)
+  // if the category still has subcategories or products - the UI warns about that
+  // up front, but the backend has the final say.
+  async deleteCategory(id: string, token?: string) {
+    await apiClient.delete<void>(`/categories/${id}`, { token });
+  },
 };
 
 export default categoriesAPI;
