@@ -108,8 +108,9 @@ export function UserMenu() {
   // this platform - a vendor manages their own orders via /vendor/orders, not a
   // personal order history, and nobody "wishlists" as a vendor or admin.
   const role = (session.user as any)?.role;
-  const isCustomer = role !== 'admin' && role !== 'vendor';
-  const dashboardHref = role === 'admin' ? '/admin/dashboard' : role === 'vendor' ? '/vendor/dashboard' : '/dashboard';
+  const isCustomer = role !== 'admin' && role !== 'vendor' && role !== 'official_store_manager';
+  const dashboardHref =
+    role === 'admin' ? '/admin/dashboard' : role === 'vendor' || role === 'official_store_manager' ? '/vendor/dashboard' : '/dashboard';
 
   return (
     <DropdownMenu>

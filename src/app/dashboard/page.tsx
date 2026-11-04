@@ -127,7 +127,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   }
 
   const role = (session.user as any).role;
-  if (role === 'vendor') {
+  if (role === 'vendor' || role === 'official_store_manager') {
     redirect('/vendor/dashboard');
   }
   if (role === 'admin' || role === 'super_admin') {

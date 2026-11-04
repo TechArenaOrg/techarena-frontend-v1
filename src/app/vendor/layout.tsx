@@ -10,7 +10,7 @@ export default async function VendorLayout({ children }: { children: React.React
   }
 
   const role = (session.user as any).role;
-  if (role !== 'vendor') {
+  if (role !== 'vendor' && role !== 'official_store_manager') {
     redirect(role === 'admin' || role === 'super_admin' ? '/admin/dashboard' : '/dashboard');
   }
 

@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const role = (session.user as any).role;
   if (role !== 'admin' && role !== 'super_admin') {
-    redirect(role === 'vendor' ? '/vendor/dashboard' : '/dashboard');
+    redirect(role === 'vendor' || role === 'official_store_manager' ? '/vendor/dashboard' : '/dashboard');
   }
 
   return (

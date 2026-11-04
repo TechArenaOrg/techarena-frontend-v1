@@ -47,7 +47,7 @@ export default async function BecomeVendorPage() {
           </aside>
 
           <main className="lg:col-span-3">
-            {role === 'vendor' ? (
+            {role === 'vendor' || role === 'official_store_manager' ? (
               <Card>
                 <CardContent className="py-16 text-center space-y-3">
                   <Store className="w-8 h-8 mx-auto text-muted-foreground" />

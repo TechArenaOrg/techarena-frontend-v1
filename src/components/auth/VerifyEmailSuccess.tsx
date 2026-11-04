@@ -53,7 +53,7 @@ export function VerifyEmailSuccess() {
         }
         const session = await getSession();
         const role = (session?.user as any)?.role;
-        if (role === 'vendor') router.push('/vendor/dashboard');
+        if (role === 'vendor' || role === 'official_store_manager') router.push('/vendor/dashboard');
         else if (role === 'admin' || role === 'super_admin') router.push('/admin/dashboard');
         else router.push('/');
       })

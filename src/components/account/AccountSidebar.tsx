@@ -31,8 +31,9 @@ export function AccountSidebar() {
   // at a "coming soon" page rather than a 404, for whenever that backend work lands.
   // Payment Methods was dropped outright - not on the roadmap, no page, pure dead link.
   const role = (session?.user as any)?.role;
-  const isCustomer = role !== 'admin' && role !== 'vendor';
-  const dashboardHref = role === 'admin' ? '/admin/dashboard' : role === 'vendor' ? '/vendor/dashboard' : '/dashboard';
+  const isCustomer = role !== 'admin' && role !== 'vendor' && role !== 'official_store_manager';
+  const dashboardHref =
+    role === 'admin' ? '/admin/dashboard' : role === 'vendor' || role === 'official_store_manager' ? '/vendor/dashboard' : '/dashboard';
 
   const navigationItems = [
     {
