@@ -1,11 +1,13 @@
 import { Metadata } from 'next';
 import { auth } from '@/auth';
 import { usersAPI } from '@/services/api/users-api';
+import { vendorAPI } from '@/services/api/vendor-api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/ui/pagination';
 import { UserListFilters } from '@/components/admin/UserListFilters';
 import { UserRoleSelect } from '@/components/admin/UserRoleSelect';
+import { CreateVendorRecordDialog } from '@/components/admin/CreateVendorRecordDialog';
 import type { UserRole, UserStatus } from '@/types';
 
 export const metadata: Metadata = {
@@ -30,10 +32,16 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const { page: pageParam, search, role, status } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
 
-  const { users, totalCount, totalPages, hasNextPage, hasPreviousPage } = await usersAPI.getUsers(
-    { search, role: role as UserRole | undefined, status: status as UserStatus | undefined, page: currentPage, limit: 20 },
-    token
-  );
+  const [{ users, totalCount, totalPages, hasNextPage, hasPreviousPage }, vendors] = await Promise.all([
+    usersAPI.getUsers(
+      { search, role: role as UserRole | undefined, status: status as UserStatus | undefined, page: currentPage, limit: 20 },
+      token
+    ),
+    // Only used to tell which users already have a vendor record - a hiccup fetching
+    // it shouldn't take down the whole user list.
+    vendorAPI.getVendors(token).catch(() => []),
+  ]);
+  const userIdsWithVendor = new Set(vendors.map((v) => v.userId));
 
   return (
     <main className="flex-1 space-y-6 p-6">
@@ -68,6 +76,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                         <th className="px-6 py-3 font-semibold text-foreground">Status</th>
                         <th className="px-6 py-3 font-semibold text-foreground">Joined</th>
                         <th className="px-6 py-3 font-semibold text-foreground">Role</th>
+                        {actorIsSuperAdmin && <th className="px-6 py-3 font-semibold text-foreground">Vendor Record</th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -89,6 +98,15 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                               actorIsSuperAdmin={actorIsSuperAdmin}
                             />
                           </td>
+                          {actorIsSuperAdmin && (
+                            <td className="px-6 py-3">
+                              {userIdsWithVendor.has(user.id) ? (
+                                <span className="text-sm text-muted-foreground">Has vendor record</span>
+                              ) : (
+                                <CreateVendorRecordDialog userId={user.id} userLabel={displayName(user)} />
+                              )}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -116,6 +134,15 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                           actorIsSuperAdmin={actorIsSuperAdmin}
                         />
                       </div>
+                      {actorIsSuperAdmin && (
+                        <div className="pt-1">
+                          {userIdsWithVendor.has(user.id) ? (
+                            <span className="text-sm text-muted-foreground">Has vendor record</span>
+                          ) : (
+                            <CreateVendorRecordDialog userId={user.id} userLabel={displayName(user)} />
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

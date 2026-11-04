@@ -125,6 +125,28 @@ export const vendorAPI = {
     const raw = await apiClient.put<any>(`/vendors/${id}`, data, { token });
     return normalizeVendor(raw);
   },
+
+  // super_admin only - creates an already-approved vendor record for an existing
+  // user, bypassing the public apply/approve flow. For cases where the super_admin
+  // is setting the vendor account up on someone's behalf (e.g. official_store_manager).
+  // 404 if userId doesn't exist, 409 if that user already has a vendor record or the
+  // businessName is taken.
+  async createVendorDirect(
+    data: {
+      userId: string;
+      businessName: string;
+      businessType?: string;
+      businessRegistrationNumber?: string;
+      taxNumber?: string;
+      description?: string;
+      websiteUrl?: string;
+      commissionRate?: number;
+    },
+    token?: string
+  ) {
+    const raw = await apiClient.post<any>('/vendors/direct', data, { token });
+    return normalizeVendor(raw);
+  },
 };
 
 export default vendorAPI;
