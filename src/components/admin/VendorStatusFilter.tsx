@@ -17,11 +17,9 @@ export function VendorStatusFilter({ currentStatus }: { currentStatus?: string }
 
   const handleChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === 'all') {
-      params.delete('status');
-    } else {
-      params.set('status', value);
-    }
+    // 'all' must stay in the URL as an explicit value, not be deleted - the page
+    // treats a missing status param as "default to pending", not "show everything".
+    params.set('status', value);
     params.delete('page');
     router.push(`/admin/vendors?${params.toString()}`);
   };
