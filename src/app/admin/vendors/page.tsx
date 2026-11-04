@@ -12,8 +12,8 @@ import { EditVendorDialog } from '@/components/admin/EditVendorDialog';
 import type { VendorStatus } from '@/types';
 
 export const metadata: Metadata = {
-  title: 'Vendor Applications',
-  description: 'Review and manage vendor applications.',
+  title: 'Vendor Management',
+  description: 'Review, approve, and manage vendors.',
 };
 
 interface PageProps {
@@ -38,9 +38,9 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
       <div className="container">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Vendor Applications</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Vendor Management</h1>
             <p className="text-muted-foreground">
-              {totalCount} application{totalCount !== 1 ? 's' : ''}
+              {totalCount} vendor{totalCount !== 1 ? 's' : ''}
             </p>
           </div>
           <VendorStatusFilter currentStatus={status} />
@@ -50,7 +50,7 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
           <CardContent className="p-0">
             {vendors.length === 0 ? (
               <div className="text-center py-16">
-                <p className="text-muted-foreground">No vendor applications found.</p>
+                <p className="text-muted-foreground">No vendors found.</p>
               </div>
             ) : (
               <>

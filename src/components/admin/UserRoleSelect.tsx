@@ -32,7 +32,7 @@ export function UserRoleSelect({ userId, currentRole, isSelf, actorIsSuperAdmin 
   const [isSaving, setIsSaving] = useState(false);
 
   if (currentRole === 'vendor') {
-    return <span className="text-sm text-muted-foreground">Managed via Vendor Applications</span>;
+    return <span className="text-sm text-muted-foreground">Managed via Vendor Management</span>;
   }
 
   if (isSelf) {

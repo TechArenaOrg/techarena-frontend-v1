@@ -69,7 +69,7 @@ export default async function AdminVendorPayoutsPage({ params, searchParams }: P
   return (
     <main className="flex-1 space-y-6 p-6">
       <div className="container max-w-3xl">
-        <BackLink href="/admin/vendors" label="Back to Vendor Applications" />
+        <BackLink href="/admin/vendors" label="Back to Vendor Management" />
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{vendor.businessName}</h1>

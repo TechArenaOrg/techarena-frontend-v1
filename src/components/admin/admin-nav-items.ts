@@ -9,7 +9,7 @@ const ALL_ADMIN_NAV_ITEMS: (SectionNavItem & { superAdminOnly?: boolean })[] = [
   { href: '/admin/products', label: 'Manage Products', icon: Icons.package },
   { href: '/admin/categories', label: 'Manage Categories', icon: Icons.folderTree },
   { href: '/admin/orders', label: 'Manage Orders', icon: Icons.shoppingCart },
-  { href: '/admin/vendors', label: 'Vendor Applications', icon: Icons.store },
+  { href: '/admin/vendors', label: 'Vendor Management', icon: Icons.store },
   { href: '/admin/users', label: 'Manage Users', icon: Icons.users },
   { href: '/admin/sales-report', label: 'Sales Report', icon: Icons.trendingUp },
   { href: '/admin/reports', label: 'Reports', icon: Icons.fileText },
