@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { auth } from '@/auth';
 import { vendorAPI } from '@/services/api/vendor-api';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { VendorStatusBadge } from '@/components/admin/VendorStatusBadge';
 import { VendorStatusFilter } from '@/components/admin/VendorStatusFilter';
@@ -81,6 +83,9 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
                           </td>
                           <td className="px-6 py-3 text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <Link href={`/admin/vendors/${vendor.id}/payouts`}>Payouts</Link>
+                              </Button>
                               {actorIsSuperAdmin && <EditVendorDialog vendor={vendor} />}
                               <VendorApplicationActions vendorId={vendor.id} status={vendor.status} commissionRate={vendor.commissionRate} />
                             </div>
@@ -105,6 +110,9 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
                         Applied {new Date(vendor.createdAt).toLocaleDateString()} • Commission {vendor.commissionRate}%
                       </p>
                       <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/admin/vendors/${vendor.id}/payouts`}>Payouts</Link>
+                        </Button>
                         {actorIsSuperAdmin && <EditVendorDialog vendor={vendor} />}
                         <VendorApplicationActions vendorId={vendor.id} status={vendor.status} commissionRate={vendor.commissionRate} />
                       </div>

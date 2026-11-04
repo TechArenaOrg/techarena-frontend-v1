@@ -112,7 +112,12 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
                           <td className="px-6 py-3 text-right">{formatCurrency(entry.amount)}</td>
                           <td className="px-6 py-3 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              {!entry.direction && !entry.isSettled && <MarkSettledButton entry={entry} />}
+                              {!entry.direction && !entry.isSettled && entry.vendorId && (
+                                <Button variant="outline" size="sm" asChild>
+                                  <Link href={`/admin/vendors/${entry.vendorId}/payouts`}>Settle via Payouts</Link>
+                                </Button>
+                              )}
+                              {!entry.direction && !entry.isSettled && !entry.vendorId && <MarkSettledButton entry={entry} />}
                               <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
                             </div>
                           </td>
@@ -153,7 +158,12 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
                       <div className="flex items-center justify-between pt-1">
                         <p className="font-medium">{formatCurrency(entry.amount)}</p>
                         <div className="flex items-center gap-2">
-                          {!entry.direction && !entry.isSettled && <MarkSettledButton entry={entry} />}
+                          {!entry.direction && !entry.isSettled && entry.vendorId && (
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/admin/vendors/${entry.vendorId}/payouts`}>Settle via Payouts</Link>
+                            </Button>
+                          )}
+                          {!entry.direction && !entry.isSettled && !entry.vendorId && <MarkSettledButton entry={entry} />}
                           <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
                         </div>
                       </div>

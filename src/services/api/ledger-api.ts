@@ -35,6 +35,10 @@ export interface LedgerEntry {
   // Set only on entries the backend auto-posts for an order's payment/refund -
   // null for manually-created entries.
   orderId: string | null;
+  // Set on auto-posted vendor payable entries - null for platform-level or manual
+  // entries. A vendor-tagged payable can no longer be settled via updateEntry();
+  // it must go through settlePayout() instead (see below).
+  vendorId: string | null;
 }
 
 export interface LedgerAccountInput {
@@ -136,12 +140,25 @@ export const ledgerAPI = {
   },
 
   // Admin/super_admin only - flips an existing payable/receivable entry's isSettled
-  // flag, e.g. once a vendor has actually been paid outside the platform. Sends the
-  // entry's full current values rather than just the changed field, since this is a
-  // PUT (undocumented whether it's a partial or full update).
+  // flag. Only works for entries with no vendorId (e.g. a manual, non-vendor payable)
+  // - the backend now rejects this for vendor-tagged entries, use settlePayout()
+  // instead for those. Sends the entry's full current values rather than just the
+  // changed field, since this is a PUT (undocumented whether it's a partial or full
+  // update).
   async updateEntry(id: string, input: LedgerEntryInput, token?: string) {
     const raw = await apiClient.put<any>(`/ledger-entries/${id}`, input, { token });
     return normalizeEntry(raw);
+  },
+
+  // Admin/super_admin only - atomically settles some or all of a vendor's pending
+  // payout: splits/settles the relevant Creditors entries and posts a matching "out"
+  // entry on the given platform cash account, in one transaction. Omit amount to
+  // settle the vendor's full pending payout. 409s if nothing is pending.
+  async settlePayout(
+    input: { vendorId: string; cashAccountId: string; amount?: number; note?: string },
+    token?: string
+  ) {
+    return apiClient.post<any>('/ledger-entries/payouts/settle', input, { token });
   },
 
   // Admin-only; backend rejects with 409 if the account still has entries.
