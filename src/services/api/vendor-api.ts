@@ -106,6 +106,25 @@ export const vendorAPI = {
     const raw = await apiClient.put<any>(`/vendors/${id}/commission`, { commissionRate }, { token });
     return normalizeVendor(raw);
   },
+
+  // super_admin only (a plain admin 403s) - edits the vendor's own business info,
+  // separate from approve/reject/suspend (role) and commission (rate). All fields
+  // optional - send only what changed.
+  async updateVendor(
+    id: string,
+    data: {
+      businessName?: string;
+      businessType?: string;
+      businessRegistrationNumber?: string;
+      taxNumber?: string;
+      description?: string;
+      websiteUrl?: string;
+    },
+    token?: string
+  ) {
+    const raw = await apiClient.put<any>(`/vendors/${id}`, data, { token });
+    return normalizeVendor(raw);
+  },
 };
 
 export default vendorAPI;

@@ -6,6 +6,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { VendorStatusBadge } from '@/components/admin/VendorStatusBadge';
 import { VendorStatusFilter } from '@/components/admin/VendorStatusFilter';
 import { VendorApplicationActions } from '@/components/admin/VendorApplicationActions';
+import { EditVendorDialog } from '@/components/admin/EditVendorDialog';
 import type { VendorStatus } from '@/types';
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ interface PageProps {
 export default async function AdminVendorsPage({ searchParams }: PageProps) {
   const session = await auth();
   const token = (session as any).accessToken;
+  const actorIsSuperAdmin = (session as any).user.role === 'super_admin';
   const { status, page: pageParam } = await searchParams;
   const currentPage = pageParam ? Number(pageParam) : 1;
   const effectiveStatus = status === 'all' ? undefined : ((status ?? 'pending') as VendorStatus);
@@ -78,7 +80,10 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
                             <VendorStatusBadge status={vendor.status} />
                           </td>
                           <td className="px-6 py-3 text-right">
-                            <VendorApplicationActions vendorId={vendor.id} status={vendor.status} commissionRate={vendor.commissionRate} />
+                            <div className="flex items-center justify-end gap-2">
+                              {actorIsSuperAdmin && <EditVendorDialog vendor={vendor} />}
+                              <VendorApplicationActions vendorId={vendor.id} status={vendor.status} commissionRate={vendor.commissionRate} />
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -99,7 +104,8 @@ export default async function AdminVendorsPage({ searchParams }: PageProps) {
                       <p className="text-sm text-muted-foreground">
                         Applied {new Date(vendor.createdAt).toLocaleDateString()} • Commission {vendor.commissionRate}%
                       </p>
-                      <div className="pt-1">
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {actorIsSuperAdmin && <EditVendorDialog vendor={vendor} />}
                         <VendorApplicationActions vendorId={vendor.id} status={vendor.status} commissionRate={vendor.commissionRate} />
                       </div>
                     </div>
