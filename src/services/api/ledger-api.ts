@@ -135,6 +135,15 @@ export const ledgerAPI = {
     await apiClient.delete<void>(`/ledger-entries/${id}`, { token });
   },
 
+  // Admin/super_admin only - flips an existing payable/receivable entry's isSettled
+  // flag, e.g. once a vendor has actually been paid outside the platform. Sends the
+  // entry's full current values rather than just the changed field, since this is a
+  // PUT (undocumented whether it's a partial or full update).
+  async updateEntry(id: string, input: LedgerEntryInput, token?: string) {
+    const raw = await apiClient.put<any>(`/ledger-entries/${id}`, input, { token });
+    return normalizeEntry(raw);
+  },
+
   // Admin-only; backend rejects with 409 if the account still has entries.
   async deleteAccount(id: string, token?: string) {
     await apiClient.delete<void>(`/ledger-accounts/${id}`, { token });

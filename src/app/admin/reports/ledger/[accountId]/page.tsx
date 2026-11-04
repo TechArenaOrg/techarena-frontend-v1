@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { DeleteLedgerEntryButton } from '@/components/ledger/DeleteLedgerEntryButton';
 import { DeleteLedgerAccountButton } from '@/components/ledger/DeleteLedgerAccountButton';
 import { LedgerEntryFormDialog } from '@/components/ledger/LedgerEntryFormDialog';
+import { MarkSettledButton } from '@/components/admin/MarkSettledButton';
 
 export const metadata: Metadata = {
   title: 'Ledger Account',
@@ -110,7 +111,10 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
                           </td>
                           <td className="px-6 py-3 text-right">{formatCurrency(entry.amount)}</td>
                           <td className="px-6 py-3 text-right">
-                            <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                            <div className="flex items-center justify-end gap-2">
+                              {!entry.direction && !entry.isSettled && <MarkSettledButton entry={entry} />}
+                              <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -148,7 +152,10 @@ export default async function AdminLedgerAccountPage({ params, searchParams }: P
                       </p>
                       <div className="flex items-center justify-between pt-1">
                         <p className="font-medium">{formatCurrency(entry.amount)}</p>
-                        <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                        <div className="flex items-center gap-2">
+                          {!entry.direction && !entry.isSettled && <MarkSettledButton entry={entry} />}
+                          <DeleteLedgerEntryButton entryId={entry.id} isTransfer={!!entry.transferGroupId} />
+                        </div>
                       </div>
                     </div>
                   ))}
